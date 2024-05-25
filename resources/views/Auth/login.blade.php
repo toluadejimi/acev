@@ -56,16 +56,30 @@
 
 
 
-            <div class="card my-5" style="background: black">
+            <div class="card my-5" style="box-shadow: 4px 2px 28px rgba(94,94,94,0.37);">
                 <div class="card-body ">
-                    <div style="" class="text-center my-3"><a href="login-v1.html#"><img
-                                src="{{url('')}}/public/assets/images/logo.svg"
-                                alt="img">
 
-                        </a>
+                    <a href="/">
+                    <div class="d-flex justify-content-start">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16ZM16.7071 9.29289C17.0976 9.68342 17.0976 10.3166 16.7071 10.7071L12.4142 15L22 15C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17L12.4142 17L16.7071 21.2929C17.0976 21.6834 17.0976 22.3166 16.7071 22.7071C16.3166 23.0976 15.6834 23.0976 15.2929 22.7071L9.29289 16.7071C8.90237 16.3166 8.90237 15.6834 9.29289 15.2929L15.2929 9.29289C15.6834 8.90237 16.3166 8.90237 16.7071 9.29289Z" fill="#8B8B8B"/>
+                        </svg>
+
+                    </a>
+
 
 
                     </div>
+
+
+                    <h4 class="my-3">Login</h4>
+
+                    <p class="text-muted my-3">
+                        Welcome back!
+                        Please login to continue
+                    </p>
+
+
 
 
 
@@ -82,18 +96,20 @@
                         </div>
 
 
-                        <div class="d-flex mt-1 justify-content-between align-items-center">
-                            <div class="form-check"><input class="form-check-input input-primary" type="checkbox"
-                                                           id="customCheckc1" checked=""> <label
-                                    class="form-check-label text-white" for="customCheckc1">Remember me?</label></div>
-                            <h6 class="text-secondary text-white f-w-400 mb-0"><a href="forgot-password">Forgot Password?</a>
-                            </h6>
-                        </div>
+
 
 
                         <div class="d-grid mt-4">
-                            <button type="submit" style="background: #e83e8c; border: 0px" class="btn btn-primary">Login</button>
+                            <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px" class="btn btn-primary">Login</button>
                         </div>
+
+                        <h6 class="d-flex justify-content-center text-secondary text-white mt-4 f-w-400 mb-0"><a href="forgot-password">Forgot Password?</a>
+                        </h6>
+
+
+                        <div class="d-flex justify-content-center align-items-end text-dark mt-4">
+                            <h6 class="f-w-500 text-dark mb-0">Don't have an Account? </h6>
+                            <a href="register" class="text-primary">Create Account</a></div>
 
 
 
@@ -104,8 +120,7 @@
 
 
 
-                    <div class="d-flex justify-content-between align-items-end text=white mt-4"><h6 class="f-w-500 text-white mb-0">Don't have
-                            an Account?</h6><a href="register" class="link-primary">Create Account</a></div>
+
                 </div>
             </div>
         </div>

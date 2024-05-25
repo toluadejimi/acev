@@ -75,7 +75,7 @@ body {
     --bs-blue: #4680ff;
     --bs-indigo: #6610f2;
     --bs-purple: #673ab7;
-    --bs-pink: #e83e8c;
+    --bs-pink: #174584;
     --bs-red: #dc2626;
     --bs-orange: #fd7e14;
     --bs-yellow: #e58a00;
@@ -167,7 +167,7 @@ body {
     --bs-link-hover-color: #3866cc;
     --bs-link-hover-color-rgb: 56, 102, 204;
     --bs-link-hover-decoration: underline;
-    --bs-code-color: #e83e8c;
+    --bs-code-color: #174584;
     --bs-highlight-color: #212529;
     --bs-highlight-bg: #fcf8e3;
     --bs-border-width: 1px;
@@ -4236,7 +4236,8 @@ textarea.form-control-lg {
     background-image: var(--bs-navbar-toggler-icon-bg);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 100%
+    background-size: 100%;
+    background-color: white;
 }
 
 .navbar-nav-scroll {
@@ -21380,11 +21381,11 @@ textarea.form-control-lg {
 }
 
 .bg-pink-500 {
-    background: #e83e8c
+    background: #174584
 }
 
 .text-pink-500 {
-    color: #e83e8c
+    color: #174584
 }
 
 .bg-pink-600 {
@@ -22797,13 +22798,13 @@ pre[class*=language-]:after, pre[class*=language-]:before {
     --pc-sidebar-background: #fff;
     --pc-sidebar-border: none;
     --pc-header-color: #fff;
-    --pc-layout-2-color: #030f1c;
+    --pc-layout-2-color: #eff7ff;
     background: var(--pc-layout-2-color);
     position: relative
 }
 
 [data-pc-layout=color-header] a.preset.preset-1 {
-    background: #e83e8c
+    background: #174584
 }
 
 [data-pc-layout=color-header] a.preset.preset-gradient-1 {
@@ -22823,7 +22824,7 @@ pre[class*=language-]:after, pre[class*=language-]:before {
 }
 
 [data-pc-layout=color-header] a.preset.preset-gradient-2 {
-    background: linear-gradient(to right, #e83e8c 0%, #ed6ca7 100%)
+    background: linear-gradient(to right, #174584 0%, #ed6ca7 100%)
 }
 
 [data-pc-layout=color-header].preset-2 {
@@ -22851,19 +22852,19 @@ pre[class*=language-]:after, pre[class*=language-]:before {
 }
 
 [data-pc-layout=color-header] a.preset.preset-4 {
-    background: #e83e8c
+    background: #174584
 }
 
 [data-pc-layout=color-header] a.preset.preset-gradient-4 {
-    background: linear-gradient(to right, #e83e8c 0, #ed6ca7 100%)
+    background: linear-gradient(to right, #174584 0, #ed6ca7 100%)
 }
 
 [data-pc-layout=color-header].preset-4 {
-    --pc-layout-2-color: #e83e8c
+    --pc-layout-2-color: #174584
 }
 
 [data-pc-layout=color-header].preset-gradient-4 {
-    --pc-layout-2-color: linear-gradient(to right, #e83e8c 0%, #ed6ca7 100%)
+    --pc-layout-2-color: linear-gradient(to right, #174584 0%, #ed6ca7 100%)
 }
 
 [data-pc-layout=color-header] a.preset.preset-5 {
@@ -33181,7 +33182,7 @@ div.dataTables_wrapper div.dt-row {
 }
 
 .theme-color.preset-color > a[data-value=preset-4] {
-    background: #e83e8c
+    background: #174584
 }
 
 .theme-color.preset-color > a[data-value=preset-5] {

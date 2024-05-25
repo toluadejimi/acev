@@ -2,10 +2,10 @@
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
-    <title>Navy</title>
+    <title>Ace Verify</title>
     <meta name="robots" content="max-image-preview:large">
-    <link rel="alternate" type="application/rss+xml" title="Navy &raquo; Feed" href="/feed/">
-    <link rel="alternate" type="application/rss+xml" title="Navy &raquo; Comments Feed" href="/comments/feed/">
+    <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Feed" href="/feed/">
+    <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Comments Feed" href="/comments/feed/">
     <script>
         window._wpemojiSettings = {
             "baseUrl": "https:\/\/s.w.org\/images\/core\/emoji\/15.0.3\/72x72\/",
@@ -100,7 +100,8 @@
         }((window, document), window._wpemojiSettings);
     </script>
     <link rel="stylesheet" id="astra-theme-css-css"
-          href="{{url('')}}/public/assets2/wp-content/themes/astra/assets/css/minified/main.min.css?ver=4.6.12" media="all">
+          href="{{url('')}}/public/assets2/wp-content/themes/astra/assets/css/minified/main.min.css?ver=4.6.12"
+          media="all">
     <style id="astra-theme-css-inline-css">:root {
             --ast-post-nav-space: 0;
             --ast-container-default-xlg-padding: 2.5em;
@@ -3051,16 +3052,22 @@
             line-height: 1.6;
         }</style>
     <link rel="stylesheet" id="elementor-icons-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/eicons/css/elementor-icons.min.css?ver=5.20.0" media="all">
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/eicons/css/elementor-icons.min.css?ver=5.20.0"
+          media="all">
     <link rel="stylesheet" id="elementor-frontend-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/css/frontend-lite.min.css?ver=3.14.1" media="all">
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/css/frontend-lite.min.css?ver=3.14.1"
+          media="all">
     <link rel="stylesheet" id="swiper-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css?ver=8.4.5" media="all">
-    <link rel="stylesheet" id="elementor-post-7-css" href="{{url('')}}/public/assets2/wp-content/uploads/elementor/css/post-7.css?ver=1715633975"
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css?ver=8.4.5"
+          media="all">
+    <link rel="stylesheet" id="elementor-post-7-css"
+          href="{{url('')}}/public/assets2/wp-content/uploads/elementor/css/post-7.css?ver=1715633975"
           media="all">
     <link rel="stylesheet" id="elementor-pro-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/css/frontend-lite.min.css?ver=3.12.3" media="all">
-    <link rel="stylesheet" id="elementor-global-css" href="{{url('')}}/public/assets2/wp-content/uploads/elementor/css/global.css?ver=1715634806"
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/css/frontend-lite.min.css?ver=3.12.3"
+          media="all">
+    <link rel="stylesheet" id="elementor-global-css"
+          href="{{url('')}}/public/assets2/wp-content/uploads/elementor/css/global.css?ver=1715634806"
           media="all">
     <link rel="stylesheet" id="elementor-post-134-css"
           href="{{url('')}}/public/assets2/wp-content/uploads/elementor/css/post-134.css?ver=1715659769" media="all">
@@ -3068,9 +3075,11 @@
           href="https://fonts.googleapis.com/css?family=Roboto%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CRoboto+Slab%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic&#038;display=swap&#038;ver=6.5.3"
           media="all">
     <link rel="stylesheet" id="elementor-icons-shared-0-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css?ver=5.15.3" media="all">
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css?ver=5.15.3"
+          media="all">
     <link rel="stylesheet" id="elementor-icons-fa-solid-css"
-          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=5.15.3" media="all">
+          href="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=5.15.3"
+          media="all">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <!--[if IE]>
     <script src="http://mydevhost.com{{url('')}}/public/assets2/wp-content/themes/astra/assets/js/minified/flexibility.min.js?ver=4.6.12" id="astra-flexibility-js"></script>
@@ -3224,7 +3233,7 @@
                                                 .elementor-widget-text-editor .elementor-drop-cap-letter {
                                                     display: inline-block
                                                 }</style>
-                                            <p>Login</p></div>
+                                            <a href="/login">Login</a></div>
                                     </div>
                                 </div>
                             </div>
@@ -3238,7 +3247,7 @@
                                         <div class="elementor-widget-container">
                                             <div class="elementor-button-wrapper">
                                                 <a class="elementor-button elementor-button-link elementor-size-sm"
-                                                   href="#">
+                                                   href="/register">
 						<span class="elementor-button-content-wrapper">
 						<span class="elementor-button-text">Register</span>
 		</span>
@@ -3254,6 +3263,7 @@
             </div>
         </div>
     </section>
+
     <section
         class="elementor-section elementor-top-section elementor-element elementor-element-12661f7 elementor-section-full_width elementor-hidden-mobile elementor-section-height-default elementor-section-height-default"
         data-id="12661f7" data-element_type="section">
@@ -3511,13 +3521,16 @@
         "is_scroll_to_top": "1",
         "is_header_footer_builder_active": "1"
     };</script>
-<script src="{{url('')}}/public/assets2/wp-content/themes/astra/assets/js/minified/frontend.min.js?ver=4.6.12" id="astra-theme-js-js"></script>
+<script src="{{url('')}}/public/assets2/wp-content/themes/astra/assets/js/minified/frontend.min.js?ver=4.6.12"
+        id="astra-theme-js-js"></script>
 <script src="/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
 <script src="/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.0.1"
-        id="smartmenus-js"></script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/js/webpack-pro.runtime.min.js?ver=3.12.3"
-        id="elementor-pro-webpack-runtime-js"></script>
+<script
+    src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.0.1"
+    id="smartmenus-js"></script>
+<script
+    src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/js/webpack-pro.runtime.min.js?ver=3.12.3"
+    id="elementor-pro-webpack-runtime-js"></script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=3.14.1"
         id="elementor-webpack-runtime-js"></script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.14.1"
@@ -3662,13 +3675,15 @@
             "lightbox_title_src": "title",
             "lightbox_description_src": "description"
         },
-        "post": {"id": 134, "title": "Navy", "excerpt": "", "featuredImage": false}
+        "post": {"id": 134, "title": "Ace Verify", "excerpt": "", "featuredImage": false}
     };</script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.14.1" id="elementor-frontend-js"></script>
+<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.14.1"
+        id="elementor-frontend-js"></script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=3.12.3"
         id="pro-elements-handlers-js"></script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.min.js?ver=3.12.3"
-        id="e-sticky-js"></script>
+<script
+    src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.min.js?ver=3.12.3"
+    id="e-sticky-js"></script>
 <script>/(trident|msie)/i.test(navigator.userAgent) && document.getElementById && window.addEventListener && window.addEventListener("hashchange", function () {
         var t, e = location.hash.substring(1);
         /^[A-z0-9_-]+$/.test(e) && (t = document.getElementById(e)) && (/^(?:a|select|input|button|textarea)$/i.test(t.tagName) || (t.tabIndex = -1), t.focus())

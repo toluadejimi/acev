@@ -54,29 +54,17 @@
             @endif
 
 
-
-
-            <div class="card my-5" style="background: black">
+            <div class="card my-5" style="box-shadow: 4px 2px 28px rgba(94,94,94,0.37);">
                 <div class="card-body ">
-                    <div style="" class="text-center my-3"><a href="login-v1.html#"><img
-                                src="{{url('')}}/public/assets/images/logo.svg"
-                                alt="img">
-
-                        </a>
-
-
+                    <div class="d-flex justify-content-start">
+                        <h3 class="my-4">Create Account</h3>
                     </div>
 
+                    <p class="mb-5 text-muted"> Enter your information below</p>
 
 
                     <form action="login_now" method="post">
                         @csrf
-
-
-
-
-
-
 
 
                     </form>
@@ -85,44 +73,46 @@
                         @csrf
 
 
-
-
                         <div class="mb-3">
-                            <input  type="text" placeholder="Username" name="username" class="form-control" autofocus id="floatingInput">
+                            <input type="text" placeholder="Username" name="username" class="form-control" autofocus
+                                   id="floatingInput">
                         </div>
 
                         <div class="mb-3">
-                            <input name="email" type="email"  autofocus  class="form-control" id="floatingInput" placeholder="Email Address">
+                            <input name="email" type="email" autofocus class="form-control" id="floatingInput"
+                                   placeholder="Email Address">
                         </div>
 
 
                         <div class="mb-3">
-                            <input name="password" type="password"  class="form-control" id="floatingInput1" placeholder="Password">
+                            <input name="password" type="password" class="form-control" id="floatingInput1"
+                                   placeholder="Password">
                         </div>
 
                         <div class="mb-3">
-                            <input name="password_confirmation" type="password"  class="form-control" id="floatingInput1" placeholder="Confirm Password">
+                            <input name="password_confirmation" type="password" class="form-control" id="floatingInput1"
+                                   placeholder="Confirm Password">
                         </div>
 
 
 
 
                         <div class="d-grid mt-4">
-                            <button type="submit" style="background: #e83e8c; border: 0px" class="btn btn-primary">Register</button>
+                            <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px" class="btn btn-primary">Register</button>
                         </div>
+
+
+
+
+                        <div class="d-flex justify-content-center mt-5 align-items-end text-dark mt-4">
+                            <h6 class="f-w-500 text-dark mb-0">Already have an account? </h6>
+                            <a href="login" class="text-primary">Login</a></div>
+
+
 
 
                     </form>
 
-
-
-
-
-                    <div class="d-flex justify-content-between align-items-end text=white mt-4"><h6 class="f-w-500 text-white mb-0">Already had
-                            an Account?</h6><a href="login" class="link-primary">Login</a></div>
-
-
-                    <h6 class="f-w-500 text-white mb-0  my-5 d-flex justify-content-center">Terms and conditions</h6>
                 </div>
             </div>
         </div>
