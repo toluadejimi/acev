@@ -1,104 +1,154 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
+<!doctype html>
+<html lang="en"><!-- [Head] start -->
+<head><title>SMS LORD</title><!-- [Meta] -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description"
+          content="ACESMSVERIFY NUMBER VERIFICATION">
+    <meta name="keywords"
+          content="SMS LORD VERIFICATION">
+    <meta name="author" content="Phoenixcoded"><!-- [Favicon] icon -->
+    <link rel="icon" href="{{url('')}}/public/assets/images/favicon.svg" type="image/x-icon"><!-- [Font] Family -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/inter/inter.css" id="main-font-link">
+    <!-- [Tabler Icons] https://tablericons.com -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/tabler-icons.min.css">
+    <!-- [Feather Icons] https://feathericons.com -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/feather.css">
+    <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/fontawesome.css">
+    <!-- [Material Icons] https://fonts.google.com/icons -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/material.css"><!-- [Template CSS Files] -->
+    <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css" id="main-style-link">
+    <link rel="stylesheet" href="{{url('')}}/public/assets/css/style-preset.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+          integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+          crossorigin="anonymous"/>
+
+
+</head><!-- [Head] end --><!-- [Body] Start -->
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr"
+      data-pc-theme_contrast="" data-pc-theme="light"><!-- [ Pre-loader ] start -->
+<div class="page-loader">
+    <div class="bar"></div>
+</div><!-- [ Pre-loader ] End --><!-- [ Sidebar Menu ] start -->
+
+<!-- [ Pre-loader ] End --><!-- [ Header ] start -->
+<header
+    id="home"
+    style="background-image: url({{url('')}}/public/assets/images/landing/img-headerbg.jpg)"
+>
+    <!-- [ Nav ] start --><!-- [ Nav ] start -->
+    <nav class="navbar navbar-expand-md navbar-light default">
+        <div class="container">
+            <a class="navbar-brand" href="/"
+            ><img src="{{url('')}}/public/assets/images/logo.svg" alt="logo"/> </a>
+
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    @auth
+                        <li class="nav-item px-1">
+                            <a class="nav-link"
+                               href="fund-wallet">Fund Wallet</a>
+                        </li>
+
+                        <li class="nav-item px-1">
+                            <a class="nav-link"
+                               href="orders">My Orders</a>
+                        </li>
+
+                        <li class="nav-item px-1">
+                            <a class="nav-link"
+                               href="#">Support</a>
+                        </li>
+
+
+                        <li class="nav-item px-1">
+                            <a class="nav-link text-danger" href="log-out">Log Out</a>
+                        </li>
+                    @else
+                        <li class="nav-item px-1">
+                            <a class="nav-link"
+                               href="login">Buy Numbers</a>
+                        </li>
+                    @endauth
+
+
+                </ul>
+            </div>
+
+
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+
+                    <li class="nav-item">
+                        <a href="login" class="me-3" style=""> Login</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a
+                            style="background: rgba(23, 69, 132, 1); color: white"
+                            class="btn btn btn-buy"
+                            target="_blank"
+                            href="/register"><i class="ti ti-user"></i
+                            > Regsiter</a>
+                    </li>
+                </ul>
+            </div>
+
+
+            <button
+                style="background: rgba(23, 69, 132, 1); color: white"
+                class="navbar-toggler rounded"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarTogglerDemo01"
+                aria-controls="navbarTogglerDemo01"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+
+        </div>
+    </nav>
+    <!-- [ Nav ] start --><!-- [ Nav ] start -->
+
+</header>
+
+<!-- Required Js -->
+<script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="{{url('')}}/public/assets/js/plugins/popper.min.js"></script>
+<script src="{{url('')}}/public/assets/js/plugins/simplebar.min.js"></script>
+<script src="{{url('')}}/public/assets/js/plugins/bootstrap.min.js"></script>
+<script src="{{url('')}}/public/assets/js/fonts/custom-font.js"></script>
+<script src="{{url('')}}/public/assets/js/pcoded.js"></script>
+<script src="{{url('')}}/public/assets/js/plugins/feather.min.js"></script>
+<script>layout_change('false');</script>
+<script>layout_theme_contrast_change('false');</script>
+<script>change_box_container('false');</script>
+<script>layout_caption_change('true');</script>
+<script>layout_rtl_change('false');</script>
+<script>preset_change('preset-4');</script>
+<script>main_layout_change('vertical');</script>
+
+
+
     <meta charset="UTF-8">
     <title>Ace Verify</title>
     <meta name="robots" content="max-image-preview:large">
     <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Feed" href="/feed/">
     <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Comments Feed" href="/comments/feed/">
-    <script>
-        window._wpemojiSettings = {
-            "baseUrl": "https:\/\/s.w.org\/images\/core\/emoji\/15.0.3\/72x72\/",
-            "ext": ".png",
-            "svgUrl": "https:\/\/s.w.org\/images\/core\/emoji\/15.0.3\/svg\/",
-            "svgExt": ".svg",
-            "source": {"concatemoji": "\/wp-includes\/js\/wp-emoji-release.min.js?ver=6.5.3"}
-        };
-        /*! This file is auto-generated */
-        !function (i, n) {
-            var o, s, e;
 
-            function c(e) {
-                try {
-                    var t = {supportTests: e, timestamp: (new Date).valueOf()};
-                    sessionStorage.setItem(o, JSON.stringify(t))
-                } catch (e) {
-                }
-            }
-
-            function p(e, t, n) {
-                e.clearRect(0, 0, e.canvas.width, e.canvas.height), e.fillText(t, 0, 0);
-                var t = new Uint32Array(e.getImageData(0, 0, e.canvas.width, e.canvas.height).data),
-                    r = (e.clearRect(0, 0, e.canvas.width, e.canvas.height), e.fillText(n, 0, 0), new Uint32Array(e.getImageData(0, 0, e.canvas.width, e.canvas.height).data));
-                return t.every(function (e, t) {
-                    return e === r[t]
-                })
-            }
-
-            function u(e, t, n) {
-                switch (t) {
-                    case"flag":
-                        return n(e, "🏳️‍⚧️", "🏳️​⚧️") ? !1 : !n(e, "🇺🇳", "🇺​🇳") && !n(e, "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "🏴​󠁧​󠁢​󠁥​󠁮​󠁧​󠁿");
-                    case"emoji":
-                        return !n(e, "🐦‍⬛", "🐦​⬛")
-                }
-                return !1
-            }
-
-            function f(e, t, n) {
-                var r = "undefined" != typeof WorkerGlobalScope && self instanceof WorkerGlobalScope ? new OffscreenCanvas(300, 150) : i.createElement("canvas"),
-                    a = r.getContext("2d", {willReadFrequently: !0}),
-                    o = (a.textBaseline = "top", a.font = "600 32px Arial", {});
-                return e.forEach(function (e) {
-                    o[e] = t(a, e, n)
-                }), o
-            }
-
-            function t(e) {
-                var t = i.createElement("script");
-                t.src = e, t.defer = !0, i.head.appendChild(t)
-            }
-
-            "undefined" != typeof Promise && (o = "wpEmojiSettingsSupports", s = ["flag", "emoji"], n.supports = {
-                everything: !0,
-                everythingExceptFlag: !0
-            }, e = new Promise(function (e) {
-                i.addEventListener("DOMContentLoaded", e, {once: !0})
-            }), new Promise(function (t) {
-                var n = function () {
-                    try {
-                        var e = JSON.parse(sessionStorage.getItem(o));
-                        if ("object" == typeof e && "number" == typeof e.timestamp && (new Date).valueOf() < e.timestamp + 604800 && "object" == typeof e.supportTests) return e.supportTests
-                    } catch (e) {
-                    }
-                    return null
-                }();
-                if (!n) {
-                    if ("undefined" != typeof Worker && "undefined" != typeof OffscreenCanvas && "undefined" != typeof URL && URL.createObjectURL && "undefined" != typeof Blob) try {
-                        var e = "postMessage(" + f.toString() + "(" + [JSON.stringify(s), u.toString(), p.toString()].join(",") + "));",
-                            r = new Blob([e], {type: "text/javascript"}),
-                            a = new Worker(URL.createObjectURL(r), {name: "wpTestEmojiSupports"});
-                        return void (a.onmessage = function (e) {
-                            c(n = e.data), a.terminate(), t(n)
-                        })
-                    } catch (e) {
-                    }
-                    c(n = f(s, u, p))
-                }
-                t(n)
-            }).then(function (e) {
-                for (var t in e) n.supports[t] = e[t], n.supports.everything = n.supports.everything && n.supports[t], "flag" !== t && (n.supports.everythingExceptFlag = n.supports.everythingExceptFlag && n.supports[t]);
-                n.supports.everythingExceptFlag = n.supports.everythingExceptFlag && !n.supports.flag, n.DOMReady = !1, n.readyCallback = function () {
-                    n.DOMReady = !0
-                }
-            }).then(function () {
-                return e
-            }).then(function () {
-                var e;
-                n.supports.everything || (n.readyCallback(), (e = n.source || {}).concatemoji ? t(e.concatemoji) : e.wpemoji && e.twemoji && (t(e.twemoji), t(e.wpemoji)))
-            }))
-        }((window, document), window._wpemojiSettings);
-    </script>
     <link rel="stylesheet" id="astra-theme-css-css"
           href="{{url('')}}/public/assets2/wp-content/themes/astra/assets/css/minified/main.min.css?ver=4.6.12"
           media="all">
@@ -2513,7 +2563,8 @@
             background: none !important;
             padding: 0 !important;
         }</style>
-    <link rel="stylesheet" id="wp-block-library-css" href="/wp-includes/css/dist/block-library/style.min.css?ver=6.5.3"
+    <link rel="stylesheet" id="wp-block-library-css"
+          href="{{url('')}}/public/assets2/wp-includes/css/dist/block-library/style.min.css?ver=6.5.3"
           media="all">
     <style id="global-styles-inline-css">body {
             --wp--preset--color--black: #000000;
@@ -3103,166 +3154,7 @@
 <body
     class="home page-template page-template-elementor_canvas page page-id-134 ast-desktop ast-page-builder-template ast-no-sidebar astra-4.6.12 ast-single-post ast-inherit-site-logo-transparent ast-hfb-header elementor-default elementor-template-canvas elementor-kit-7 elementor-page elementor-page-134">
 <div data-elementor-type="wp-page" data-elementor-id="134" class="elementor elementor-134">
-    <section
-        class="elementor-section elementor-top-section elementor-element elementor-element-7ada2fa elementor-hidden-mobile elementor-section-boxed elementor-section-height-default elementor-section-height-default"
-        data-id="7ada2fa" data-element_type="section"
-        data-settings="{&quot;background_background&quot;:&quot;classic&quot;,&quot;sticky&quot;:&quot;top&quot;,&quot;sticky_on&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_offset&quot;:0,&quot;sticky_effects_offset&quot;:0}">
-        <div class="elementor-background-overlay"></div>
-        <div class="elementor-container elementor-column-gap-default">
-            <div
-                class="elementor-column elementor-col-33 elementor-top-column elementor-element elementor-element-3590c99 elementor-hidden-mobile"
-                data-id="3590c99" data-element_type="column">
-                <div class="elementor-widget-wrap elementor-element-populated">
-                    <div class="elementor-element elementor-element-5a2afef elementor-widget elementor-widget-image"
-                         data-id="5a2afef" data-element_type="widget" data-widget_type="image.default">
-                        <div class="elementor-widget-container">
-                            <style>/*! elementor - v3.14.0 - 26-06-2023 */
-                                .elementor-widget-image {
-                                    text-align: center
-                                }
 
-                                .elementor-widget-image a {
-                                    display: inline-block
-                                }
-
-                                .elementor-widget-image a img[src$=".svg"] {
-                                    width: 48px
-                                }
-
-                                .elementor-widget-image img {
-                                    vertical-align: middle;
-                                    display: inline-block
-                                }</style>
-                            <img decoding="async" width="353" height="60"
-                                 src="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace.png"
-                                 class="attachment-large size-large wp-image-136" alt=""
-                                 srcset="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace.png 353w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace-300x51.png 300w"
-                                 sizes="(max-width: 353px) 100vw, 353px"></div>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="elementor-column elementor-col-33 elementor-top-column elementor-element elementor-element-7d290d3"
-                data-id="7d290d3" data-element_type="column"
-                data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-                <div class="elementor-widget-wrap elementor-element-populated">
-                    <div
-                        class="elementor-element elementor-element-4a7f2af elementor-nav-menu__align-center elementor-nav-menu--dropdown-tablet elementor-nav-menu__text-align-aside elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu"
-                        data-id="4a7f2af" data-element_type="widget"
-                        data-settings="{&quot;layout&quot;:&quot;horizontal&quot;,&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;fas fa-caret-down\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;fa-solid&quot;},&quot;toggle&quot;:&quot;burger&quot;}"
-                        data-widget_type="nav-menu.default">
-                        <div class="elementor-widget-container">
-                            <link rel="stylesheet"
-                                  href="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/css/widget-nav-menu.min.css">
-                            <nav
-                                class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-underline e--animation-fade">
-                                <ul id="menu-1-4a7f2af" class="elementor-nav-menu">
-                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-173">
-                                        <a href="/home/" class="elementor-item menu-link">Home</a></li>
-                                    <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-174"><a
-                                            href="#" class="elementor-item elementor-item-anchor menu-link">Buy
-                                            Numbers</a></li>
-                                </ul>
-                            </nav>
-                            <div class="elementor-menu-toggle" role="button" tabindex="0" aria-label="Menu Toggle"
-                                 aria-expanded="false">
-                                <i aria-hidden="true" role="presentation"
-                                   class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i aria-hidden="true"
-                                                                                                   role="presentation"
-                                                                                                   class="elementor-menu-toggle__icon--close eicon-close"></i>
-                                <span class="elementor-screen-only">Menu</span>
-                            </div>
-                            <nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" aria-hidden="true">
-                                <ul id="menu-2-4a7f2af" class="elementor-nav-menu">
-                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-173">
-                                        <a href="/home/" class="elementor-item menu-link" tabindex="-1">Home</a></li>
-                                    <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-174"><a
-                                            href="#" class="elementor-item elementor-item-anchor menu-link"
-                                            tabindex="-1">Buy Numbers</a></li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="elementor-column elementor-col-33 elementor-top-column elementor-element elementor-element-4b05a64 elementor-hidden-mobile"
-                data-id="4b05a64" data-element_type="column">
-                <div class="elementor-widget-wrap elementor-element-populated">
-                    <section
-                        class="elementor-section elementor-inner-section elementor-element elementor-element-9615909 elementor-section-boxed elementor-section-height-default elementor-section-height-default"
-                        data-id="9615909" data-element_type="section">
-                        <div class="elementor-container elementor-column-gap-default">
-                            <div
-                                class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-fdfb7c5 elementor-hidden-mobile"
-                                data-id="fdfb7c5" data-element_type="column">
-                                <div class="elementor-widget-wrap elementor-element-populated">
-                                    <div
-                                        class="elementor-element elementor-element-890ca03 elementor-widget elementor-widget-text-editor"
-                                        data-id="890ca03" data-element_type="widget"
-                                        data-widget_type="text-editor.default">
-                                        <div class="elementor-widget-container">
-                                            <style>/*! elementor - v3.14.0 - 26-06-2023 */
-                                                .elementor-widget-text-editor.elementor-drop-cap-view-stacked .elementor-drop-cap {
-                                                    background-color: #69727d;
-                                                    color: #fff
-                                                }
-
-                                                .elementor-widget-text-editor.elementor-drop-cap-view-framed .elementor-drop-cap {
-                                                    color: #69727d;
-                                                    border: 3px solid;
-                                                    background-color: transparent
-                                                }
-
-                                                .elementor-widget-text-editor:not(.elementor-drop-cap-view-default) .elementor-drop-cap {
-                                                    margin-top: 8px
-                                                }
-
-                                                .elementor-widget-text-editor:not(.elementor-drop-cap-view-default) .elementor-drop-cap-letter {
-                                                    width: 1em;
-                                                    height: 1em
-                                                }
-
-                                                .elementor-widget-text-editor .elementor-drop-cap {
-                                                    float: left;
-                                                    text-align: center;
-                                                    line-height: 1;
-                                                    font-size: 50px
-                                                }
-
-                                                .elementor-widget-text-editor .elementor-drop-cap-letter {
-                                                    display: inline-block
-                                                }</style>
-                                            <a href="/login">Login</a></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-91af5ac elementor-hidden-mobile"
-                                data-id="91af5ac" data-element_type="column">
-                                <div class="elementor-widget-wrap elementor-element-populated">
-                                    <div
-                                        class="elementor-element elementor-element-96add46 elementor-widget__width-initial elementor-widget-tablet__width-initial elementor-hidden-mobile elementor-widget elementor-widget-button"
-                                        data-id="96add46" data-element_type="widget" data-widget_type="button.default">
-                                        <div class="elementor-widget-container">
-                                            <div class="elementor-button-wrapper">
-                                                <a class="elementor-button elementor-button-link elementor-size-sm"
-                                                   href="/register">
-						<span class="elementor-button-content-wrapper">
-						<span class="elementor-button-text">Register</span>
-		</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <section
         class="elementor-section elementor-top-section elementor-element elementor-element-12661f7 elementor-section-full_width elementor-hidden-mobile elementor-section-height-default elementor-section-height-default"
@@ -3294,74 +3186,8 @@
                 class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-2cc787e"
                 data-id="2cc787e" data-element_type="column">
                 <div class="elementor-widget-wrap elementor-element-populated">
-                    <section
-                        class="elementor-section elementor-inner-section elementor-element elementor-element-9760a70 elementor-section-boxed elementor-section-height-default elementor-section-height-default"
-                        data-id="9760a70" data-element_type="section"
-                        data-settings="{&quot;sticky&quot;:&quot;top&quot;,&quot;sticky_on&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_offset&quot;:0,&quot;sticky_effects_offset&quot;:0}">
-                        <div class="elementor-container elementor-column-gap-default">
-                            <div
-                                class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-23031bc"
-                                data-id="23031bc" data-element_type="column">
-                                <div class="elementor-widget-wrap elementor-element-populated">
-                                    <div
-                                        class="elementor-element elementor-element-3783185 elementor-widget elementor-widget-image"
-                                        data-id="3783185" data-element_type="widget" data-widget_type="image.default">
-                                        <div class="elementor-widget-container">
-                                            <img decoding="async" width="353" height="60"
-                                                 src="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace.png"
-                                                 class="attachment-full size-full wp-image-136" alt=""
-                                                 srcset="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace.png 353w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Link-Our-Logo-Ace-300x51.png 300w"
-                                                 sizes="(max-width: 353px) 100vw, 353px"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-199bc2f"
-                                data-id="199bc2f" data-element_type="column">
-                                <div class="elementor-widget-wrap elementor-element-populated">
-                                    <div
-                                        class="elementor-element elementor-element-057b16a elementor-nav-menu--stretch elementor-nav-menu--dropdown-tablet elementor-nav-menu__text-align-aside elementor-nav-menu--toggle elementor-nav-menu--burger elementor-widget elementor-widget-nav-menu"
-                                        data-id="057b16a" data-element_type="widget"
-                                        data-settings="{&quot;full_width&quot;:&quot;stretch&quot;,&quot;layout&quot;:&quot;horizontal&quot;,&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;i class=\&quot;fas fa-caret-down\&quot;&gt;&lt;\/i&gt;&quot;,&quot;library&quot;:&quot;fa-solid&quot;},&quot;toggle&quot;:&quot;burger&quot;}"
-                                        data-widget_type="nav-menu.default">
-                                        <div class="elementor-widget-container">
-                                            <nav
-                                                class="elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-underline e--animation-fade">
-                                                <ul id="menu-1-057b16a" class="elementor-nav-menu">
-                                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-173">
-                                                        <a href="/home/" class="elementor-item menu-link">Home</a></li>
-                                                    <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-174">
-                                                        <a href="#"
-                                                           class="elementor-item elementor-item-anchor menu-link">Buy
-                                                            Numbers</a></li>
-                                                </ul>
-                                            </nav>
-                                            <div class="elementor-menu-toggle" role="button" tabindex="0"
-                                                 aria-label="Menu Toggle" aria-expanded="false">
-                                                <i aria-hidden="true" role="presentation"
-                                                   class="elementor-menu-toggle__icon--open eicon-menu-bar"></i><i
-                                                    aria-hidden="true" role="presentation"
-                                                    class="elementor-menu-toggle__icon--close eicon-close"></i> <span
-                                                    class="elementor-screen-only">Menu</span>
-                                            </div>
-                                            <nav class="elementor-nav-menu--dropdown elementor-nav-menu__container"
-                                                 aria-hidden="true">
-                                                <ul id="menu-2-057b16a" class="elementor-nav-menu">
-                                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-173">
-                                                        <a href="/home/" class="elementor-item menu-link" tabindex="-1">Home</a>
-                                                    </li>
-                                                    <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-174">
-                                                        <a href="#"
-                                                           class="elementor-item elementor-item-anchor menu-link"
-                                                           tabindex="-1">Buy Numbers</a></li>
-                                                </ul>
-                                            </nav>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+
+
                 </div>
             </div>
         </div>
@@ -3508,7 +3334,7 @@
 
 <div id="ast-scroll-top" tabindex="0" class="ast-scroll-top-icon ast-scroll-to-top-right" data-on-devices="both">
 	<span class="ast-icon icon-arrow"><svg class="ast-arrow-svg" xmlns="http://www.w3.org/2000/svg"
-                                           xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px"
+                                           version="1.1" x="0px" y="0px"
                                            width="26px" height="16.043px" viewbox="57 35.171 26 16.043"
                                            enable-background="new 57 35.171 26 16.043" xml:space="preserve">
                 <path d="M57.5,38.193l12.5,12.5l12.5-12.5l-2.5-2.5l-10,10l-10-10L57.5,38.193z"></path>
@@ -3523,8 +3349,9 @@
     };</script>
 <script src="{{url('')}}/public/assets2/wp-content/themes/astra/assets/js/minified/frontend.min.js?ver=4.6.12"
         id="astra-theme-js-js"></script>
-<script src="/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
-<script src="/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"
+        id="jquery-migrate-js"></script>
 <script
     src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/smartmenus/jquery.smartmenus.min.js?ver=1.0.1"
     id="smartmenus-js"></script>
@@ -3535,158 +3362,25 @@
         id="elementor-webpack-runtime-js"></script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.14.1"
         id="elementor-frontend-modules-js"></script>
-<script src="/wp-includes/js/dist/vendor/wp-polyfill-inert.min.js?ver=3.1.2" id="wp-polyfill-inert-js"></script>
-<script src="/wp-includes/js/dist/vendor/regenerator-runtime.min.js?ver=0.14.0" id="regenerator-runtime-js"></script>
-<script src="/wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=3.15.0" id="wp-polyfill-js"></script>
-<script src="/wp-includes/js/dist/hooks.min.js?ver=2810c76e705dd1a53b18" id="wp-hooks-js"></script>
-<script src="/wp-includes/js/dist/i18n.min.js?ver=5e580eb46a90c2b997e6" id="wp-i18n-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/dist/vendor/wp-polyfill-inert.min.js?ver=3.1.2"
+        id="wp-polyfill-inert-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/dist/vendor/regenerator-runtime.min.js?ver=0.14.0"
+        id="regenerator-runtime-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=3.15.0"
+        id="wp-polyfill-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/dist/hooks.min.js?ver=2810c76e705dd1a53b18"
+        id="wp-hooks-js"></script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/dist/i18n.min.js?ver=5e580eb46a90c2b997e6"
+        id="wp-i18n-js"></script>
 <script id="wp-i18n-js-after">
     wp.i18n.setLocaleData({'text directionltr': ['ltr']});
 </script>
-<script id="elementor-pro-frontend-js-before">var ElementorProFrontendConfig = {
-        "ajaxurl": "\/wp-admin\/admin-ajax.php",
-        "nonce": "38905e920d",
-        "urls": {"assets": "\/wp-content\/plugins\/elementor-pro\/assets\/", "rest": "\/wp-json\/"},
-        "shareButtonsNetworks": {
-            "facebook": {"title": "Facebook", "has_counter": true},
-            "twitter": {"title": "Twitter"},
-            "linkedin": {"title": "LinkedIn", "has_counter": true},
-            "pinterest": {"title": "Pinterest", "has_counter": true},
-            "reddit": {"title": "Reddit", "has_counter": true},
-            "vk": {"title": "VK", "has_counter": true},
-            "odnoklassniki": {"title": "OK", "has_counter": true},
-            "tumblr": {"title": "Tumblr"},
-            "digg": {"title": "Digg"},
-            "skype": {"title": "Skype"},
-            "stumbleupon": {"title": "StumbleUpon", "has_counter": true},
-            "mix": {"title": "Mix"},
-            "telegram": {"title": "Telegram"},
-            "pocket": {"title": "Pocket", "has_counter": true},
-            "xing": {"title": "XING", "has_counter": true},
-            "whatsapp": {"title": "WhatsApp"},
-            "email": {"title": "Email"},
-            "print": {"title": "Print"}
-        },
-        "facebook_sdk": {"lang": "en_US", "app_id": ""},
-        "lottie": {"defaultAnimationUrl": "\/wp-content\/plugins\/elementor-pro\/modules\/lottie\/assets\/animations\/default.json"}
-    };</script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/js/frontend.min.js?ver=3.12.3"
         id="elementor-pro-frontend-js"></script>
 <script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2"
         id="elementor-waypoints-js"></script>
-<script src="/wp-includes/js/jquery/ui/core.min.js?ver=1.13.2" id="jquery-ui-core-js"></script>
-<script id="elementor-frontend-js-before">var elementorFrontendConfig = {
-        "environmentMode": {"edit": false, "wpPreview": false, "isScriptDebug": false},
-        "i18n": {
-            "shareOnFacebook": "Share on Facebook",
-            "shareOnTwitter": "Share on Twitter",
-            "pinIt": "Pin it",
-            "download": "Download",
-            "downloadImage": "Download image",
-            "fullscreen": "Fullscreen",
-            "zoom": "Zoom",
-            "share": "Share",
-            "playVideo": "Play Video",
-            "previous": "Previous",
-            "next": "Next",
-            "close": "Close",
-            "a11yCarouselWrapperAriaLabel": "Carousel | Horizontal scrolling: Arrow Left & Right",
-            "a11yCarouselPrevSlideMessage": "Previous slide",
-            "a11yCarouselNextSlideMessage": "Next slide",
-            "a11yCarouselFirstSlideMessage": "This is the first slide",
-            "a11yCarouselLastSlideMessage": "This is the last slide",
-            "a11yCarouselPaginationBulletMessage": "Go to slide"
-        },
-        "is_rtl": false,
-        "breakpoints": {"xs": 0, "sm": 480, "md": 768, "lg": 1025, "xl": 1440, "xxl": 1600},
-        "responsive": {
-            "breakpoints": {
-                "mobile": {
-                    "label": "Mobile Portrait",
-                    "value": 767,
-                    "default_value": 767,
-                    "direction": "max",
-                    "is_enabled": true
-                },
-                "mobile_extra": {
-                    "label": "Mobile Landscape",
-                    "value": 880,
-                    "default_value": 880,
-                    "direction": "max",
-                    "is_enabled": false
-                },
-                "tablet": {
-                    "label": "Tablet Portrait",
-                    "value": 1024,
-                    "default_value": 1024,
-                    "direction": "max",
-                    "is_enabled": true
-                },
-                "tablet_extra": {
-                    "label": "Tablet Landscape",
-                    "value": 1200,
-                    "default_value": 1200,
-                    "direction": "max",
-                    "is_enabled": false
-                },
-                "laptop": {
-                    "label": "Laptop",
-                    "value": 1366,
-                    "default_value": 1366,
-                    "direction": "max",
-                    "is_enabled": false
-                },
-                "widescreen": {
-                    "label": "Widescreen",
-                    "value": 2400,
-                    "default_value": 2400,
-                    "direction": "min",
-                    "is_enabled": false
-                }
-            }
-        },
-        "version": "3.14.1",
-        "is_static": false,
-        "experimentalFeatures": {
-            "e_dom_optimization": true,
-            "e_optimized_assets_loading": true,
-            "e_optimized_css_loading": true,
-            "a11y_improvements": true,
-            "additional_custom_breakpoints": true,
-            "e_swiper_latest": true,
-            "theme_builder_v2": true,
-            "landing-pages": true,
-            "page-transitions": true,
-            "notes": true,
-            "loop": true,
-            "form-submissions": true,
-            "e_scroll_snap": true
-        },
-        "urls": {"assets": "\/wp-content\/plugins\/elementor\/assets\/"},
-        "swiperClass": "swiper",
-        "settings": {"page": [], "editorPreferences": []},
-        "kit": {
-            "active_breakpoints": ["viewport_mobile", "viewport_tablet"],
-            "global_image_lightbox": "yes",
-            "lightbox_enable_counter": "yes",
-            "lightbox_enable_fullscreen": "yes",
-            "lightbox_enable_zoom": "yes",
-            "lightbox_enable_share": "yes",
-            "lightbox_title_src": "title",
-            "lightbox_description_src": "description"
-        },
-        "post": {"id": 134, "title": "Ace Verify", "excerpt": "", "featuredImage": false}
-    };</script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.14.1"
-        id="elementor-frontend-js"></script>
-<script src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=3.12.3"
-        id="pro-elements-handlers-js"></script>
-<script
-    src="{{url('')}}/public/assets2/wp-content/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.min.js?ver=3.12.3"
-    id="e-sticky-js"></script>
-<script>/(trident|msie)/i.test(navigator.userAgent) && document.getElementById && window.addEventListener && window.addEventListener("hashchange", function () {
-        var t, e = location.hash.substring(1);
-        /^[A-z0-9_-]+$/.test(e) && (t = document.getElementById(e)) && (/^(?:a|select|input|button|textarea)$/i.test(t.tagName) || (t.tabIndex = -1), t.focus())
-    }, !1);</script>
+<script src="{{url('')}}/public/assets2/wp-includes/js/jquery/ui/core.min.js?ver=1.13.2"
+        id="jquery-ui-core-js"></script>
+
 </body>
 </html>

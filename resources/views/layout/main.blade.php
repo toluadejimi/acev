@@ -41,12 +41,6 @@
     <div class="bar"></div>
 </div><!-- [ Pre-loader ] End --><!-- [ Sidebar Menu ] start -->
 
-
-
-<div class="page-loader">
-    <div class="bar"></div>
-</div>
-<!-- [ Pre-loader ] End --><!-- [ Header ] start -->
 <header
     id="home"
     style="background-image: url({{url('')}}/public/assets/images/landing/img-headerbg.jpg)"
