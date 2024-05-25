@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en"><!-- [Head] start -->
-<head><title>SMSLORD | LOGIN</title><!-- [Meta] -->
+<head><title>ACESMSVERIFY | LOGIN</title><!-- [Meta] -->
     <meta charset="utf-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description"
-          content="SMSLORD NUMBER VERIFICATION">
+          content="ACESMSVERIFY NUMBER VERIFICATION">
     <meta name="keywords"
           content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard">
     <meta name="author" content="Phoenixcoded"><!-- [Favicon] icon -->
