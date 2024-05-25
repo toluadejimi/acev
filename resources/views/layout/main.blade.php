@@ -53,6 +53,13 @@
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+
+                    <li class="nav-item px-1">
+                        <a class="nav-link"
+                           href="home" >Home</a >
+                    </li>
+
+
                     <li class="nav-item px-1">
                         <a class="nav-link"
                            href="fund-wallet" >Fund Wallet</a >
