@@ -1,33 +1,21 @@
 @extends('layout.main')
 @section('content')
 
-    <div class="pc-container">
-        <div class="pc-content"><!-- [ breadcrumb ] start -->
-            <div class="page-header">
-                <div class="page-block">
-                    <div class="row align-items-center">
-                        <div class="col-md-12">
-
-                        </div>
-                        <div class="col-12 row">
-                            <div class="col-8">
-                                <div class="page-header-title">
-                                    <h2 class="d-flex justify-content-start">Welcome</h2>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <a href="fund-wallet">
-                                    <h3 class="mt-2 d-flex text-white justify-content-end">
-                                        N{{number_format(Auth::user()->wallet, 2)}}</h3>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+    <section id="technologies mt-4 my-5">
+        <div class="container title my-5">
+            <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
+                <div class="col-md-8 col-xl-6">
+                    <h4 class="mb-3 text-danger">Hi {{ Auth::user()->username }},</h4>
+                    <p class="mb-0">
+                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications
+                        for all your needs
+                    </p>
                 </div>
             </div>
-            <!-- [ breadcrumb ] end -->
-            <!-- [ Main Content ] start -->
+        </div>
 
+
+        <div class="container technology-block">
 
             <div class="row p-3">
                 <div class="col-xl-6 col-md-6 col-sm-12">
@@ -66,12 +54,13 @@
                                 <label class="my-2 mt-4">Select Payment mode</label>
                                 <select name="type" class="form-control">
                                     <option value="1">Instant</option>
-                                    <option value="2">Manual</option>
+{{--                                    <option value="2">Manual</option>--}}
                                 </select>
 
 
-                                <button type="submit" class="text-white btn btn-block  w-100 btn-primary my-4">
-                                    Add Funds
+                                <button style="border: 0px; background: rgba(23, 69, 132, 1); color: white;"
+                                        type="submit"
+                                        class="btn btn btn-lg w-100 mt-3 border-0">Add Funds
                                 </button>
                             </form>
 
@@ -103,7 +92,6 @@
                                             <thead>
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Type</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
                                                 <th>Date</th>
@@ -116,14 +104,6 @@
                                             @forelse($transaction as $data)
                                                 <tr>
                                                     <td style="font-size: 12px;">{{ $data->id }}</td>
-                                                    <td>
-                                                        @if ($data->type == 2)
-                                                            <p style="font-size: 12px;">Instant</p>
-                                                        @else
-                                                            <p style="font-size: 12px;">Manual</p>
-                                                        @endif
-
-                                                    </td>
 
 
                                                     <td style="font-size: 12px;">₦{{ number_format($data->amount, 2) }}
@@ -134,9 +114,6 @@
                                                             <span
                                                                 style="background: orange; border:0px; font-size: 10px"
                                                                 class="btn btn-warning btn-sm">Pending</span>
-                                                            <a href="resolve-page?trx_ref={{ $data->ref_id }}"
-                                                               style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
-                                                               class="btn btn-warning btn-sm">Reslove</span>
                                                                 @elseif ($data->status == 2)
                                                                     <span style="font-size: 10px;"
                                                                           class="text-white btn btn-success btn-sm">Completed</span>
@@ -175,5 +152,6 @@
 
 
         </div>
+    </section>
 
 @endsection

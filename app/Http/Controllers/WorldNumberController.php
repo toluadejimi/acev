@@ -43,6 +43,8 @@ class WorldNumberController extends Controller
             $data['margin'] = Setting::where('id', 1)->first()->margin;
             $data['sms_order'] = Verification::where('user_id', Auth::id())->where('status' , 1)->first();
             $data['order'] = 1;
+            $data['orders'] = Verification::where('user_id', Auth::id())->get();
+
 
             //$data['verification'] = Verification::where('user_id', Auth::id())
 
@@ -53,6 +55,7 @@ class WorldNumberController extends Controller
 
         $data['product'] = null;
 
+        $data['orders'] = Verification::where('user_id', Auth::id())->get();
 
 
         return view('world', $data);
@@ -70,8 +73,10 @@ class WorldNumberController extends Controller
             "key" => $key,
             "country" => $request->country,
             "service" => $request->service,
-            "pool" => '7',
+            "pool" => '',
         );
+
+
 
         $body = json_encode($databody);
 
@@ -93,11 +98,26 @@ class WorldNumberController extends Controller
 
         $var = curl_exec($curl);
         curl_close($curl);
+
         $var = json_decode($var);
 
-        $price = $var->price ?? null;
+
+
+        $get_s_price = $var->price ?? null;
+        $high_price = $var->high_price ?? null;
         $rate = $var->success_rate ?? null;
         $product = 1;
+
+
+
+        if($high_price > 4){
+            $price = $high_price * 1.3;
+        }else{
+            $price = $high_price;
+        }
+
+
+
 
 
 
@@ -123,6 +143,10 @@ class WorldNumberController extends Controller
             $data['rate'] = $rate;
             $data['price'] = $ngnprice;
             $data['product'] = 1;
+            $data['orders'] = Verification::where('user_id', Auth::id())->get();
+
+
+            $data['country'] =
 
             $data['number_order'] = null;
 
@@ -144,9 +168,9 @@ class WorldNumberController extends Controller
     {
 
 
+        //$sms =  Verification::where('phone', $request->num)->first()->sms ?? null;
         $sms =  Verification::where('phone', $request->num)->first()->sms ?? null;
-        $order_id =  Verification::where('phone', $request->num)->first()->order_id ?? null;
-        check_sms($order_id);
+
 
 
         $originalString = 'waiting for sms';

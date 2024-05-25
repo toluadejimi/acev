@@ -1,20 +1,19 @@
 @extends('layout.main')
 @section('content')
 
-    <section id="technologies mt-4">
-        <div class="container title">
-            <div
-                class="row justify-content-center text-center wow fadeInUp"
-                data-wow-delay="0.2s"
-            >
+    <section id="technologies mt-4 my-5">
+        <div class="container title my-5">
+            <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
                 <div class="col-md-8 col-xl-6">
-                    <h4 class="mb-3 text-danger">Welcome {{Auth::user()->username}}</h4>
+                    <h4 class="mb-3 text-danger">Welcome {{ Auth::user()->username }}</h4>
                     <p class="mb-0">
-                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications for all your needs
+                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications
+                        for all your needs
                     </p>
                 </div>
             </div>
         </div>
+
 
         <div class="container technology-block">
 
@@ -46,19 +45,22 @@
 
 
                             <div class="d-flex justify-content-center my-3">
-                                <div class="btn-group" role="group" aria-label="Third group">
-                                    <a style="font-size: 12px;" href="/home"
-                                       class="btn btn-primary w-200 mt-1">
-                                        🇺🇸 USA NUMBERS
+                                <div class="d-flex justify-content-center my-3">
 
-                                    </a>
+                                    <div class="btn-group" role="group" aria-label="Third group">
+                                        <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
+                                           href="/us" class="btn  w-200 mt-1">
+                                            🇺🇸 USA NUMBERS
+                                        </a>
 
-                                    <a style="font-size: 12px;" href="/world"
-                                       class="btn btn-dark w-200 mt-1">
-                                        🌎 ALL COUNTRIES
+                                        <a style="font-size: 12px; box-shadow: deeppink" href="/home"
+                                           class="btn btn-dark w-200 mt-1">
+                                            🌎 ALL COUNTRIES
 
-                                    </a>
+                                        </a>
 
+
+                                    </div>
 
                                 </div>
 
