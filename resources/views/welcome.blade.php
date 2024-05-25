@@ -1,13 +1,11 @@
 <!doctype html>
 <html lang="en"><!-- [Head] start -->
-<head><title>SMS LORD</title><!-- [Meta] -->
+<title>Ace Verify</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description"
           content="ACESMSVERIFY NUMBER VERIFICATION">
-    <meta name="keywords"
-          content="SMS LORD VERIFICATION">
     <meta name="author" content="Phoenixcoded"><!-- [Favicon] icon -->
     <link rel="icon" href="{{url('')}}/public/assets/images/favicon.svg" type="image/x-icon"><!-- [Font] Family -->
     <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/inter/inter.css" id="main-font-link">
@@ -90,7 +88,7 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
 
                     <li class="nav-item">
-                        <a href="login" class="me-3" style=""> Login</a>
+                        <a href="login" class="me-4 text-bold" style="">Login</a>
                     </li>
 
                     <li class="nav-item">
@@ -144,7 +142,6 @@
 
 
     <meta charset="UTF-8">
-    <title>Ace Verify</title>
     <meta name="robots" content="max-image-preview:large">
     <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Feed" href="/feed/">
     <link rel="alternate" type="application/rss+xml" title="Ace Verify &raquo; Comments Feed" href="/comments/feed/">
@@ -3164,15 +3161,20 @@
                 class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-dbbfbf7"
                 data-id="dbbfbf7" data-element_type="column">
                 <div class="elementor-widget-wrap elementor-element-populated">
-                    <div class="elementor-element elementor-element-0500e82 elementor-widget elementor-widget-image"
-                         data-id="0500e82" data-element_type="widget" data-widget_type="image.default">
-                        <div class="elementor-widget-container">
-                            <img fetchpriority="high" decoding="async" width="1441" height="5069"
-                                 src="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Main.png"
-                                 class="attachment-full size-full wp-image-139" alt=""
-                                 srcset="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Main.png 1441w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-85x300.png 85w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-291x1024.png 291w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-768x2702.png 768w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-437x1536.png 437w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-582x2048.png 582w"
-                                 sizes="(max-width: 1441px) 100vw, 1441px"></div>
-                    </div>
+                    <a href="/register">
+
+                        <div class="elementor-element elementor-element-0500e82 elementor-widget elementor-widget-image"
+                             data-id="0500e82" data-element_type="widget" data-widget_type="image.default">
+                            <div class="elementor-widget-container">
+                                <img fetchpriority="high" decoding="async" width="1441" height="5069"
+                                     src="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Main.png"
+                                     class="attachment-full size-full wp-image-139" alt=""
+                                     srcset="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Main.png 1441w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-85x300.png 85w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-291x1024.png 291w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-768x2702.png 768w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-437x1536.png 437w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Main-582x2048.png 582w"
+                                     sizes="(max-width: 1441px) 100vw, 1441px"></div>
+                        </div>
+
+                    </a>
+
                 </div>
             </div>
         </div>
@@ -3202,6 +3204,7 @@
                 data-id="77c685b" data-element_type="column"
                 data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
                 <div class="elementor-widget-wrap elementor-element-populated">
+                    <a href="/register">
                     <div class="elementor-element elementor-element-ad4eb3a elementor-widget elementor-widget-image"
                          data-id="ad4eb3a" data-element_type="widget" data-widget_type="image.default">
                         <div class="elementor-widget-container">
@@ -3211,6 +3214,7 @@
                                  srcset="{{url('')}}/public/assets2/wp-content/uploads/2024/05/Section.png 491w, {{url('')}}/public/assets2/wp-content/uploads/2024/05/Section-175x300.png 175w"
                                  sizes="(max-width: 491px) 100vw, 491px"></div>
                     </div>
+                    </a>
                 </div>
             </div>
         </div>

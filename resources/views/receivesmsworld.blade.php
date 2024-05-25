@@ -1,32 +1,21 @@
 @extends('layout.main')
 @section('content')
 
-    <div class="pc-container">
-        <div class="pc-content"><!-- [ breadcrumb ] start -->
-            <div class="page-header">
-                <div class="page-block">
-                    <div class="row align-items-center">
-                        <div class="col-md-12">
-
-                        </div>
-                        <div class="col-12 row">
-                            <div class="col-8">
-                                <div class="page-header-title">
-                                    <h2 class="d-flex justify-content-start">Welcome</h2>
-                                </div>
-                            </div>
-                            @auth
-                                <div class="col-4">
-                                    <a href="fund-wallet">
-                                        <h3 class="mt-2 d-flex text-white justify-content-end">
-                                            N{{number_format(Auth::user()->wallet, 2)}}</h3>
-                                    </a>
-                                </div>
-                            @endauth
-                        </div>
-                    </div>
+    <section id="technologies mt-4 my-5">
+        <div class="container title my-5">
+            <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
+                <div class="col-md-8 col-xl-6">
+                    <h4 class="mb-3 text-danger">Welcome {{ Auth::user()->username }}</h4>
+                    <p class="mb-0">
+                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications
+                        for all your needs
+                    </p>
                 </div>
-            </div><!-- [ breadcrumb ] end --><!-- [ Main Content ] start -->
+            </div>
+        </div>
+
+
+        <div class="container technology-block">
 
 
             <div class="col-lg-12 col-sm-12 d-flex justify-content-center">
@@ -133,7 +122,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <script src="/livewire/livewire.js?id=90730a3b0e7144480175" data-turbo-eval="false" data-turbolinks-eval="false">
     </script>
