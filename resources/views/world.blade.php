@@ -82,7 +82,7 @@
                                         <label for="country" class="mb-2  mt-3 text-muted">🌎 Select
                                             Country</label>
                                         <div>
-                                            <select style="border-color:rgb(0, 11, 136);" class="w-100"
+                                            <select style="border-color:rgb(0, 11, 136); padding: 10px" class="w-100"
                                                     id="dropdownMenu" class="dropdown-content" name="country">
                                                 <option style="background: black" value=""> Select Country</option>
                                                 @foreach ($countries as $data)
