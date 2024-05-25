@@ -1290,7 +1290,7 @@ class HomeController extends Controller
 
         User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
 
-        Transaction::where('trx', $request->order_id)->update(['status'=> 2]);
+        Transaction::where('ref_id', $request->order_id)->update(['status'=> 2]);
 
         $amount = number_format($request->amount, 2);
 

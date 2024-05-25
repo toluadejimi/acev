@@ -5,17 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3cdf45ff-cf72-4fd5-8d04-690270964b0e" name="Changes" comment="pushhhhhh">
-      <change afterPath="$PROJECT_DIR$/public/assets/js/select.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/css/landing.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/assets/css/landing.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/assets/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/images/logo.svg" beforeDir="false" afterPath="$PROJECT_DIR$/public/assets/images/logo.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/Auth/forgot-password.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/Auth/forgot-password.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/Auth/login.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/Auth/login.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/Auth/register.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/Auth/register.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/home.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/home.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/layout/main.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/layout/main.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/welcome.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/welcome.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/world.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/world.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/HomeController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,20 +174,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Applications/XAMPP/xamppfiles/htdocs/project/aceverify",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Applications/XAMPP/xamppfiles/htdocs/project/aceverify&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/resources/views" />
@@ -236,6 +227,7 @@
       <workItem from="1715418558957" duration="3165000" />
       <workItem from="1715499637349" duration="1195000" />
       <workItem from="1716360260854" duration="15581000" />
+      <workItem from="1716573634350" duration="6899000" />
     </task>
     <task id="LOCAL-00001" summary="Out of stock number updated">
       <option name="closed" value="true" />
@@ -309,7 +301,47 @@
       <option name="project" value="LOCAL" />
       <updated>1715422197664</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="pushhhhhh">
+      <option name="closed" value="true" />
+      <created>1716600564766</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1716600564766</updated>
+    </task>
+    <task id="LOCAL-00011" summary="pushhhhhh">
+      <option name="closed" value="true" />
+      <created>1716604452548</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1716604452548</updated>
+    </task>
+    <task id="LOCAL-00012" summary="pushhhhhh">
+      <option name="closed" value="true" />
+      <created>1716604723853</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1716604723853</updated>
+    </task>
+    <task id="LOCAL-00013" summary="pushhhhhh">
+      <option name="closed" value="true" />
+      <created>1716605301863</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1716605301863</updated>
+    </task>
+    <task id="LOCAL-00014" summary="pushhhhhh">
+      <option name="closed" value="true" />
+      <created>1716605559474</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1716605559474</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -327,7 +359,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/resources/views/home.blade.php</url>
-          <line>263</line>
+          <line>265</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
@@ -336,18 +368,18 @@
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/resources/views/world.blade.php</url>
-          <line>253</line>
-          <option name="timeStamp" value="14" />
+          <url>file://$PROJECT_DIR$/resources/views/orders.blade.php</url>
+          <line>130</line>
+          <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/resources/views/orders.blade.php</url>
-          <line>143</line>
-          <option name="timeStamp" value="16" />
+          <url>file://$PROJECT_DIR$/resources/views/layout/main.blade.php</url>
+          <line>26</line>
+          <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php</url>
-          <line>69</line>
+          <line>70</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\HomeController" />
             <option name="methodName" value="order_now" />
@@ -356,7 +388,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php</url>
-          <line>327</line>
+          <line>328</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\HomeController" />
             <option name="methodName" value="fund_wallet" />
@@ -365,7 +397,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php</url>
-          <line>838</line>
+          <line>839</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\HomeController" />
             <option name="methodName" value="reset_password" />
@@ -374,7 +406,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php</url>
-          <line>1141</line>
+          <line>1142</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\HomeController" />
             <option name="methodName" value="webhook" />
@@ -383,7 +415,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php</url>
-          <line>1168</line>
+          <line>1169</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\HomeController" />
             <option name="methodName" value="about_us" />
@@ -392,7 +424,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php-line-method">
           <url>file://$PROJECT_DIR$/app/Http/Controllers/WorldNumberController.php</url>
-          <line>168</line>
+          <line>192</line>
           <properties>
             <option name="className" value="\App\Http\Controllers\WorldNumberController" />
             <option name="methodName" value="webhook" />
