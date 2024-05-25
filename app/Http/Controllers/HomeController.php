@@ -1150,7 +1150,28 @@ class HomeController extends Controller
         $code = $request->code;
         $country = $request->country;
         $receivedAt = $request->receivedAt;
-        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code]);
+        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status'=>2]);
+
+
+        $message = json_encode($request->all());
+        send_notification($message);
+
+
+    }
+
+
+
+    public function world_webhook(request $request)
+    {
+
+        $activationId = $request->orderid;
+        $messageId = $request->messageId;
+        $service = $request->service;
+        $text = $request->text;
+        $code = $request->sms;
+        $country = $request->country;
+        $receivedAt = $request->receivedAt;
+        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status'=>2]);
 
 
         $message = json_encode($request->all());

@@ -235,7 +235,7 @@ class WorldNumberController extends Controller
 
         if ($order == 1) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "SMS LORD | Low balance";
+            $message = "ACESMSVERIFY | Low balance";
             send_notification($message);
 
             return redirect('world')->with('error', 'Error occurred, Please try again');
@@ -243,7 +243,7 @@ class WorldNumberController extends Controller
 
         if ($order == 2) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "SMS LORD | Error";
+            $message = "ACESMSVERIFY | Error";
             send_notification($message);
             send_notification3($message);
 

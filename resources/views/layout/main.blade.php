@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en"><!-- [Head] start -->
-<head><title>SMS LORD</title><!-- [Meta] -->
+<head><title>ACESMSVERIFY</title><!-- [Meta] -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description"
           content="ACESMSVERIFY NUMBER VERIFICATION">
     <meta name="keywords"
-          content="SMS LORD VERIFICATION">
+          content="ACESMSVERIFY VERIFICATION">
     <meta name="author" content="Phoenixcoded"><!-- [Favicon] icon -->
     <link rel="icon" href="{{url('')}}/public/assets/images/favicon.svg" type="image/x-icon"><!-- [Font] Family -->
     <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/inter/inter.css" id="main-font-link">
