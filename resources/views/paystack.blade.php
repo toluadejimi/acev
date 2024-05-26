@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{url('')}}/public/assets/storage/images/favicon.png" type="image/png">
-    <title>TWBNUMBER</title>
+    <title>ACEVERIFY</title>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -595,7 +595,7 @@
             <meta name="description" content="An impressive and flawless site template that includes various UI elements and countless features, attractive ready-made blocks and rich pages, basically everything you need to create a unique and professional website.">
             <meta name="keywords" content="bootstrap 5, business, corporate, creative, gulp, marketing, minimal, modern, multipurpose, one page, responsive, saas, sass, seo, startup, html5 template, site template">
             <meta name="author" content="elemis">
-            <title>TWBNUMBER | SMS Verification Website.</title>
+            <title>ACEVERIFY | SMS Verification Website.</title>
             <link rel="shortcut icon" href="{{url('')}}/public/assets/img/favicon.png">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/plugins.css">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css">
@@ -654,7 +654,7 @@
 
 
 
-              
+
 
 
 

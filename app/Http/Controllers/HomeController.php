@@ -114,7 +114,7 @@ class HomeController extends Controller
 
         if ($order == 0) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "TWBNUMBER | Low balance";
+            $message = "ACEVERIFY | Low balance";
             send_notification($message);
 
 
@@ -123,7 +123,7 @@ class HomeController extends Controller
 
         if ($order == 0) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "TWBNUMBER | Error";
+            $message = "ACEVERIFY | Error";
             send_notification($message);
 
 
@@ -384,7 +384,7 @@ class HomeController extends Controller
             $data->save();
 
 
-            $message = Auth::user()->email . "| wants to fund |  NGN " . number_format($request->amount) . " | with ref | $ref |  on TWBNUMBER";
+            $message = Auth::user()->email . "| wants to fund |  NGN " . number_format($request->amount) . " | with ref | $ref |  on ACEVERIFY";
             send_notification2($message);
 
 
@@ -420,7 +420,7 @@ class HomeController extends Controller
             $data->save();
 
 
-            $message = Auth::user()->email . "| wants to fund Manually |  NGN " . number_format($request->amount) . " | with ref | $ref |  on TWBNUMBER";
+            $message = Auth::user()->email . "| wants to fund Manually |  NGN " . number_format($request->amount) . " | with ref | $ref |  on ACEVERIFY";
             send_notification2($message);
 
 
@@ -464,7 +464,7 @@ class HomeController extends Controller
         $pay->save();
 
 
-        $message = Auth::user()->email . "| submitted payment receipt |  NGN " . number_format($request->amount) . " | on TWBNUMBER";
+        $message = Auth::user()->email . "| submitted payment receipt |  NGN " . number_format($request->amount) . " | on ACEVERIFY";
         send_notification2($message);
 
 
@@ -492,7 +492,7 @@ class HomeController extends Controller
         if ($status == 'failed') {
 
 
-            $message = Auth::user()->email . "| Cancled |  NGN " . number_format($request->amount) . " | with ref | $trx_id |  on TWBNUMBER";
+            $message = Auth::user()->email . "| Cancled |  NGN " . number_format($request->amount) . " | with ref | $trx_id |  on ACEVERIFY";
             send_notification2($message);
 
 
@@ -510,7 +510,7 @@ class HomeController extends Controller
             $message =  Auth::user()->email . "| is trying to fund  with | " . number_format($request->amount, 2) . "\n\n IP ====> " . $request->ip();
             send_notification($message);
 
-            $message =  Auth::user()->email . "| on TWBNUMBER | is trying to fund  with | " . number_format($request->amount, 2) . "\n\n IP ====> " . $request->ip();
+            $message =  Auth::user()->email . "| on ACEVERIFY | is trying to fund  with | " . number_format($request->amount, 2) . "\n\n IP ====> " . $request->ip();
             send_notification2($message);
 
             return redirect('fund-wallet')->with('error', 'Transaction already confirmed or not found');
@@ -577,7 +577,7 @@ class HomeController extends Controller
             $var = json_decode($var);
 
 
-            $message = Auth::user()->email . "| Just funded |  NGN " . number_format($request->amount) . " | with ref | $order_id |  on TWBNUMBER";
+            $message = Auth::user()->email . "| Just funded |  NGN " . number_format($request->amount) . " | with ref | $order_id |  on ACEVERIFY";
             send_notification2($message);
 
 
@@ -704,10 +704,10 @@ class HomeController extends Controller
         $trx = Transaction::where('ref_id', $request->ref_id)->first()->status ?? null;
         if ($trx == null) {
 
-            $message = Auth::user()->email . "is trying to resolve from deleted transaction on TWBNUMBER";
+            $message = Auth::user()->email . "is trying to resolve from deleted transaction on ACEVERIFY";
             send_notification($message);
 
-            $message = Auth::user()->email . "is trying to reslove from deleted transaction on TWBNUMBER";
+            $message = Auth::user()->email . "is trying to reslove from deleted transaction on ACEVERIFY";
             send_notification2($message);
 
 
@@ -721,10 +721,10 @@ class HomeController extends Controller
 
         if ($chk == 2 || $chk == 4) {
 
-            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on TWBNUMBER";
+            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on ACEVERIFY";
             send_notification($message);
 
-            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on TWBNUMBER";
+            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on ACEVERIFY";
             send_notification2($message);
 
 
@@ -756,10 +756,10 @@ class HomeController extends Controller
             $data->save();
 
 
-            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on TWBNUMBER";
+            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on ACEVERIFY";
             send_notification($message);
 
-            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on TWBNUMBER";
+            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on ACEVERIFY";
             send_notification2($message);
 
 
@@ -855,7 +855,7 @@ class HomeController extends Controller
             ]);
 
             $data = array(
-                'fromsender' => 'noreply@verifyasap.com', 'TWBNUMBER',
+                'fromsender' => 'noreply@verifyasap.com', 'ACEVERIFY',
                 'subject' => "Reset Password",
                 'toreceiver' => $email,
                 'url' => $url,
@@ -972,10 +972,10 @@ class HomeController extends Controller
         if ($ck_trx == 2) {
 
             $email = Auth::user()->email;
-            $message =  "$email | TWBNUMBER  | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification2($message);
 
-            $message =  "$email | TWBNUMBER  | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification($message);
 
 
@@ -992,12 +992,12 @@ class HomeController extends Controller
         if ($ck_trx != 1) {
 
             $email = Auth::user()->email;
-            $message =  "$email | TWBNUMBER  | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification2($message);
 
 
 
-            $message =  "$email | TWBNUMBER | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification($message);
 
 
@@ -1010,10 +1010,10 @@ class HomeController extends Controller
         if ($ck_trx == 2) {
 
             $email = Auth::user()->email;
-            $message =  "$email |TWBNUMBER | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email |ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification2($message);
 
-            $message =  "$email | TWBNUMBER | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification($message);
 
 
@@ -1029,10 +1029,10 @@ class HomeController extends Controller
         if ($ck_trx == 4) {
 
             $email = Auth::user()->email;
-            $message =  "$email |TWBNUMBER | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email |ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification2($message);
 
-            $message =  "$email | TWBNUMBER | is trying to fund and a successful order with orderid $request->trx_ref";
+            $message =  "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
             send_notification($message);
 
 
@@ -1092,7 +1092,7 @@ class HomeController extends Controller
 
 
                 $user_email = Auth::user()->email;
-                $message = "$user_email | $request->trx_ref | $session_id | $var->amount | just resolved deposit | TWBNUMBER";
+                $message = "$user_email | $request->trx_ref | $session_id | $var->amount | just resolved deposit | ACEVERIFY";
                 send_notification($message);
                 send_notification2($message);
 

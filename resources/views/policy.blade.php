@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{url('')}}/public/assets/storage/images/favicon.png" type="image/png">
-    <title>TWBNUMBER</title>
+    <title>ACEVERIFY</title>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -672,7 +672,7 @@
 <body>
     <div class="default-theme">
 
-      
+
 
         <!DOCTYPE html>
         <html wire:id="KYyr7BXHmAukicbrQqma" wire:initial-data="{&quot;fingerprint&quot;:{&quot;id&quot;:&quot;KYyr7BXHmAukicbrQqma&quot;,&quot;name&quot;:&quot;frontend.home&quot;,&quot;locale&quot;:&quot;en&quot;,&quot;path&quot;:&quot;\/&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;v&quot;:&quot;acj&quot;},&quot;effects&quot;:{&quot;listeners&quot;:[]},&quot;serverMemo&quot;:{&quot;children&quot;:[],&quot;errors&quot;:[],&quot;htmlHash&quot;:&quot;295eff0e&quot;,&quot;data&quot;:{&quot;numbers&quot;:[],&quot;features&quot;:[],&quot;sections&quot;:[],&quot;assigned&quot;:[],&quot;user&quot;:[],&quot;orders&quot;:[],&quot;filters&quot;:{&quot;number&quot;:{&quot;country&quot;:[]},&quot;private&quot;:{&quot;country&quot;:[]},&quot;rented&quot;:{&quot;country&quot;:[]}},&quot;private&quot;:[],&quot;rented&quot;:[],&quot;types&quot;:[&quot;Open&quot;,&quot;Register Only&quot;,&quot;Private&quot;,&quot;Shared Buy&quot;,&quot;Private Buy&quot;],&quot;bg&quot;:[&quot;bg-gray-200&quot;,&quot;bg-lime-200&quot;,&quot;bg-red-200&quot;,&quot;bg-purple-200&quot;,&quot;bg-pink-200&quot;],&quot;text&quot;:[&quot;text-gray-800&quot;,&quot;text-lime-800&quot;,&quot;text-red-800&quot;,&quot;text-purple-800&quot;,&quot;text-pink-800&quot;]},&quot;dataMeta&quot;:{&quot;modelCollections&quot;:{&quot;numbers&quot;:{&quot;class&quot;:null,&quot;id&quot;:[],&quot;relations&quot;:[],&quot;connection&quot;:null,&quot;collectionClass&quot;:null},&quot;features&quot;:{&quot;class&quot;:&quot;App\\Models\\Feature&quot;,&quot;id&quot;:[1,2,3],&quot;relations&quot;:[],&quot;connection&quot;:&quot;mysql&quot;,&quot;collectionClass&quot;:null},&quot;sections&quot;:{&quot;class&quot;:&quot;App\\Models\\Section&quot;,&quot;id&quot;:[1,2],&quot;relations&quot;:[],&quot;connection&quot;:&quot;mysql&quot;,&quot;collectionClass&quot;:null},&quot;assigned&quot;:{&quot;class&quot;:null,&quot;id&quot;:[],&quot;relations&quot;:[],&quot;connection&quot;:null,&quot;collectionClass&quot;:null},&quot;orders&quot;:{&quot;class&quot;:null,&quot;id&quot;:[],&quot;relations&quot;:[],&quot;connection&quot;:null,&quot;collectionClass&quot;:null}},&quot;models&quot;:{&quot;user&quot;:{&quot;class&quot;:&quot;App\\Models\\User&quot;,&quot;id&quot;:7,&quot;relations&quot;:[],&quot;connection&quot;:&quot;mysql&quot;,&quot;collectionClass&quot;:null}},&quot;collections&quot;:[&quot;private&quot;,&quot;rented&quot;]},&quot;checksum&quot;:&quot;cf962efb8d221e5ebe86618f48f0f85d335196fa78ebeb696ca9cf0e7856a18d&quot;}}" lang="en">
@@ -683,7 +683,7 @@
             <meta name="description" content="An impressive and flawless site template that includes various UI elements and countless features, attractive ready-made blocks and rich pages, basically everything you need to create a unique and professional website.">
             <meta name="keywords" content="bootstrap 5, business, corporate, creative, gulp, marketing, minimal, modern, multipurpose, one page, responsive, saas, sass, seo, startup, html5 template, site template">
             <meta name="author" content="elemis">
-            <title>TWBNUMBER | SMS Verification Website.</title>
+            <title>ACEVERIFY | SMS Verification Website.</title>
             <link rel="shortcut icon" href="{{url('')}}/public/assets/img/favicon.png">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/plugins.css">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css">
@@ -762,10 +762,10 @@
 
                             <div class="col-lg-9 col-xl-8 col-xxl-7 mx-auto  text-center" data-cues="slideInDown" data-group="page-title" data-delay="500">
                                 <h5 class="display-1 ls-sm fs-40 mb-4 px-md-8 px-lg-0">About VERIFYASAP</h5>
-                               
+
                                     <p class="lead fs-19 lh-sm mb-7  text-center">
                                     <strong>How Does verifyasap.com Protect Your Privacy?</strong><br>
-                                    Verifyasap ensures your privacy by allowing you to use our disposable numbers instead of your personal number. 
+                                    Verifyasap ensures your privacy by allowing you to use our disposable numbers instead of your personal number.
                                    <br> This way, you never have to share your personal information with any website or app. We provide real sim-card numbers from countries such as the US, UK, China, India, Australia, and many more, ensuring that your identity is protected.</p>
 
                                     <p class="lead fs-19 lh-sm mb-7  text-center">  <strong>What is a Disposable Number?</strong><br>
@@ -781,7 +781,7 @@
                                     <p class="lead fs-19 lh-sm mb-7  text-center">
                                     <strong>Why Do You Need Virtual Phone Numbers</strong><br>
                                     A considerable number of accounts for commercial and personal purposes are being opened.<br> When establishing anaccount, the website requires a legitimate mobile number:<br> most of the time, only one account may beestablished by a single phone. <br>
-                                    If you use virtual numbers, you will be able to create pages on social networkswithout limitation. 
+                                    If you use virtual numbers, you will be able to create pages on social networkswithout limitation.
                                     <br>Webmasters and SMM/ORM professionals, for whom profiles are important tools for leadingand promoting campaigns, would appreciate this.
                                    <br> Keep your anonymity. A well-known fact is that if you know the number, you may learn information about theowner, such as surname, name, passport number, and dwelling location. When using the SMS activation service,information leakage is avoided.
                                     Keep an eye out for con artists. You've probably encountered websites that need you to provide your phonenumber in order to download a file that doesn't have a speed limit. By submitting your phone number on suchsites, you risk linking paid services and subscriptions. As a result, we propose using a throwaway temporaryphone number.
@@ -818,7 +818,7 @@
                         <div class="col-md-4 col-lg-3">
                             <div class="widget">
                                 <img class="mb-4" src="{{url('')}}/public/assets/img/logo.png" alt="">
-                                <p class="mb-4">© 2024 TWBNUMBER. <br class="d-none d-lg-block">All rights reserved.
+                                <p class="mb-4">© 2024 ACEVERIFY. <br class="d-none d-lg-block">All rights reserved.
                                 </p>
                                 <nav class="nav social ">
                                     <a href="#"><i class="uil uil-twitter"></i></a>
@@ -829,7 +829,7 @@
                                 </nav>
                                 <!-- /.social -->
 
-                                
+
                             </div>
                             <!-- /.widget -->
                         </div>

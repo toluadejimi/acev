@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{url('')}}/public/assets/storage/images/favicon.png" type="image/png">
-    <title>TWBNUMBER</title>
+    <title>ACEVERIFY</title>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -592,7 +592,7 @@
             <meta name="keywords"
                 content="bootstrap 5, business, corporate, creative, gulp, marketing, minimal, modern, multipurpose, one page, responsive, saas, sass, seo, startup, html5 template, site template">
             <meta name="author" content="elemis">
-            <title>TWBNUMBER | SMS Verification Website.</title>
+            <title>ACEVERIFY | SMS Verification Website.</title>
             <link rel="shortcut icon" href="{{url('')}}/public/assets/img/favicon.png">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/plugins.css">
             <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css">
@@ -671,10 +671,10 @@
 
 
 
-                  
+
 
                     <div class="flex items-center justify-end mt-4">
-                     
+
                         <button type="submit"
                             class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition ml-4">
                             Set Password
@@ -691,7 +691,7 @@
 
             </div>
 
-           
+
 
         </div>
     </div>

@@ -28,7 +28,7 @@
         <!-- ============================================================== -->
         <div class="dashboard-header">
             <nav class="navbar navbar-expand-lg bg-white fixed-top">
-                <a class="navbar-brand" href="index.html">TWBNUMBER</a>
+                <a class="navbar-brand" href="index.html">ACEVERIFY</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -203,7 +203,7 @@
 
                                          {{ number_format($total_verified_message) }}
 
-                                        
+
                                         </div>
                                     </div>
                                 </div>
@@ -288,7 +288,7 @@
                                                     @endforelse
 
 
-                                                   
+
                                                 </tbody>
 
                                             {{ $verification->links() }}
@@ -306,7 +306,7 @@
                                 <div class="card">
                                     <h5 class="card-header">Update Cost / Rate</h5>
                                     <div class="card-body p-0">
-                                        
+
 
                                         <div class="col-12 p-3">
 
@@ -316,7 +316,7 @@
                                         <input class="form-control2 text-dark" name="rate" value="{{ $usdtongn }}">
 
                                         <button type="submit" class="btn btn-primary" >Update Rate</button>
-                                        
+
                                         </form>
 
                                         </div>
