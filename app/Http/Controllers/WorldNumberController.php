@@ -27,31 +27,6 @@ class WorldNumberController extends Controller
         $data['countries'] = $countries;
         $data['verification'] = $verification;
 
-        if ($verifications->count() == 1) {
-
-            $num = Verification::where('user_id', Auth::id())->where('status', 1)->first() ?? null;
-            $sms = Verification::where('user_id', Auth::id())->where('status', 1)->first()->sms ?? null;
-            $number = Verification::where('user_id', Auth::id())->where('status', 1)->first()->phone ?? null;
-
-            $data['number_order'] = 1;
-            $data['sms'] = $sms;
-            $data['number'] = $number;
-            $data['num'] = $num;
-
-            $data['services'] = get_world_services();
-            $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-            $data['margin'] = Setting::where('id', 1)->first()->margin;
-            $data['sms_order'] = Verification::where('user_id', Auth::id())->where('status' , 1)->first();
-            $data['order'] = 1;
-            $data['orders'] = Verification::where('user_id', Auth::id())->get();
-
-
-            //$data['verification'] = Verification::where('user_id', Auth::id())
-
-            return view('receivesmsworld', $data);
-        } else {
-            $data['pend'] = 0;
-        }
 
         $data['product'] = null;
 

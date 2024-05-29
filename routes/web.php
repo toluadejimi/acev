@@ -88,6 +88,9 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 
 
     Route::any('delete-order',  [HomeController::class,'delete_order']);
+    Route::any('delete-w-order',  [HomeController::class,'delete_w_order']);
+    Route::any('admin-cancle-sms',  [HomeController::class,'admin_cancle_sms']);
+
 
 
 
@@ -104,16 +107,16 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
     Route::any('check-sms',  [HomeController::class,'check_sms']);
 
 
-Route::get('welcome',  [HomeController::class,'welcome_index']);
-Route::get('fund-wallet',  [HomeController::class,'fund_wallet']);
-Route::get('profile',  [HomeController::class,'profile']);
-Route::post('fund-now',  [HomeController::class,'fund_now']);
-Route::get('verify',  [HomeController::class,'verify_payment']);
-Route::get('verifypay',  [HomeController::class,'verifypay_payment']);
+    Route::get('welcome',  [HomeController::class,'welcome_index']);
+    Route::get('fund-wallet',  [HomeController::class,'fund_wallet']);
+    Route::get('profile',  [HomeController::class,'profile']);
+    Route::post('fund-now',  [HomeController::class,'fund_now']);
+    Route::get('verify',  [HomeController::class,'verify_payment']);
+    Route::get('verifypay',  [HomeController::class,'verifypay_payment']);
 
-Route::get('resolve-page',  [HomeController::class,'resloveDeposit']);
-Route::any('resolve-now',  [HomeController::class,'resolveNow']);
-Route::get('change-password',  [HomeController::class,'change_password']);
+    Route::get('resolve-page',  [HomeController::class,'resloveDeposit']);
+    Route::any('resolve-now',  [HomeController::class,'resolveNow']);
+    Route::get('change-password',  [HomeController::class,'change_password']);
 
 
 

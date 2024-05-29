@@ -104,10 +104,9 @@
                                href="cancle-sms?id={{ $sms_order->id }}" role="button"><i class=""> Delete
                                     Order</a></i>
 
-                            {{-- <a style="font-size: 10px" class="col text-white btn btn-success btn-sm btn-block"
-                                href="check-sms?id={{ $sms_order->id}}" role="button"><i
-                                    class="bi bi-arrow-clockwise"> Recheck
-                                    Order</a></i> --}}
+                            <a style="font-size: 10px" class="col text-white btn btn-success btn-sm w-100"
+                               href="/home" role="button"><i
+                                    class="bi bi-arrow-clockwise"> New order</a></i>
 
                         </div>
 
