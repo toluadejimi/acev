@@ -184,12 +184,6 @@ function get_services(){
 function create_order($service, $price, $cost, $service_name){
 
 
-    $verification = Verification::where('user_id', Auth::id())->where('status', 1)->first() ?? null;
-
-    if($verification != null || $verification == 1){
-        return 9;
-    }
-
    $APIKEY = env('KEY');
    $curl = curl_init();
 
