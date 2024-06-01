@@ -52,7 +52,7 @@
             ><img src="{{url('')}}/public/assets/images/logo.svg" alt="logo"/> </a >
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-left">
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
@@ -73,6 +73,17 @@
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
+                           href="https://aceboosts.com/" > 🚀 Boost social account</a >
+                    </li>
+
+                    <li class="nav-item px-1">
+                        <a class="nav-link"
+                           href="https://acelogstore.com/" > 🛍️ Buy Account</a >
+                    </li>
+
+
+                    <li class="nav-item px-1">
+                        <a class="nav-link"
                            href="#" >Support</a >
                     </li>
 
@@ -86,24 +97,48 @@
 
 
                 </ul>
+
+
+
+
             </div>
 
 
-
+            <div class="d-sm-none d-lg-block d-md-none">
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-end">
 
                     <li class="nav-item">
                         <a
                             style="background: rgba(23, 69, 132, 1); color: white"
-                            class="btn btn btn-buy"
+                            class="btn btn btn-buy  d-none d-lg-block d-md-none"
                             target="_blank"
                             href="fund-wallet"><i class="ti ti-wallet"></i
                             >{{number_format(Auth::user()->wallet, 2)}} </a>
                     </li>
                 </ul>
             </div>
+            </div>
+
+
+
+
+
+
+
+            @auth
+            <div class="d-lg-none d-sm-block">
+                <a
+                    style="background: rgba(23, 69, 132, 1); color: white; font-size:10px;"
+                    class="btn btn btn-buy"
+                    target="_blank"
+                    href="fund-wallet"><i class="ti ti-wallet"></i
+                    >{{number_format(Auth::user()->wallet, 2)}}
+                </a>
+
+            </div>
+            @endauth
 
 
 

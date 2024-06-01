@@ -70,7 +70,7 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 
     Route::get('us',  [HomeController::class,'home']);
 
-    Route::any('home',  [WorldNumberController::class,'home']);
+    Route::any('home',  [HomeController::class,'home']);
     Route::any('world',  [WorldNumberController::class,'home']);
     Route::any('check-av',  [WorldNumberController::class,'check_av']);
     Route::any('order_now',  [WorldNumberController::class,'order_now']);

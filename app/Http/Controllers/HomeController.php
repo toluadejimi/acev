@@ -103,7 +103,7 @@ class HomeController extends Controller
                 $data['sms_order'] = $ver;
                 $data['order'] = 1  ;
 
-                return view('receivesms', $data);
+                return redirect('us');
 
             }
             return redirect('us');
@@ -142,7 +142,7 @@ class HomeController extends Controller
 
             $data['verification'] = Verification::where('user_id', Auth::id())->paginate(10);
 
-            return view('receivesms', $data);
+            return redirect('us');
         }
     }
 
@@ -723,7 +723,7 @@ class HomeController extends Controller
 
 
             $user = Auth::id() ?? null;
-            return redirect('world');
+            return redirect('us');
         }
 
         return back()->with('error', "Email or Password Incorrect");
@@ -1290,6 +1290,27 @@ class HomeController extends Controller
         $receivedAt = $request->receivedAt;
         $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status'=>2]);
 
+
+        $message = json_encode($request->all());
+        send_notification($message);
+
+
+    }
+
+
+    public function diasy_webhook(request $request)
+    {
+
+
+        $activationId = $request->activationId;
+        $messageId = $request->messageId;
+        $service = $request->service;
+        $text = $request->text;
+        $code = $request->sms;
+        $country = $request->country;
+        $receivedAt = $request->receivedAt;
+
+        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
 
         $message = json_encode($request->all());
         send_notification($message);
