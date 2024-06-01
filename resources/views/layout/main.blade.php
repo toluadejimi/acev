@@ -56,7 +56,7 @@
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
-                           href="home">Home
+                           href="home">Dashboard
                         </a>
                     </li>
 
@@ -78,7 +78,7 @@
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
-                           href="https://acelogstore.com/" > Buy Account</a >
+                           href="https://acelogstore.com/" > Purchase Logs</a >
                     </li>
 
 
