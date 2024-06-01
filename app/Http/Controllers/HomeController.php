@@ -1537,6 +1537,9 @@ class HomeController extends Controller
 
         $amount = number_format($request->amount, 2);
 
+        $message = $request->email."| just funded wallet on ace verify | NGN" .$amount;
+        send_notification2($message);
+
         return response()->json([
             'status' => true,
             'message' => "NGN $amount has been successfully added to your wallet",
