@@ -53,7 +53,7 @@
                                             🇺🇸 USA NUMBERS
                                         </a>
 
-                                        <a style="font-size: 12px; box-shadow: deeppink" href="/home"
+                                        <a style="font-size: 12px; box-shadow: deeppink" href="/world"
                                            class="btn btn-dark w-200 mt-1">
                                             🌎 ALL COUNTRIES
 
