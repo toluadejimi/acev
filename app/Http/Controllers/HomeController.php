@@ -47,7 +47,7 @@ class HomeController extends Controller
         $data['services'] = get_services();
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
-        $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take('10')->get();
+        $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
         $data['order'] = 0;
         $countries = get_world_countries();
         $wservices = get_world_services();
