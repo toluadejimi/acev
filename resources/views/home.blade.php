@@ -312,7 +312,7 @@
 
                                                 </tbody>
 
-                                                {{ $verification->links() }}
+
 
                                             </table>
                                         </div>
