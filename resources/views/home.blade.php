@@ -193,8 +193,7 @@
                                                     <tr>
                                                         <td style="font-size: 12px;">{{ $data->id }}</td>
                                                         <td style="font-size: 12px;">{{ $data->service }}</td>
-                                                        <td style="font-size: 12px; color: green"><a
-                                                                href="#">{{ $data->phone }} </a>
+                                                        <td style="font-size: 12px; color: green">{{ $data->phone }}
                                                         </td>
 
                                                         @if($data->sms != null)
