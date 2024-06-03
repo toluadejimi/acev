@@ -194,7 +194,7 @@
                                                         <td style="font-size: 12px;">{{ $data->id }}</td>
                                                         <td style="font-size: 12px;">{{ $data->service }}</td>
                                                         <td style="font-size: 12px; color: green"><a
-                                                                href="receive-sms?phone={{ $data->id }}">{{ $data->phone }} </a>
+                                                                href="#">{{ $data->phone }} </a>
                                                         </td>
 
                                                         @if($data->sms != null)
