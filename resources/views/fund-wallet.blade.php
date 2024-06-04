@@ -7,7 +7,7 @@
                 <h6 class="col-md-8 col-xl-6">
                     <h4 class="mb-3 text-danger">Hi {{ Auth::user()->username }},</h4>
                     <p class="mb-0">
-                    <h6 class="text-danger">IMPORTANT</h6> | Make sure to click pay to get a new account number each time you want to fund your
+                    <span class="text-danger">IMPORTANT</span> | Make sure to click pay to get a new account number each time you want to fund your
                         wallet.<br>
                         Make sure to pay in the exact amount you inputted.<br>
                     <hr>
