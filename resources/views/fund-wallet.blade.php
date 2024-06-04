@@ -4,10 +4,10 @@
     <section id="technologies mt-4 my-5">
         <div class="container title my-5">
             <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
-                <div class="col-md-8 col-xl-6">
+                <h6 class="col-md-8 col-xl-6">
                     <h4 class="mb-3 text-danger">Hi {{ Auth::user()->username }},</h4>
                     <p class="mb-0">
-                        IMPORTANT | Make sure to click pay to get a new account number each time you want to fund your
+                    <h6 class="text-danger">IMPORTANT</h6> | Make sure to click pay to get a new account number each time you want to fund your
                         wallet.<br>
                         Make sure to pay in the exact amount you inputted.<br>
                     <hr>
