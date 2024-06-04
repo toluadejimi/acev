@@ -223,57 +223,137 @@
                                 <thead style="background: rgb(159,16,47); border-radius: 10px; color: white">
                                 <tr>
                                     <th class="text-white">ID</th>
+                                    <th class="text-white">Service</th>
                                     <th class="text-white">Phone</th>
                                     <th class="text-white">SMS</th>
                                     <th class="text-white">Amount</th>
-                                    <th class="text-white">Status</th>
                                     <th class="text-white">Action</th>
+                                    <th class="text-white">Date / Time</th>
+
+
 
                                 </tr>
                                 </thead>
 
 
-                                @foreach ($orders as $data)
-
-                                    <tbody>
-
+                                @forelse($orders as $data)
                                     <tr>
-
-                                        <td>
-                                            {{ $data->id }}
-                                        </td>
-                                        <td>
-                                            {{ $data->phone }}
-                                        </td>
-                                        <td>
-                                            {{ $data->sms}}
+                                        <td style="font-size: 12px;">{{ $data->id }}</td>
+                                        <td style="font-size: 12px;">{{ $data->service }}</td>
+                                        <td style="font-size: 12px; color: green">{{ $data->phone }}
                                         </td>
 
-                                        <td>
-                                            {{ number_format($data->cost, 2) }}
-                                        </td>
-
-                                        @if($data->status == 2)
-                                            <td class="text-success">
-                                                Delivered
+                                        @if($data->sms != null)
+                                            <td style="font-size: 12px;">{{ $data->sms }}
                                             </td>
                                         @else
-                                            <td class="text-warning">
-                                                Pending
+                                            <style>
+                                                /* HTML: <div class="loader"></div> */
+                                                .loader {
+                                                    width: 50px;
+                                                    aspect-ratio: 1;
+                                                    display: grid;
+                                                    animation: l14 4s infinite;
+                                                }
+                                                .loader::before,
+                                                .loader::after {
+                                                    content: "";
+                                                    grid-area: 1/1;
+                                                    border: 8px solid;
+                                                    border-radius: 50%;
+                                                    border-color: red red #0000 #0000;
+                                                    mix-blend-mode: darken;
+                                                    animation: l14 1s infinite linear;
+                                                }
+                                                .loader::after {
+                                                    border-color: #0000 #0000 blue blue;
+                                                    animation-direction: reverse;
+                                                }
+                                                @keyframes l14{
+                                                    100%{transform: rotate(1turn)}
+                                                }
+                                            </style>
+
+                                            <style>#l1 {
+                                                    width: 15px;
+                                                    aspect-ratio: 1;
+                                                    border-radius: 50%;
+                                                    border: 1px solid;
+                                                    border-color: #000 #0000;
+                                                    animation: l1 1s infinite;
+                                                }
+                                                @keyframes l1 {to{transform: rotate(.5turn)}}
+                                            </style>
+
+                                            <td>
+                                                <div id="l1" class="justify-content-start">
+                                                </div>
+                                                <div>
+                                                    <input class="border-0 justify-content-end" id="response-input{{$data->id}}">
+                                                </div>
+
+
+                                                <script>
+                                                    makeRequest{{$data->id}}();
+                                                    setInterval(makeRequest{{$data->id}}, 5000);
+
+                                                    function makeRequest{{$data->id}}() {
+                                                        fetch('{{ url('') }}/get-smscode?num={{ $data->phone }}')
+                                                            .then(response => {
+                                                                if (!response.ok) {
+                                                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                                                }
+                                                                return response.json();
+                                                            })
+                                                            .then(data => {
+
+                                                                console.log(data.message);
+                                                                displayResponse{{$data->id}}(data.message);
+
+                                                            })
+                                                            .catch(error => {
+                                                                console.error('Error:', error);
+                                                                displayResponse{{$data->id}}({
+                                                                    error: 'An error occurred while fetching the data.'
+                                                                });
+                                                            });
+                                                    }
+
+                                                    function displayResponse{{$data->id}}(data) {
+                                                        const responseInput = document.getElementById('response-input{{$data->id}}');
+                                                        responseInput.value = data;
+                                                    }
+
+                                                </script>
                                             </td>
                                         @endif
 
-                                        <td>
-                                            <a href="delete-order?id={{$data->id}}"
-                                               class="btn btn-sm btn-dark text-small">Delete</a>
-                                        </td>
 
+
+
+                                        <td style="font-size: 12px;">
+                                            ₦{{ number_format($data->cost, 2) }}</td>
+                                        <td>
+                                            @if ($data->status == 1)
+
+                                                <a href="cancle-sms?id={{  $data->id }}&delete=1"
+                                                   style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
+                                                   class="btn btn-warning btn-sm">Delete</span>
+
+                                                    @else
+                                                        <span style="font-size: 10px;"
+                                                              class="text-white btn btn-success btn-sm">Completed</span>
+                                            @endif
+
+                                        </td>
+                                        <td style="font-size: 12px;">{{ $data->created_at }}</td>
                                     </tr>
 
+                                @empty
 
-                                    </tbody>
+                                    No Verification found
 
-                                @endforeach
+                              @endforelse
 
                             </table>
                         </div>

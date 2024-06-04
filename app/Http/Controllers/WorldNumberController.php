@@ -187,12 +187,6 @@ class WorldNumberController extends Controller
         }
 
 
-        $ckn = Verification::where('user_id', Auth::id())->where('status', 1) ?? null;
-        if ($ckn->count() == 1) {
-            return redirect('world')->with('error', "Complete or End Pending Order");
-        }
-
-
 
         User::where('id', Auth::id())->decrement('wallet', $request->price);
 
@@ -256,8 +250,9 @@ class WorldNumberController extends Controller
 
             $data['verification'] = Verification::where('user_id', Auth::id())->paginate(10);
 
+            return redirect('world');
 
-            return view('receivesmsworld', $data);
+            //return view('receivesmsworld', $data);
         }
     }
 

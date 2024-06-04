@@ -7,8 +7,11 @@
                 <div class="col-md-8 col-xl-6">
                     <h4 class="mb-3 text-danger">Hi {{ Auth::user()->username }},</h4>
                     <p class="mb-0">
-                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications
-                        for all your needs
+                        IMPORTANT | Make sure to click pay to get a new account number each time you want to fund your
+                        wallet.<br>
+                        Make sure to pay in the exact amount you inputted.<br>
+                    <hr>
+                    <a href="https://t.me/acesmsverify/8">click here for tutorial on how to deposit .</a>
                     </p>
                 </div>
             </div>
@@ -54,7 +57,7 @@
                                 <label class="my-2 mt-4">Select Payment mode</label>
                                 <select name="type" class="form-control">
                                     <option value="1">Instant</option>
-{{--                                    <option value="2">Manual</option>--}}
+                                    {{--                                    <option value="2">Manual</option>--}}
                                 </select>
 
 
@@ -114,9 +117,9 @@
                                                             <span
                                                                 style="background: orange; border:0px; font-size: 10px"
                                                                 class="btn btn-warning btn-sm">Pending</span>
-                                                                @elseif ($data->status == 2)
-                                                                    <span style="font-size: 10px;"
-                                                                          class="text-white btn btn-success btn-sm">Completed</span>
+                                                        @elseif ($data->status == 2)
+                                                            <span style="font-size: 10px;"
+                                                                  class="text-white btn btn-success btn-sm">Completed</span>
                                                         @else
                                                         @endif
 
