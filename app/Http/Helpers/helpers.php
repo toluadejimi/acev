@@ -168,7 +168,7 @@ function get_services(){
         ));
 
         $var = curl_exec($curl);
-    dd($var);
+        dd($var, $APIKEY);
         curl_close($curl);
         $var = json_decode($var);
 
