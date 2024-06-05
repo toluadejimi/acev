@@ -149,7 +149,7 @@ function session_resolve($session_id, $ref){
 
 function get_services(){
 
-    $APIKEY = 'env('KEY')';
+    $APIKEY = env('KEY');
 
     $curl = curl_init();
         curl_setopt_array($curl, array(
