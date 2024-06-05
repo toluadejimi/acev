@@ -66,10 +66,7 @@
                            href="fund-wallet" >Fund Wallet</a >
                     </li>
 
-                    <li class="nav-item px-1">
-                        <a class="nav-link"
-                           href="orders" >My Orders</a >
-                    </li>
+
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
