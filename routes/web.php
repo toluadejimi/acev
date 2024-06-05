@@ -24,6 +24,12 @@ use App\Http\Controllers\ItemController;
 // });
 
 
+//Clear Config cache:
+Route::get('/clear', function() {
+    $exitCode = Artisan::call('config:cache');
+    return '<h1>Clear Config cleared</h1>';
+});
+
 
 
 
