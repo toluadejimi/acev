@@ -5,10 +5,11 @@
         <div class="container title my-5">
             <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
                 <div class="col-md-8 col-xl-6">
-                    <h4 class="mb-3 text-danger">Welcome {{ Auth::user()->username }}</h4>
+                    <h4 class="mb-3 text-danger">{{ Auth::user()->username }}</h4>
                     <p class="mb-0">
-                        Experience the AceSMSVerify advantage today and unlock seamless,<br/> reliable SMS verifications
-                        for all your needs
+                        SMS Verifications<br>
+                        Rent a phone for 7 minutes.<br>
+                        Credits are only used if you receive the SMS code.
                     </p>
                 </div>
             </div>
