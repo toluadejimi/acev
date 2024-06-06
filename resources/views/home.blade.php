@@ -100,7 +100,7 @@
                                     <div class="row service-row">
                                         @foreach ($value as $innerKey => $innerValue)
                                             <div style="font-size: 11px" class="col-5 service-name">
-                                                🇺🇸 {{ $innerValue->name }}
+                                                 {{ $innerValue->name }}
                                             </div>
 
                                             <div style="font-size: 11px" class="col">
