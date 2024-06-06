@@ -159,7 +159,7 @@
 
 
 <footer class="footer">
-    <p class="d-flex justify-content-center">2024 ACESMSVERIFY</p>
+    <p class="d-flex justify-content-center"><a href=" https://t.me/acesmsverify">Telegram</a> | ACESMSVERIFY</p>
 </footer>
 
 
