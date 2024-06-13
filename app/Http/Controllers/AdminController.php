@@ -239,8 +239,8 @@ class AdminController extends Controller
 
 
         $user = User::where('id', $request->id)->first();
-        $transaction= Transaction::latest()->where('user_id', $request->id)->paginate();
-        $verification = verification::latest()->where('user_id', $request->id)->paginate();
+        $transaction= Transaction::latest()->where('user_id', $request->id)->paginate(50);
+        $verification = verification::latest()->where('user_id', $request->id)->paginate(50);
 
 
         return view('view-user', compact('user', 'transaction','verification' ));
