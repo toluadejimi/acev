@@ -281,7 +281,7 @@
                                                 <h5 class="">Wallet</h5>
 
 
-                                                NGN {{number_format($user->wallet, 2) ?? "0"}}
+                                                NGN {{number_format($user->wallet, 2 ?? 0) }}
 
 
                                             </div>
