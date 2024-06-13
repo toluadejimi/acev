@@ -167,7 +167,7 @@ class AdminController extends Controller
 
     public function update_user(request $request)
 	{
-
+        $role = User::where('id', Auth::id())->first()->role_id ?? null;
         if($role != 5){
 
             Auth::logout();
