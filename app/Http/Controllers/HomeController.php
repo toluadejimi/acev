@@ -111,26 +111,13 @@ class HomeController extends Controller
 
         if ($order == 0) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
+            $message = Auth::user()->email." just been refunded | $request->price";
+            send_notification($message);
+            send_notification2($message);
             return redirect('home')->with('error', 'Number Currently out of stock, Please check back later');
         }
 
-        if ($order == 0) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "ACEVERIFY | Low balance";
-            send_notification($message);
 
-
-            return redirect('world')->with('error', 'Error occurred, Please try again');
-        }
-
-        if ($order == 0) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
-            $message = "ACEVERIFY | Error";
-            send_notification($message);
-
-
-            return redirect('world')->with('error', 'Error occurred, Please try again');
-        }
 
         if ($order == 1) {
 
@@ -200,9 +187,10 @@ class HomeController extends Controller
                     $amount = number_format($order->cost, 2);
                     User::where('id', $user_id)->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+                    $message = Auth::user()->email." just been refunded | $request->price";
+                    send_notification($message);
+                    send_notification2($message);
                     return back()->with('message', "Order has been cancled, NGN$amount has been refunded");
-
-
                 }
 
 
@@ -218,6 +206,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
@@ -230,6 +223,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return redirect()->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
         }
@@ -250,6 +248,11 @@ class HomeController extends Controller
                     $amount = number_format($order->cost, 2);
                     User::where('id', $user_id)->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+
+                    $message = Auth::user()->email." just been refunded | $request->price";
+                    send_notification($message);
+                    send_notification2($message);
+
                     return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
 
 
@@ -268,6 +271,10 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
@@ -280,6 +287,9 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
                 return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
         }
@@ -291,9 +301,6 @@ class HomeController extends Controller
 
     public function cancle_sms(Request $request)
     {
-
-
-
         $order = Verification::where('id', $request->id)->first() ?? null;
 
 
@@ -317,6 +324,11 @@ class HomeController extends Controller
                     $amount = number_format($order->cost, 2);
                     User::where('id', Auth::id())->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+
+                    $message = Auth::user()->email." just been refunded | $request->price";
+                    send_notification($message);
+                    send_notification2($message);
+
                     return redirect('us')->with('message', "Order has been cancled, NGN$amount has been refunded");
 
 
@@ -335,6 +347,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
@@ -347,6 +364,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
         }
@@ -367,6 +389,11 @@ class HomeController extends Controller
                     $amount = number_format($order->cost, 2);
                     User::where('id', Auth::id())->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+
+                    $message = Auth::user()->email." just been refunded | $request->price";
+                    send_notification($message);
+                    send_notification2($message);
+
                     return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
 
 
@@ -385,6 +412,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
@@ -397,6 +429,12 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
+
                 return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
         }
@@ -418,6 +456,11 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                $message = Auth::user()->email." just been refunded | $request->price";
+                send_notification($message);
+                send_notification2($message);
+
                 return redirect('world')->with('message', "Order has been canceled, NGN$amount has been refunded");
 
             }
@@ -462,9 +505,6 @@ class HomeController extends Controller
         $request->validate([
             'amount'      => 'required|numeric|gt:0',
         ]);
-
-
-
 
 
             Transaction::where('user_id', Auth::id())->where('status', 1)->delete() ?? null;
@@ -598,120 +638,6 @@ class HomeController extends Controller
 
 
 
-    public function verify_payment(request $request)
-    {
-
-        $trx_id = $request->trans_id;
-        $ip = $request->ip();
-        $status = $request->status;
-
-
-        if ($status == 'failed') {
-
-
-            $message = Auth::user()->email . "| Cancled |  NGN " . number_format($request->amount) . " | with ref | $trx_id |  on ACEVERIFY";
-            send_notification2($message);
-
-
-            Transaction::where('ref_id', $trx_id)->where('status', 1)->update(['status' => 3]);
-            return redirect('fund-wallet')->with('error', 'Transaction Declined');
-        }
-
-
-
-
-        $trxstatus = Transaction::where('ref_id', $trx_id)->first()->status ?? null;
-
-        if ($trxstatus == 2) {
-
-            $message =  Auth::user()->email . "| is trying to fund  with | " . number_format($request->amount, 2) . "\n\n IP ====> " . $request->ip();
-            send_notification($message);
-
-            $message =  Auth::user()->email . "| on ACEVERIFY | is trying to fund  with | " . number_format($request->amount, 2) . "\n\n IP ====> " . $request->ip();
-            send_notification2($message);
-
-            return redirect('fund-wallet')->with('error', 'Transaction already confirmed or not found');
-        }
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://web.enkpay.com/api/verify',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array('trans_id' => "$trx_id"),
-        ));
-
-        $var = curl_exec($curl);
-        curl_close($curl);
-        $var = json_decode($var);
-
-        $status1 = $var->detail ?? null;
-        $amount = $var->price ?? null;
-
-
-
-
-        if ($status1 == 'success') {
-
-            $chk_trx = Transaction::where('ref_id', $trx_id)->first() ?? null;
-            if ($chk_trx == null) {
-                return back()->with('error', 'Transaction not processed, Contact Admin');
-            }
-
-            Transaction::where('ref_id', $trx_id)->update(['status' => 2]);
-            User::where('id', Auth::id())->increment('wallet', $amount);
-
-            $message =  Auth::user()->email . "| just funded NGN" . number_format($request->amount, 2) . " on Log market";
-            send_notification($message);
-
-
-
-
-
-            $order_id = $trx_id;
-            $databody = array('order_id' => "$order_id");
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://web.enkpay.com/api/resolve-complete',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => $databody,
-            ));
-
-            $var = curl_exec($curl);
-            curl_close($curl);
-            $var = json_decode($var);
-
-
-            $message = Auth::user()->email . "| Just funded |  NGN " . number_format($request->amount) . " | with ref | $order_id |  on ACEVERIFY";
-            send_notification2($message);
-
-
-
-
-
-
-            return redirect('fund-wallet')->with('message', "Wallet has been funded with $amount");
-        }
-
-        return redirect('fund-wallet')->with('error', 'Transaction already confirmed or not found');
-    }
-
-
-
-
-
 
 
 
@@ -801,98 +727,6 @@ class HomeController extends Controller
         return redirect('/');
     }
 
-
-    public function session_resolve(request $request)
-    {
-
-
-        $session_id = $request->session_id;
-        $ref = $request->ref_id;
-
-
-        $resolve = session_resolve($session_id, $ref);
-
-        $status = $resolve[0]['status'];
-        $amount = $resolve[0]['amount'];
-        $message = $resolve[0]['message'];
-
-
-
-        $trx = Transaction::where('ref_id', $request->ref_id)->first()->status ?? null;
-        if ($trx == null) {
-
-            $message = Auth::user()->email . "is trying to resolve from deleted transaction on ACEVERIFY";
-            send_notification($message);
-
-            $message = Auth::user()->email . "is trying to reslove from deleted transaction on ACEVERIFY";
-            send_notification2($message);
-
-
-
-
-            return back()->with('error', "Transaction has been deleted");
-        }
-
-
-        $chk = Transaction::where('ref_id', $request->ref_id)->first()->status ?? null;
-
-        if ($chk == 2 || $chk == 4) {
-
-            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on ACEVERIFY";
-            send_notification($message);
-
-            $message = Auth::user()->email . "is trying to steal hits the endpoint twice on ACEVERIFY";
-            send_notification2($message);
-
-
-
-
-
-
-
-            return back()->with('message', "Error Occured");
-        }
-
-
-        if ($status == 'true') {
-
-            User::where('id', Auth::id())->increment('wallet', $amount);
-            Transaction::where('ref_id', $request->ref_id)->update(['status' => 4]);
-
-
-
-            $ref = "LOG-" . random_int(000, 999) . date('ymdhis');
-
-
-            $data                  = new Transaction();
-            $data->user_id         = Auth::id();
-            $data->amount          = $amount;
-            $data->ref_id          = $ref;
-            $data->type            = 2;
-            $data->status          = 2;
-            $data->save();
-
-
-            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on ACEVERIFY";
-            send_notification($message);
-
-            $message = Auth::user()->email . "| just resolved with $request->session_id | NGN " . number_format($amount) . " on ACEVERIFY";
-            send_notification2($message);
-
-
-
-
-
-
-
-
-            return back()->with('message', "Transaction successfully Resolved, NGN $amount added to ur wallet");
-        }
-
-        if ($status == false) {
-            return back()->with('error', "$message");
-        }
-    }
 
 
 
@@ -1163,70 +997,6 @@ class HomeController extends Controller
 
 
 
-
-
-
-        if ($ck_trx == 1) {
-            $session_id = $request->session_id;
-            if ($session_id == null) {
-                $notify[] = ['error', "session id or amount cant be empty"];
-                return back()->withNotify($notify);
-            }
-
-
-            $curl = curl_init();
-            $databody = array(
-                'session_id' => "$session_id",
-                'ref' => "$request->trx_ref"
-
-            );
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://web.enkpay.com/api/resolve',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => $databody,
-            ));
-
-            $var = curl_exec($curl);
-            curl_close($curl);
-            $var = json_decode($var);
-
-
-            $messager = $var->message ?? null;
-            $status = $var->status ?? null;
-            $trx = $var->trx ?? null;
-            $amount = $var->amount ?? null;
-
-            if ($status == true) {
-                User::where('id', Auth::id())->increment('wallet', $var->amount);
-                Transaction::where('ref_id', $request->trx_ref)->update(['status' => 2]);
-
-
-                $user_email = Auth::user()->email;
-                $message = "$user_email | $request->trx_ref | $session_id | $var->amount | just resolved deposit | ACEVERIFY";
-                send_notification($message);
-                send_notification2($message);
-
-
-
-
-
-
-                return redirect('fund-wallet')->with('message', "Transaction successfully Resolved, NGN $amount added to ur wallet");
-            }
-
-            if ($status == false) {
-                return back()->with('error', "$messager");
-            }
-
-            return back()->with('error', "please try again later");
-        }
     }
 
 
