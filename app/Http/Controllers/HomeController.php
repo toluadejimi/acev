@@ -803,7 +803,7 @@ class HomeController extends Controller
             ]);
 
             $data = array(
-                'fromsender' => 'noreply@verifyasap.com', 'ACEVERIFY',
+                'fromsender' => 'noreply@acesmsverify.com', 'ACEVERIFY',
                 'subject' => "Reset Password",
                 'toreceiver' => $email,
                 'url' => $url,
