@@ -255,7 +255,7 @@
                                                 <h5 class="">Username</h5>
 
 
-                                                {{$user->username}}
+                                                {{$user->username ?? "username"}}
 
 
                                             </div>
@@ -268,7 +268,7 @@
                                                 <h5 class="">Email</h5>
 
 
-                                                {{$user->email}}
+                                                {{$user->email ?? "email"}}
 
 
                                             </div>
@@ -281,7 +281,7 @@
                                                 <h5 class="">Wallet</h5>
 
 
-                                                NGN {{number_format($user->wallet, 2)}}
+                                                NGN {{number_format($user->wallet, 2) ?? "0"}}
 
 
                                             </div>
@@ -323,7 +323,7 @@
                                                     <label>Enter Amount (NGN)</label>
                                                     <input type="number" class="form-control2 text-dark" name="amount" required>
 
-                                                    <input type="text" hidden value="{{ $user->id }}"
+                                                    <input type="text" hidden value="{{ $user->id ?? "id" }}"
                                                         class="form-control2" name="id" required>
 
 
@@ -481,7 +481,7 @@
                                                         </td>
                                                         @else
                                                         <td>
-                                                            <span class="badge badge-pill badge-warning">Pendong</span>
+                                                            <span class="badge badge-pill badge-warning">Pending</span>
 
                                                         </td>
                                                         @endif
