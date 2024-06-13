@@ -87,8 +87,9 @@
                         >
 
 
+
                         <input
-                            class="form-control"
+                            class="form-control my-4"
                             id="password" type="password" name="password_confirmation" placeholder="Confirm  your password" required="required" autofocus="autofocus"
                         >
                     </div>
