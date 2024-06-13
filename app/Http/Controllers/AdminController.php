@@ -155,7 +155,7 @@ class AdminController extends Controller
 
 
         $user = User::all()->count();
-        $users = User::latest()->paginate(10);
+        $users = User::orderBy('wallet', 'desc')->paginate(10);
 
 
         return view('user', compact('user', 'users'));
@@ -168,13 +168,29 @@ class AdminController extends Controller
     public function update_user(request $request)
 	{
 
+        if($role != 5){
+
+            Auth::logout();
+            return redirect('/admin')->with('error', "You do not have permission");
+
+        }
 
         if($request->trade == 'credit'){
             User::where('id',$request->id)->increment('wallet', $request->amount);
+
+            $email = User::where('id', $request->id)->first()->email;
+            $message = "Wallet has been credited by admin | $email | $request->amount | on Ace Verify";
+            send_notification($message);
+            send_notification2($message);
+
+
         }else{
 
             User::where('id',$request->id)->decrement('wallet', $request->amount);
-
+            $email = User::where('id', $request->id)->first()->email;
+            $message = "Wallet has been debited by admin | $email | $request->amount | on Ace Verify";
+            send_notification($message);
+            send_notification2($message);
             return back()->with('error', 'Wallet Debited Successfully');
 
         }
