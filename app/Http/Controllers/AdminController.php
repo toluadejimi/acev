@@ -175,11 +175,13 @@ class AdminController extends Controller
 
         }
 
+
+
         User::where('id', $request->id)->delete();
         Verification::where('user_id', $request->id)->delete();
         Transaction::where('user_id', $request->id)->delete();
 
-        return back()->with('message', 'User deleted successfully');
+        return redirect('users')->with('message', 'User deleted successfully');
 
 
 
