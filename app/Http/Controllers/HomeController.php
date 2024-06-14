@@ -90,6 +90,8 @@ class HomeController extends Controller
         $cost = $request->cost;
         $service_name = $request->name;
 
+
+
         $order = create_order($service, $price, $cost, $service_name);
 
 
