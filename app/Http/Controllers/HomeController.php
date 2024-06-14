@@ -94,6 +94,18 @@ class HomeController extends Controller
 
         $order = create_order($service, $price, $cost, $service_name);
 
+        if ($order == 8) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
+        if ($order == 8) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
+        if ($order == 8) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
 
         //dd($order);
 

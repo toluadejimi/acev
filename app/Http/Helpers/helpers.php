@@ -186,7 +186,23 @@ function get_services(){
 function create_order($service, $price, $cost, $service_name){
 
 
-   $APIKEY = env('KEY');
+
+    if (Auth::user()->wallet < $price) {
+        return 8;
+    }
+
+
+    if (Auth::user()->wallet < $price) {
+        return 8;
+    }
+
+
+    if (Auth::user()->wallet < $price) {
+        return 8;
+    }
+
+
+    $APIKEY = env('KEY');
    $curl = curl_init();
 
    curl_setopt_array($curl, array(
@@ -205,6 +221,11 @@ function create_order($service, $price, $cost, $service_name){
    $result = $var ??  null;
 
     if(strstr($result, "ACCESS_NUMBER") !== false) {
+
+
+        if (Auth::user()->wallet < $price) {
+            return 8;
+        }
 
         $parts = explode(":", $result);
         $accessNumber = $parts[0];
