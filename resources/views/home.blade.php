@@ -115,13 +115,22 @@
 
                                             <div class="col mr-3">
                                                 @auth
-                                                    <form action="order-usano">
-                                                        <input hidden name="service" value="{{ $key }}">
-                                                        <input hidden name="price" value="{{ $cost }}">
-                                                        <input hidden name="cost" value="{{ $innerValue->cost }}">
-                                                        <input hidden name="name" value="{{ $innerValue->name }}">
-                                                        <button class="myButton" style="border: 0px; background: transparent" onclick="hideButton(this)"><i class="fa fa-shopping-bag"></i></button>
-                                                    </form>
+
+                                                    @if(Auth::user()->wallet < $cost)
+
+                                                        <a href="fund-wallet" style="color: #7c7c7c"><i class="fas fa-wallet"></i></a>
+
+                                                    @else
+                                                        <form action="order-usano">
+                                                            <input hidden name="service" value="{{ $key }}">
+                                                            <input hidden name="price" value="{{ $cost }}">
+                                                            <input hidden name="cost" value="{{ $innerValue->cost }}">
+                                                            <input hidden name="name" value="{{ $innerValue->name }}">
+                                                            <button class="myButton" style="border: 0px; background: transparent" onclick="hideButton(this)"><i class="fa fa-shopping-bag"></i></button>
+                                                        </form>
+
+                                                    @endif
+
                                                 @else
 
                                                     <a class=""
