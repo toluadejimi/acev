@@ -74,6 +74,10 @@ class HomeController extends Controller
     {
 
 
+        if (Auth::user()->wallet < 0) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
         if (Auth::user()->wallet < $request->price) {
             return back()->with('error', "Insufficient Funds");
         }
