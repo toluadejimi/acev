@@ -93,7 +93,7 @@
                             </div>
 
 
-                            <div style="height:300px; width:100%; overflow-y: scroll;" class="p-2">
+                            <div style="height:200px; width:100%; overflow-y: scroll;" class="p-2">
 
 
                                 @foreach ($services as $key => $value)
