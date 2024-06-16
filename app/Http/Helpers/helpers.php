@@ -232,6 +232,10 @@ function create_order($service, $price, $cost, $service_name){
         $id = $parts[1];
         $phone = $parts[2];
 
+
+        Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+
+
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $phone;
@@ -491,6 +495,9 @@ function create_world_order($country, $service, $price){
 
 
     if($success == 1){
+
+        Verification::where('phone', $var->cc.$var->phonenumber)->where('status', 2)->delete() ?? null;
+
 
         $ver = new Verification();
         $ver->user_id = Auth::id();
