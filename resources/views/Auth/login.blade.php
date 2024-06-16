@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/material.css"><!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css" id="main-style-link">
     <link rel="stylesheet" href="{{url('')}}/public/assets/css/style-preset.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 </head><!-- [Head] end --><!-- [Body] Start -->
 <body data-pc-preset="preset-4" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr"
       data-pc-theme_contrast="" data-pc-theme="light"><!-- [ Pre-loader ] start -->
@@ -95,12 +97,18 @@
                             <input name="password" type="password"  class="form-control" id="floatingInput1" placeholder="Password">
                         </div>
 
+                        <div class="cf-turnstile"
+                             data-sitekey="{{ config('services.cloudflare.turnstile.site_key') }}"
+                             data-callback="onTurnstileSuccess"
+                        >
+
+                        </div>
 
 
 
 
                         <div class="d-grid mt-4">
-                            <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px" class="btn btn-primary">Login</button>
+                            <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px" disabled class="btn btn-primary">Login</button>
                         </div>
 
                         <h6 class="d-flex justify-content-center text-secondary text-white mt-4 f-w-400 mb-0"><a href="forgot-password">Forgot Password?</a>
@@ -341,7 +349,13 @@
             </ul>
         </div>
     </div>
+
 </div>
+<script>
+    window.onTurnstileSuccess = function (code) {
+        document.querySelector('form button[type="submit"]').disabled = false;
+    }
+</script>
 </body><!-- [Body] end --></html>
 
 
