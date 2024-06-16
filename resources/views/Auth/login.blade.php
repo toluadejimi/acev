@@ -24,6 +24,9 @@
     <link rel="stylesheet" href="{{url('')}}/public/assets/css/style-preset.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+    <link rel="shortcut icon" href="{{ url('') }}/assets/assets2/img/logo/fav.svg">
+
+
 </head><!-- [Head] end --><!-- [Body] Start -->
 <body data-pc-preset="preset-4" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr"
       data-pc-theme_contrast="" data-pc-theme="light"><!-- [ Pre-loader ] start -->

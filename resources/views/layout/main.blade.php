@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="{{url('')}}/public/assets/css/style.css" id="main-style-link">
     <link rel="stylesheet" href="{{url('')}}/public/assets/css/style-preset.css">
 
+    <link rel="shortcut icon" href="{{ url('') }}/assets/assets2/img/logo/fav.svg">
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
