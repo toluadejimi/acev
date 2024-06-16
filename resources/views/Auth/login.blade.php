@@ -10,7 +10,7 @@
     <meta name="keywords"
           content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard">
     <meta name="author" content="Phoenixcoded"><!-- [Favicon] icon -->
-    <link rel="icon" href="{{url('')}}/public/assets/images/favicon.svg" type="image/x-icon"><!-- [Font] Family -->
+    <link rel="icon" href="{{url('')}}/public/assets/fav.svg" type="image/x-icon"><!-- [Font] Family -->
     <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/inter/inter.css" id="main-font-link">
     <!-- [Tabler Icons] https://tablericons.com -->
     <link rel="stylesheet" href="{{url('')}}/public/assets/fonts/tabler-icons.min.css">
