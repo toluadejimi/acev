@@ -178,7 +178,7 @@
                                     <div class="p-2 col-lg-6">
                                         <strong>
                                             <h4>Rented numbers</h4>
-                                             <p>No need to refresh the page to get the code.</p>
+                                             <p class="text-danger">No need to refresh the page to get the code.</p>
                                         </strong>
                                     </div>
 
