@@ -337,8 +337,9 @@
 
                             </div>
                         </div><!-- [ sample-page ] end -->
-                        @endauth
+
                     </div>
+                @endauth
             </div>
         </div>
 
