@@ -24,6 +24,11 @@
 
     <link rel="shortcut icon" href="{{ url('') }}/public/assets/fav.ico">
 
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
@@ -104,6 +109,7 @@
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-end">
 
+                    @auth
                     <li class="nav-item">
                         <a
                             style="background: rgba(23, 69, 132, 1); color: white"
@@ -112,6 +118,7 @@
                             href="fund-wallet"><i class="ti ti-wallet"></i
                             >{{number_format(Auth::user()->wallet, 2)}} </a>
                     </li>
+                    @endauth
                 </ul>
             </div>
             </div>
@@ -161,8 +168,8 @@
 @yield('content')
 
 
-<footer class="footer">
-    <p class="d-flex justify-content-center"><a href=" https://t.me/acesmsverify">Telegram</a> | ACESMSVERIFY</p>
+<footer class="footer mt-5" style="padding-top: 200px">
+    <p class="d-flex justify-content-center"><a href="https://t.me/acesmsverify">Telegram | ACESMSVERIFY </a>  </p>
 </footer>
 
 
