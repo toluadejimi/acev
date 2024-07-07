@@ -120,6 +120,12 @@
 
                         </div>
 
+                        <script>
+                            window.onTurnstileSuccess = function (code) {
+                                document.querySelector('form button[type="submit"]').disabled = false;
+                            }
+                        </script>
+
 
 
                         <div class="d-grid mt-4">
