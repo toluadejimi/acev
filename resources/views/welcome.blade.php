@@ -403,7 +403,7 @@
                                                     <a href="https://acesmsverify.com/">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-home"></i>						</span>
+												</span>
                                                         <span class="elementor-icon-list-text">Home</span>
                                                     </a>
                                                 </li>
@@ -411,7 +411,7 @@
                                                     <a href="https://acesmsverify.com/about">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-info-circle"></i>						</span>
+													</span>
                                                         <span class="elementor-icon-list-text">About Us</span>
                                                     </a>
                                                 </li>
@@ -419,7 +419,7 @@
                                                     <a href="https://acesmsverify.com/policy%20">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-award"></i>						</span>
+												</span>
                                                         <span class="elementor-icon-list-text">Policy</span>
                                                     </a>
                                                 </li>
@@ -427,7 +427,7 @@
                                                     <a href="https://acesmsverify.com/contact%20">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-phone-alt"></i>						</span>
+												</span>
                                                         <span class="elementor-icon-list-text">Contact </span>
                                                     </a>
                                                 </li>
@@ -449,7 +449,7 @@
                                                     <a href="https://t.me/acesmsverify">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fab fa-telegram"></i>						</span>
+										</span>
                                                         <span class="elementor-icon-list-text">Telegram Support</span>
                                                     </a>
                                                 </li>
@@ -457,7 +457,7 @@
                                                     <a href="https://t.me/acesmsverify">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fab fa-telegram"></i>						</span>
+											</span>
                                                         <span class="elementor-icon-list-text">Telegram Channel </span>
                                                     </a>
                                                 </li>
@@ -479,7 +479,7 @@
                                                     <a href="https://t.me/acesmsverify">
 
 												<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-envelope"></i>						</span>
+												</span>
                                                         <span class="elementor-icon-list-text">support@acesmsverify.com</span>
                                                     </a>
                                                 </li>
@@ -499,17 +499,17 @@
 							<span class="elementor-grid-item">
 					<a class="elementor-icon elementor-social-icon elementor-social-icon-facebook elementor-repeater-item-9756673" target="_blank">
 						<span class="elementor-screen-only">Facebook</span>
-						<i class="fab fa-facebook"></i>					</a>
+						<i class="fa-brands fa-facebook"></i>				</a>
 				</span>
                                                 <span class="elementor-grid-item">
 					<a class="elementor-icon elementor-social-icon elementor-social-icon-xing elementor-repeater-item-15b7d51" target="_blank">
 						<span class="elementor-screen-only">Xing</span>
-						<i class="fab fa-xing"></i>					</a>
+						<i class="fa-brands fa-square-x-twitter"></i>			</a>
 				</span>
                                                 <span class="elementor-grid-item">
 					<a class="elementor-icon elementor-social-icon elementor-social-icon-telegram elementor-repeater-item-81ddbc0" target="_blank">
 						<span class="elementor-screen-only">Telegram</span>
-						<i class="fab fa-telegram"></i>					</a>
+						<i class="fa-brands fa-telegram"></i>				</a>
 				</span>
                                             </div>
                                         </div>
