@@ -45,6 +45,10 @@
     <link rel="stylesheet" id="elementor-icons-fa-solid-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.css" media="all">
     <link rel="stylesheet" id="elementor-icons-fa-brands-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.css" media="all">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
+
+
     <link rel="https://api.w.org/" href="{{url('')}}/public/asset3/wp-json/">
     <link rel="alternate" type="application/json" href="{{url('')}}/public/asset3/wp-json/wp/v2/pages/211">
     <link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd">
