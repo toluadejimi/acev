@@ -45,14 +45,14 @@
     <link rel="stylesheet" id="elementor-icons-fa-solid-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=5.15.3" media="all">
     <link rel="stylesheet" id="elementor-icons-fa-brands-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.min.css?ver=5.15.3" media="all">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="https://api.w.org/" href="/wp-json/">
-    <link rel="alternate" type="application/json" href="/wp-json/wp/v2/pages/211">
+    <link rel="https://api.w.org/" href="{{url('')}}/public/asset3/wp-json/">
+    <link rel="alternate" type="application/json" href="{{url('')}}/public/asset3/wp-json/wp/v2/pages/211">
     <link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd">
     <meta name="generator" content="WordPress 6.5.5">
     <link rel="canonical" href="/">
     <link rel="shortlink" href="/">
-    <link rel="alternate" type="application/json+oembed" href="/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2F">
-    <link rel="alternate" type="text/xml+oembed" href="/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2F#038;format=xml">
+    <link rel="alternate" type="application/json+oembed" href="{{url('')}}/public/asset3/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2F">
+    <link rel="alternate" type="text/xml+oembed" href="{{url('')}}/public/asset3/wp-json/oembed/1.0/embed?url=http%3A%2F%2F%2F#038;format=xml">
     <meta name="cdp-version" content="1.4.6">
     <meta name="generator" content="Elementor 3.14.1; features: e_dom_optimization, e_optimized_assets_loading, e_optimized_css_loading, a11y_improvements, additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
