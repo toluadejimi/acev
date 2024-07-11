@@ -639,8 +639,6 @@ class HomeController extends Controller
         $message = Auth::user()->email . "| submitted payment receipt |  NGN " . number_format($request->amount) . " | on ACEVERIFY";
         send_notification2($message);
 
-
-
         return view('confirm-pay');
     }
 
