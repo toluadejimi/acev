@@ -41,9 +41,9 @@
     <link rel="stylesheet" id="elementor-global-css" href="{{url('')}}/public/asset3/wp-content/uploads/elementor/css/global.css?ver=1720681937" media="all">
     <link rel="stylesheet" id="elementor-post-211-css" href="{{url('')}}/public/asset3/wp-content/uploads/elementor/css/post-211.css?ver=1720699140" media="all">
     <link rel="stylesheet" id="google-fonts-1-css" href="https://fonts.googleapis.com/css?family=Roboto%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CRoboto+Slab%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CInter%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic&#038;display=swap&#038;ver=6.5.5" media="all">
-    <link rel="stylesheet" id="elementor-icons-shared-0-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css?ver=5.15.3" media="all">
-    <link rel="stylesheet" id="elementor-icons-fa-solid-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=5.15.3" media="all">
-    <link rel="stylesheet" id="elementor-icons-fa-brands-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.min.css?ver=5.15.3" media="all">
+    <link rel="stylesheet" id="elementor-icons-shared-0-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.css" media="all">
+    <link rel="stylesheet" id="elementor-icons-fa-solid-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.css" media="all">
+    <link rel="stylesheet" id="elementor-icons-fa-brands-css" href="{{url('')}}/public/asset3/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.css" media="all">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="https://api.w.org/" href="{{url('')}}/public/asset3/wp-json/">
     <link rel="alternate" type="application/json" href="{{url('')}}/public/asset3/wp-json/wp/v2/pages/211">
