@@ -799,7 +799,7 @@
                                                         <div class="elementor-widget-container">
                                                             <div class="elementor-button-wrapper">
                                                                 <a class="elementor-button elementor-button-link elementor-size-lg"
-                                                                   href="https://acesmsverify.com/register%20">
+                                                                   href="https://acesmsverify.com/register">
 						<span class="elementor-button-content-wrapper">
 						<span class="elementor-button-icon elementor-align-icon-right">
 				<i aria-hidden="true" class="fas fa-arrow-right"></i>			</span>
@@ -1077,7 +1077,7 @@
                                         <div class="elementor-widget-container">
                                             <div class="elementor-icon-wrapper">
                                                 <a class="elementor-icon" href="https://watch.com/" target="_blank">
-                                                    <i aria-hidden="true" class="fas fa-play-circle"></i> </a>
+                                                    <i class="bi bi-play-circle-fill"></i> </a>
                                             </div>
                                         </div>
                                     </div>
