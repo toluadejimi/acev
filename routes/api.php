@@ -21,6 +21,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::any('w-webhook',  [HomeController::class,'world_webhook']);
 Route::any('d-webhook',  [HomeController::class,'diasy_webhook']);
 
+Route::any('updatesec',  [HomeController::class,'updatesec']);
+Route::any('cancle-sms',  [HomeController::class,'cancle_sms_timer']);
+
+
 
 
 

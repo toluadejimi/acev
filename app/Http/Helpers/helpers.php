@@ -4,6 +4,7 @@ use App\Constants\Status;
 use App\Models\Extension;
 use App\Models\Verification;
 use App\Lib\GoogleAuthenticator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -202,6 +203,12 @@ function create_order($service, $price, $cost, $service_name){
     }
 
 
+    $currentTime = Carbon::now();
+    $futureTime = $currentTime->addMinutes(20);
+    $formattedTime = $futureTime->format('Y-m-d H:i:s');
+
+
+
     $APIKEY = env('KEY');
    $curl = curl_init();
 
@@ -236,6 +243,8 @@ function create_order($service, $price, $cost, $service_name){
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
 
+
+
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $phone;
@@ -245,6 +254,7 @@ function create_order($service, $price, $cost, $service_name){
         $ver->cost = $price;
         $ver->api_cost = $cost;
         $ver->status = 1;
+        $ver->expires_in = 300;
         $ver->type = 1;
         $ver->save();
         return 1;
@@ -499,6 +509,12 @@ function create_world_order($country, $service, $price){
         Verification::where('phone', $var->cc.$var->phonenumber)->where('status', 2)->delete() ?? null;
 
 
+        $currentTime = Carbon::now();
+        $futureTime = $currentTime->addMinutes(15);
+        $formattedTime = $futureTime->format('Y-m-d H:i:s');
+
+
+
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $var->cc.$var->phonenumber;
@@ -507,6 +523,7 @@ function create_world_order($country, $service, $price){
         $ver->service = $var->service;
         $ver->expires_in = $var->expires_in / 10 - 20;
         $ver->cost = $price;
+        $ver->created_at = $formattedTime;
         $ver->api_cost = $var->cost;
         $ver->status = 1;
         $ver->type = 2;

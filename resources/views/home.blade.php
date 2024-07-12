@@ -100,7 +100,7 @@
                                     <div class="row service-row">
                                         @foreach ($value as $innerKey => $innerValue)
                                             <div style="font-size: 11px" class="col-5 service-name">
-                                                 {{ $innerValue->name }}
+                                                {{ $innerValue->name }}
                                             </div>
 
                                             <div style="font-size: 11px" class="col">
@@ -118,7 +118,8 @@
 
                                                     @if(Auth::user()->wallet < $cost)
 
-                                                        <a href="fund-wallet" style="color: #7c7c7c"><i class="fas fa-wallet"></i></a>
+                                                        <a href="fund-wallet" style="color: #7c7c7c"><i
+                                                                class="fas fa-wallet"></i></a>
 
                                                     @else
                                                         <form action="order-usano">
@@ -126,7 +127,10 @@
                                                             <input hidden name="price" value="{{ $cost }}">
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
-                                                            <button class="myButton" style="border: 0px; background: transparent" onclick="hideButton(this)"><i class="fa fa-shopping-bag"></i></button>
+                                                            <button class="myButton"
+                                                                    style="border: 0px; background: transparent"
+                                                                    onclick="hideButton(this)"><i
+                                                                    class="fa fa-shopping-bag"></i></button>
                                                         </form>
 
                                                     @endif
@@ -178,7 +182,7 @@
                                     <div class="p-2 col-lg-6">
                                         <strong>
                                             <h4>Rented numbers</h4>
-                                             <p class="text-danger">No need to refresh the page to get the code.</p>
+                                            <p class="text-danger">No need to refresh the page to get the code.</p>
                                         </strong>
                                     </div>
 
@@ -193,6 +197,7 @@
                                                     <th>Service</th>
                                                     <th>Phone No</th>
                                                     <th>Code</th>
+                                                    <th>Time Remain</th>
                                                     <th>Price</th>
                                                     <th>Status</th>
                                                     <th>Date</th>
@@ -211,8 +216,8 @@
                                                         </td>
 
                                                         @if($data->sms != null)
-                                                        <td style="font-size: 12px;">{{ $data->sms }}
-                                                        </td>
+                                                            <td style="font-size: 12px;">{{ $data->sms }}
+                                                            </td>
                                                         @else
                                                             <style>
                                                                 /* HTML: <div class="loader"></div> */
@@ -222,6 +227,7 @@
                                                                     display: grid;
                                                                     animation: l14 4s infinite;
                                                                 }
+
                                                                 .loader::before,
                                                                 .loader::after {
                                                                     content: "";
@@ -232,12 +238,16 @@
                                                                     mix-blend-mode: darken;
                                                                     animation: l14 1s infinite linear;
                                                                 }
+
                                                                 .loader::after {
                                                                     border-color: #0000 #0000 blue blue;
                                                                     animation-direction: reverse;
                                                                 }
-                                                                @keyframes l14{
-                                                                    100%{transform: rotate(1turn)}
+
+                                                                @keyframes l14 {
+                                                                    100% {
+                                                                        transform: rotate(1turn)
+                                                                    }
                                                                 }
                                                             </style>
 
@@ -249,53 +259,165 @@
                                                                     border-color: #000 #0000;
                                                                     animation: l1 1s infinite;
                                                                 }
-                                                                @keyframes l1 {to{transform: rotate(.5turn)}}
+
+                                                                @keyframes l1 {
+                                                                    to {
+                                                                        transform: rotate(.5turn)
+                                                                    }
+                                                                }
                                                             </style>
 
                                                             <td>
-                                                                    <div id="l1" class="justify-content-start">
-                                                                    </div>
-                                                                    <div>
-                                                                        <input class="border-0 justify-content-end" id="response-input{{$data->id}}">
-                                                                    </div>
+                                                                <div id="l1" class="justify-content-start">
+                                                                </div>
+                                                                <div>
+                                                                    <input style=" " class="border-0"
+                                                                           id="response-input{{$data->id}}">
+                                                                </div>
 
 
-                                                            <script>
-                                                                makeRequest{{$data->id}}();
-                                                                setInterval(makeRequest{{$data->id}}, 5000);
+                                                                <script>
+                                                                    makeRequest{{$data->id}}();
+                                                                    setInterval(makeRequest{{$data->id}}, 5000);
 
-                                                                function makeRequest{{$data->id}}() {
-                                                                    fetch('{{ url('') }}/get-smscode?num={{ $data->phone }}')
-                                                                        .then(response => {
-                                                                            if (!response.ok) {
-                                                                                throw new Error(`HTTP error! Status: ${response.status}`);
-                                                                            }
-                                                                            return response.json();
-                                                                        })
-                                                                        .then(data => {
+                                                                    function makeRequest{{$data->id}}() {
+                                                                        fetch('{{ url('') }}/get-smscode?num={{ $data->phone }}')
+                                                                            .then(response => {
+                                                                                if (!response.ok) {
+                                                                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                                                                }
+                                                                                return response.json();
+                                                                            })
+                                                                            .then(data => {
 
-                                                                            console.log(data.message);
-                                                                            displayResponse{{$data->id}}(data.message);
+                                                                                console.log(data.message);
+                                                                                displayResponse{{$data->id}}(data.message);
 
-                                                                        })
-                                                                        .catch(error => {
-                                                                            console.error('Error:', error);
-                                                                            displayResponse{{$data->id}}({
-                                                                                error: 'An error occurred while fetching the data.'
+                                                                            })
+                                                                            .catch(error => {
+                                                                                console.error('Error:', error);
+                                                                                displayResponse{{$data->id}}({
+                                                                                    error: 'An error occurred while fetching the data.'
+                                                                                });
                                                                             });
-                                                                        });
-                                                                }
+                                                                    }
 
-                                                                function displayResponse{{$data->id}}(data) {
-                                                                    const responseInput = document.getElementById('response-input{{$data->id}}');
-                                                                    responseInput.value = data;
-                                                                }
+                                                                    function displayResponse{{$data->id}}(data) {
+                                                                        const responseInput = document.getElementById('response-input{{$data->id}}');
+                                                                        responseInput.value = data;
+                                                                    }
 
-                                                            </script>
+                                                                </script>
                                                             </td>
                                                         @endif
 
 
+                                                        <td><p style="font-size: 16px; color: #e00101"
+                                                               id="secondsDisplay{{$data->id}}"></p></td>
+
+
+                                                        <script>
+                                                            // Function to fetch initial countdown value from the database
+                                                            async function fetchInitialCountdown{{$data->id}}() {
+                                                                try {
+                                                                    const response = await fetch('{{url('')}}/getInitialCountdown?id={{$data->id}}');
+                                                                    if (!response.ok) {
+                                                                        throw new Error('Network response was not ok');
+                                                                    }
+                                                                    const data = await response.json();
+                                                                    return data.seconds;
+                                                                } catch (error) {
+                                                                    console.error('Error fetching initial countdown:', error);
+                                                                    return 0;
+                                                                }
+                                                            }
+
+                                                            // Function to update the displayed countdown
+                                                            function updateDisplay{{$data->id}}(seconds) {
+                                                                document.getElementById('secondsDisplay{{$data->id}}').textContent = seconds;
+                                                            }
+
+                                                            // Function to update the database with current seconds
+                                                            function updateDatabase{{$data->id}}(seconds) {
+                                                                fetch('{{url('')}}/api/updatesec', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                    },
+
+                                                                    body: JSON.stringify({
+                                                                        id: {{$data->id}},
+                                                                        secs: seconds,
+                                                                    }),
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        console.log('Updated seconds:', seconds);
+                                                                    })
+                                                                    .catch(error => {
+                                                                        console.error('Error updating seconds:', error);
+                                                                    });
+                                                            }
+
+
+                                                            function updateStatus{{$data->id}}() {
+                                                                fetch('{{url('')}}/api/cancle-sms', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                    },
+                                                                    body: JSON.stringify({
+                                                                        id:{{$data->id}},
+                                                                    }),
+                                                                })
+                                                                    .then(response => {
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+
+                                                                        location.reload();
+
+                                                                        console.log(response.json());
+                                                                    })
+
+                                                                    .catch(error => {
+                                                                        console.error('Error updating status:', error);
+                                                                    });
+                                                            }
+
+                                                            // Countdown timer
+                                                            async function countdownTimer{{$data->id}}() {
+                                                                let seconds = await fetchInitialCountdown{{$data->id}}();
+                                                                // Initial update to start the countdown
+                                                                updateDisplay{{$data->id}}(seconds);
+                                                                updateDatabase{{$data->id}}(seconds);
+
+                                                                const interval = setInterval(function () {
+                                                                    seconds--;
+
+                                                                    // Update displayed seconds
+                                                                    updateDisplay{{$data->id}}(seconds);
+
+                                                                    // Update database every 5 seconds
+                                                                    if (seconds % 5 === 0) {
+                                                                        updateDatabase{{$data->id}}(seconds);
+                                                                    }
+
+                                                                    // When countdown reaches zero, update status, stop interval and update display
+                                                                    if (seconds <= 0) {
+                                                                        clearInterval(interval);
+                                                                        updateStatus{{$data->id}}();
+                                                                        updateDisplay{{$data->id}}(0);
+                                                                    }
+                                                                }, 1000); // Timer ticks every second
+                                                            }
+
+                                                            document.addEventListener('DOMContentLoaded', function () {
+                                                                countdownTimer{{$data->id}}();
+                                                            });
+                                                        </script>
 
 
                                                         <td style="font-size: 12px;">
@@ -315,7 +437,8 @@
                                                             @endif
 
                                                         </td>
-                                                        <td style="font-size: 12px;">{{ $data->created_at }}</td>
+                                                        <td id="datetime{{$data->id}}"
+                                                            style="font-size: 12px;">{{ $data->created_at }}</td>
                                                     </tr>
 
                                                 @empty
@@ -324,7 +447,6 @@
                                                 @endforelse
 
                                                 </tbody>
-
 
 
                                             </table>

@@ -36,6 +36,7 @@ Route::get('/clear2', function() {
     return '<h1>Clear config cleared</h1>';
 });
 
+Route::any('getInitialCountdown',  [HomeController::class,'getInitialCountdown']);
 
 
 
