@@ -312,10 +312,9 @@
                                                         @endif
 
 
+                                                        @if($data->status == 1)
                                                         <td><p style="font-size: 16px; color: #e00101"
                                                                id="secondsDisplay{{$data->id}}"></p></td>
-
-
                                                         <script>
                                                             // Function to fetch initial countdown value from the database
                                                             async function fetchInitialCountdown{{$data->id}}() {
@@ -418,7 +417,7 @@
                                                                 countdownTimer{{$data->id}}();
                                                             });
                                                         </script>
-
+                                                        @endif
 
                                                         <td style="font-size: 12px;">
                                                             ₦{{ number_format($data->cost, 2) }}</td>
