@@ -73,7 +73,11 @@ class HomeController extends Controller
     public function updatesec(request $request)
     {
 
-        $secs = Verification::where('id', $request->id)->update(['expires_in' => $request->secs]);
+        $ver = Verification::where('id', $request->id)->first()->status;
+
+        if($ver == 1){
+            $secs = Verification::where('id', $request->id)->update(['expires_in' => $request->secs]);
+        }
 
     }
 
@@ -85,10 +89,15 @@ class HomeController extends Controller
     public  function getInitialCountdown(request $request)
     {
 
-        $secs = Verification::where('id', $request->id)->first()->expires_in;
-        return response()->json([
-            'seconds' => $secs
-        ]);
+        $ver = Verification::where('id', $request->id)->first()->status;
+        if($ver == 1){
+            $secs = Verification::where('id', $request->id)->first()->expires_in;
+            return response()->json([
+                'seconds' => $secs
+            ]);
+        }
+
+
 
 
     }
@@ -342,7 +351,6 @@ class HomeController extends Controller
     public function cancle_sms_timer(Request $request)
     {
         $order = Verification::where('id', $request->id)->first() ?? null;
-
 
         if ($order == null) {
 
