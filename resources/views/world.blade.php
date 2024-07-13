@@ -87,7 +87,7 @@
                                                     id="dropdownMenu" class="dropdown-content" name="country">
                                                 <option style="background: black" value=""> Select Country</option>
                                                 @foreach ($countries as $data)
-                                                    <option value="{{ $data->ID }}">{{ $data->name }}
+                                                    <option value="{{ $data['ID'] }}">{{ $data['name'] }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -101,7 +101,7 @@
 
                                                 <option value=""> Choose Service</option>
                                                 @foreach ($services as $data)
-                                                    <option value="{{ $data->ID }}">{{ $data->name }}
+                                                    <option value="{{ $data['ID'] }}">{{ $data['name'] }}
                                                     </option>
                                                 @endforeach
 

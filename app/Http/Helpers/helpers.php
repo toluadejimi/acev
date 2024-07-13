@@ -6,7 +6,9 @@ use App\Models\Verification;
 use App\Lib\GoogleAuthenticator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 
 function resolve_complete($order_id)
@@ -380,88 +382,74 @@ function check_sms($orderID){
 
 
 
-
 function get_world_countries(){
+
     $key = env('WKEY');
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.smspool.net/country/retrieve_all?key=$key",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json',
-            'Accept: application/json',
-        ),
-    ));
 
-    $var = curl_exec($curl);
-    curl_close($curl);
-    $var = json_decode($var);
-    $countries = $var ?? null;
+    $countries = Cache::remember('smspool_countries', 3600, function () use ($key) {
+        Log::info('Requesting countriees from SMS Pool API', ['key' => $key]);
 
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])->timeout(50)
+            ->post("https://api.smspool.net/country/retrieve_all", [
+                'key' => $key,
+            ]);
 
+        Log::info('Response received from SMS Pool API', ['response' => $response->body()]);
 
+        if ($response->successful()) {
+            return $response->json() ?? null;
+        }
 
-    // $history = [];
-    // foreach ($countries as $key => $value) {
-    //     $history[] = array(
-    //         "country_id" => $value->ID,
-    //         "name" => $value->name,
-    //         "short_name" => $value->short_name,
-
-    //     );
-    // }
-
-    // $rr =  DB::table('countries')->insert($history);
+        Log::error('API call failed', ['response' => $response->body()]);
+        return null;
+    });
 
 
-
-
-    if ($var == null) {
-        $coiuntries = null;
-    }
 
 
     return $countries;
+
+
+
+
 }
 
 
 function get_world_services(){
 
+
     $key = env('WKEY');
 
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.smspool.net/service/retrieve_all?key=$key",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json',
-            'Accept: application/json',
-        ),
-    ));
+    $services = Cache::remember('smspool_services', 3600, function () use ($key) {
+        Log::info('Requesting services from SMS Pool API', ['key' => $key]);
 
-    $var = curl_exec($curl);
-    curl_close($curl);
-    $var = json_decode($var);
-    $services = $var ?? null;
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])->timeout(50)
+            ->post("https://api.smspool.net/service/retrieve_all", [
+                'key' => $key,
+            ]);
+
+        Log::info('Response received from SMS Pool API', ['response' => $response->body()]);
+
+        if ($response->successful()) {
+            return $response->json() ?? null;
+        }
+
+        Log::error('API call failed', ['response' => $response->body()]);
+        return null;
+    });
 
 
-    if ($var == null) {
-        $services = null;
-    }
 
     return $services;
+
+
+
 
 }
 
