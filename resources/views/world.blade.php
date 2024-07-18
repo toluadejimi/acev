@@ -227,6 +227,7 @@
                                     <th class="text-white">Service</th>
                                     <th class="text-white">Phone</th>
                                     <th class="text-white">SMS</th>
+                                    <th class="text-white">Time Remain</th>
                                     <th class="text-white">Amount</th>
                                     <th class="text-white">Action</th>
                                     <th class="text-white">Date / Time</th>
@@ -327,6 +328,115 @@
 
                                                 </script>
                                             </td>
+                                        @endif
+
+
+
+                                        @if($data->status == 1)
+                                            <td><p style="font-size: 16px; color: #e00101"
+                                                   id="secondsDisplay{{$data->id}}"></p></td>
+                                            <script>
+                                                // Function to fetch initial countdown value from the database
+                                                async function fetchInitialCountdown{{$data->id}}() {
+                                                    try {
+                                                        const response = await fetch('{{url('')}}/getInitialCountdown?id={{$data->id}}');
+                                                        if (!response.ok) {
+                                                            throw new Error('Network response was not ok');
+                                                        }
+                                                        const data = await response.json();
+                                                        return data.seconds;
+                                                    } catch (error) {
+                                                        console.error('Error fetching initial countdown:', error);
+                                                        return 0;
+                                                    }
+                                                }
+
+                                                // Function to update the displayed countdown
+                                                function updateDisplay{{$data->id}}(seconds) {
+                                                    document.getElementById('secondsDisplay{{$data->id}}').textContent = seconds;
+                                                }
+
+                                                // Function to update the database with current seconds
+                                                function updateDatabase{{$data->id}}(seconds) {
+                                                    fetch('{{url('')}}/api/updatesec', {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                        },
+
+                                                        body: JSON.stringify({
+                                                            id: {{$data->id}},
+                                                            secs: seconds,
+                                                        }),
+                                                    })
+                                                        .then(response => {
+                                                            if (!response.ok) {
+                                                                throw new Error('Network response was not ok');
+                                                            }
+                                                            console.log('Updated seconds:', seconds);
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Error updating seconds:', error);
+                                                        });
+                                                }
+
+
+                                                function updateStatus{{$data->id}}() {
+                                                    fetch('{{url('')}}/api/cancle-sms', {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                        },
+                                                        body: JSON.stringify({
+                                                            id:{{$data->id}},
+                                                        }),
+                                                    })
+                                                        .then(response => {
+                                                            if (!response.ok) {
+                                                                throw new Error('Network response was not ok');
+                                                            }
+
+                                                            location.reload();
+
+                                                            console.log(response.json());
+                                                        })
+
+                                                        .catch(error => {
+                                                            console.error('Error updating status:', error);
+                                                        });
+                                                }
+
+                                                // Countdown timer
+                                                async function countdownTimer{{$data->id}}() {
+                                                    let seconds = await fetchInitialCountdown{{$data->id}}();
+                                                    // Initial update to start the countdown
+                                                    updateDisplay{{$data->id}}(seconds);
+                                                    updateDatabase{{$data->id}}(seconds);
+
+                                                    const interval = setInterval(function () {
+                                                        seconds--;
+
+                                                        // Update displayed seconds
+                                                        updateDisplay{{$data->id}}(seconds);
+
+                                                        // Update database every 5 seconds
+                                                        if (seconds % 5 === 0) {
+                                                            updateDatabase{{$data->id}}(seconds);
+                                                        }
+
+                                                        // When countdown reaches zero, update status, stop interval and update display
+                                                        if (seconds <= 0) {
+                                                            clearInterval(interval);
+                                                            updateStatus{{$data->id}}();
+                                                            updateDisplay{{$data->id}}(0);
+                                                        }
+                                                    }, 1000); // Timer ticks every second
+                                                }
+
+                                                document.addEventListener('DOMContentLoaded', function () {
+                                                    countdownTimer{{$data->id}}();
+                                                });
+                                            </script>
                                         @endif
 
 

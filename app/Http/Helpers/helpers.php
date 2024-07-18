@@ -501,8 +501,6 @@ function create_world_order($country, $service, $price){
         $futureTime = $currentTime->addMinutes(15);
         $formattedTime = $futureTime->format('Y-m-d H:i:s');
 
-
-
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $var->cc.$var->phonenumber;
@@ -512,6 +510,7 @@ function create_world_order($country, $service, $price){
         $ver->expires_in = $var->expires_in / 10 - 20;
         $ver->cost = $price;
         $ver->created_at = $formattedTime;
+        $ver->expires_in = 300;
         $ver->api_cost = $var->cost;
         $ver->status = 1;
         $ver->type = 2;

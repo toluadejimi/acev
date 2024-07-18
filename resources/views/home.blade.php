@@ -311,7 +311,6 @@
                                                             </td>
                                                         @endif
 
-
                                                         @if($data->status == 1)
                                                         <td><p style="font-size: 16px; color: #e00101"
                                                                id="secondsDisplay{{$data->id}}"></p></td>
