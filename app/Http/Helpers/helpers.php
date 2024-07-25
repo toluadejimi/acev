@@ -83,7 +83,7 @@ function send_notification($message)
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.telegram.org/bot7452409529:AAERkBoIc_RJMe7UggQkmffmgJ1SRSvQqGE/sendMessage?chat_id=5831063571',
+            CURLOPT_URL => 'https://api.telegram.org/bot7446520062:AAFNjpsDuOyD1odhyCptH6u2idpGSaFpqWg/sendMessage?chat_id=5831063571',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
