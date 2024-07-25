@@ -673,10 +673,14 @@
                                     <div
                                         class="elementor-element elementor-element-8f8b927 elementor-widget elementor-widget-image"
                                         data-id="8f8b927" data-element_type="widget" data-widget_type="image.default">
-                                        <div class="elementor-widget-container">
+                                        <a href="/login">
+                                            <div class="elementor-widget-container">
                                             <img decoding="async" width="30" height="30"
                                                  src="{{url('')}}/public/asset3/wp-content/uploads/2024/07/mkkkk.png"
-                                                 class="attachment-full size-full wp-image-643" alt=""></div>
+                                                 class="attachment-full size-full wp-image-643" alt="">
+                                            </div>
+                                        </a>
+
                                     </div>
                                 </div>
                             </div>

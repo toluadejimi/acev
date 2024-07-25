@@ -153,7 +153,6 @@ class AdminController extends Controller
 
         }
 
-
         $user = User::all()->count();
         $users = User::orderBy('wallet', 'desc')->paginate(10);
 
