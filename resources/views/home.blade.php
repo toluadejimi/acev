@@ -122,7 +122,9 @@
                                                                 class="fas fa-wallet"></i></a>
 
                                                     @else
-                                                        <form action="order-usano">
+                                                        <form action="order-usano" method="POST">
+                                                            @csrf
+
                                                             <input hidden name="service" value="{{ $key }}">
                                                             <input hidden name="price" value="{{ $cost }}">
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
