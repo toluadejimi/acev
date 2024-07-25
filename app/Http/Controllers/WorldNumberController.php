@@ -281,8 +281,8 @@ class WorldNumberController extends Controller
 
             if ($can_order == 1) {
                 $amount = number_format($order->cost, 2);
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 return redirect('home')->with('message', "Order has been cancled, NGN$amount has been refunded");
             }
 
@@ -296,8 +296,8 @@ class WorldNumberController extends Controller
                 }
 
                 $amount = number_format($order->cost, 2);
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 return redirect('home')->with('message', "Order has been cancled, NGN$amount has been refunded");
             }
         }
@@ -324,8 +324,8 @@ class WorldNumberController extends Controller
 
             if ($sms == 6) {
                 $amount = number_format($order->cost, 2);
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 

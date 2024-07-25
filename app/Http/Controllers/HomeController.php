@@ -231,8 +231,8 @@ class HomeController extends Controller
                 if($order->status == 1){
 
                     $amount = number_format($order->cost, 2);
-                    User::where('id', $user_id)->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+                    User::where('id', $user_id)->increment('wallet', $order->cost);
                     $message = Auth::user()->email." just been refunded | $order->cost";
                     send_notification($message);
                     send_notification2($message);
@@ -250,8 +250,8 @@ class HomeController extends Controller
 
             if ($can_order == 1) {
                 $amount = number_format($order->cost, 2);
-                User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                User::where('id', $user_id)->increment('wallet', $order->cost);
 
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);
@@ -263,12 +263,13 @@ class HomeController extends Controller
 
             if ($can_order == 3) {
                 $order = Verification::where('id', $request->id)->first() ?? null;
+
                 if ($order->status != 1 || $order == null) {
                     return back()->with('error', "Please try again later");
                 }
+                Verification::where('id', $request->id)->delete();
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
-                Verification::where('id', $request->id)->delete();
 
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);
@@ -292,8 +293,9 @@ class HomeController extends Controller
                 if($order->status == 1){
 
                     $amount = number_format($order->cost, 2);
-                    User::where('id', $user_id)->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+
+                    User::where('id', $user_id)->increment('wallet', $order->cost);
 
                     $message = Auth::user()->email." just been refunded | $order->cost";
                     send_notification($message);
@@ -315,8 +317,8 @@ class HomeController extends Controller
 
             if ($can_order == 1) {
                 $amount = number_format($order->cost, 2);
-                User::where('id', $user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+                User::where('id', $user_id)->increment('wallet', $order->cost);
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);
                 send_notification2($message);
@@ -330,9 +332,11 @@ class HomeController extends Controller
                 if ($order->status != 1 || $order == null) {
                     return back()->with('error', "Please try again later");
                 }
+                Verification::where('id', $request->id)->delete();
+
                 $amount = number_format($order->cost, 2);
                 User::where('id', $user_id)->increment('wallet', $order->cost);
-                Verification::where('id', $request->id)->delete();
+
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);
                 send_notification2($message);
@@ -393,8 +397,9 @@ class HomeController extends Controller
 
                 $usr = User::where('id', $order->user_id)->first();
                 $amount = number_format($order->cost, 2);
-                User::where('id', $order->user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                User::where('id', $order->user_id)->increment('wallet', $order->cost);
 
 
                 return response()->json([
@@ -406,8 +411,9 @@ class HomeController extends Controller
             if ($can_order == 1) {
 
                 $amount = number_format($order->cost, 2);
-                User::where('id', $order->user_id)->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
+                User::where('id', $order->user_id)->increment('wallet', $order->cost);
 
                 return response()->json([
                     'message' => "Order has been canceled, NGN$amount has been refunded"

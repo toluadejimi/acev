@@ -89,7 +89,7 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
     Route::any('home',  [HomeController::class,'home']);
     Route::any('world',  [WorldNumberController::class,'home']);
     Route::any('check-av',  [WorldNumberController::class,'check_av']);
-    Route::any('order_now',  [WorldNumberController::class,'order_now']);
+    Route::post('order_now',  [WorldNumberController::class,'order_now']);
     Route::any('get-smscodeworld',  [WorldNumberController::class,'get_smscode']);
 
     Route::any('orders',  [HomeController::class,'orders']);
@@ -117,7 +117,7 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 
 
 
-    Route::any('order-usano',  [HomeController::class,'order_now']);
+    Route::post('order-usano',  [HomeController::class,'order_now']);
 
     Route::any('cancle-sms',  [HomeController::class,'cancle_sms']);
     Route::any('check-sms',  [HomeController::class,'check_sms']);
