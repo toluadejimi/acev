@@ -273,11 +273,12 @@ class AdminController extends Controller
         }
 
 
+        $account_status = AccountDetail::where('id', 1)->first()->status;
 
         $payment = ManualPayment::latest()->paginate(20);
         $acc = AccountDetail::where('id', 1)->first();
 
-        return view('manual-payment', compact('payment', 'acc'));
+        return view('manual-payment', compact('payment','account_status', 'acc'));
 
 
     }
@@ -287,12 +288,13 @@ class AdminController extends Controller
 	{
 
 
-
         $acc = AccountDetail::where('id', 1)->update([
 
             'bank_name' => $request->bank_name,
             'bank_account' => $request->bank_account,
             'account_name' => $request->account_name,
+            'status' => $request->status,
+
 
         ]);
 

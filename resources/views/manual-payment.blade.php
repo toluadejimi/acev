@@ -213,6 +213,16 @@
                                         <input class="form-control2" name="bank_account" required type="text" autofocus
                                         placeholder="Enter your title" value="{{ $acc->bank_account }}">
 
+
+
+                                        <select name="manual" class="form-control" >
+                                            <option value="">{{$account_status}}</option>
+                                            <option value="ON">ON</option>
+                                            <option value="OFF">OFF</option>
+
+
+                                        </select>
+
                                     </div>
 
 

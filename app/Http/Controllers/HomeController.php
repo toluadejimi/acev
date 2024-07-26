@@ -704,12 +704,13 @@ class HomeController extends Controller
     {
         $user = Auth::id() ?? null;
         $pay = PaymentMethod::all();
+        $status = AccountDetail::where('id', 1)->first()->status;
         $transaction = Transaction::query()
             ->orderByRaw('updated_at DESC')
             ->where('user_id', Auth::id())
             ->paginate(10);
 
-        return view('fund-wallet', compact('user', 'pay', 'transaction'));
+        return view('fund-wallet', compact('user', 'pay','status', 'transaction'));
     }
 
 
@@ -793,9 +794,6 @@ class HomeController extends Controller
 
             $message = Auth::user()->email . "| wants to fund Manually |  NGN " . number_format($request->amount) . " | with ref | $ref |  on ACEVERIFY";
             send_notification2($message);
-
-
-
 
 
 
