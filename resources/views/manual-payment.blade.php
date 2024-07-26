@@ -214,9 +214,9 @@
                                         placeholder="Enter your title" value="{{ $acc->bank_account }}">
 
 
-
-                                        <select name="manual" class="form-control" >
-                                            <option value="">{{$account_status}}</option>
+                                        <label class="text-muted">Account Status</label>
+                                        <select name="manual" class="form-control my-3" >
+                                            <option style="font-size: 12px" value="">{{$account_status}}</option>
                                             <option value="ON">ON</option>
                                             <option value="OFF">OFF</option>
 
