@@ -107,6 +107,8 @@ function send_notification($message)
 
 
 
+
+
 function session_resolve($session_id, $ref){
 
     $curl = curl_init();
