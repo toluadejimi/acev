@@ -185,13 +185,28 @@ class WorldNumberController extends Controller
             return back()->with('error', "Insufficient Funds");
         }
 
-
-
-        User::where('id', Auth::id())->decrement('wallet', $request->price);
-
         $country = $request->country;
         $service = $request->service;
         $price = $request->price;
+
+
+        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
+        $data['margin'] = Setting::where('id', 1)->first()->margin;
+
+
+        $gcost = pool_cost($service, $country);
+
+        $cost = $data['get_rate'] * $gcost + $data['margin'];
+        if (Auth::user()->wallet < $cost) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
+
+        User::where('id', Auth::id())->decrement('wallet', $cost);
+        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN | $cost";
+        send_notification($message);
+        send_notification2($message);
+
 
 
         $order = create_world_order($country, $service, $price);
@@ -213,7 +228,7 @@ class WorldNumberController extends Controller
             User::where('id', Auth::id())->increment('wallet', $request->price);
             $message = "ACESMSVERIFY | Error";
             send_notification($message);
-            send_notification3($message);
+            send_notification2($message);
 
             return redirect('world')->with('error', 'Error occurred, Please try again');
         }

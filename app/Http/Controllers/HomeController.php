@@ -35,8 +35,6 @@ class HomeController extends Controller
 
 
         $data['order'] = 0;
-
-
         return view('welcome', $data);
     }
 
@@ -119,17 +117,33 @@ class HomeController extends Controller
             return back()->with('error', "Insufficient Funds");
         }
 
+        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
+        $data['margin'] = Setting::where('id', 1)->first()->margin;
 
-        User::where('id', Auth::id())->decrement('wallet', $request->price);
+
+        $service = $request->service;
+
+        $gcost = get_d_price($service);
+
+        $cost = $data['get_rate'] * $gcost + $data['margin'];
+        if (Auth::user()->wallet < $cost) {
+            return back()->with('error', "Insufficient Funds");
+        }
+
+
+
+        User::where('id', Auth::id())->decrement('wallet', $cost);
 
         $service = $request->service;
         $price = $request->price;
         $cost = $request->cost;
         $service_name = $request->name;
 
-
-
         $order = create_order($service, $price, $cost, $service_name);
+        $message = Auth::user()->email." just been ordered number on Diasy NGN | $cost";
+        send_notification($message);
+        send_notification2($message);
+
 
         if ($order == 8) {
             return back()->with('error', "Insufficient Funds");
@@ -1523,11 +1537,12 @@ class HomeController extends Controller
 
             $ip = $request->ip();
             $url = $request->url();
-            $message = $request->email . "| just just funded wallet on ace verify | $ip | $url | NGN" . $request->amount;
+            $message = $request->email . "| just just funded wallet on ace verify | $ip | NGN" . $request->amount;
+            send_notification($message);
             send_notification2($message);
 
 
-                User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
+            User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
 
             $amount = number_format($request->amount, 2);
 
