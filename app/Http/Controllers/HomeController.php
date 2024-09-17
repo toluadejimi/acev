@@ -125,24 +125,21 @@ class HomeController extends Controller
 
         $gcost = get_d_price($service);
 
-        $cost = $data['get_rate'] * $gcost + $data['margin'];
-        if (Auth::user()->wallet < $cost) {
+        $costs = $data['get_rate'] * $gcost + $data['margin'];
+        if (Auth::user()->wallet < $costs) {
             return back()->with('error', "Insufficient Funds");
         }
 
 
 
-        User::where('id', Auth::id())->decrement('wallet', $cost);
 
         $service = $request->service;
         $price = $request->price;
         $cost = $request->cost;
         $service_name = $request->name;
 
-        $order = create_order($service, $price, $cost, $service_name);
-        $message = Auth::user()->email." just been ordered number on Diasy NGN | $cost";
-        send_notification($message);
-        send_notification2($message);
+        $order = create_order($service, $price, $cost, $service_name, $costs);
+
 
 
         if ($order == 8) {

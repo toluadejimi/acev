@@ -2,6 +2,7 @@
 
 use App\Constants\Status;
 use App\Models\Extension;
+use App\Models\User;
 use App\Models\Verification;
 use App\Lib\GoogleAuthenticator;
 use Carbon\Carbon;
@@ -188,7 +189,7 @@ function get_services(){
 }
 
 
-function create_order($service, $price, $cost, $service_name){
+function create_order($service, $price, $cost, $service_name, $costs){
 
 
 
@@ -261,6 +262,12 @@ function create_order($service, $price, $cost, $service_name){
         $ver->expires_in = 300;
         $ver->type = 1;
         $ver->save();
+
+        User::where('id', Auth::id())->decrement('wallet', $costs);
+        $message = Auth::user()->email." just been ordered number on Diasy NGN | $costs";
+        send_notification($message);
+        send_notification2($message);
+
         return 1;
 
     }elseif($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
@@ -456,7 +463,7 @@ function get_world_services(){
 }
 
 
-function create_world_order($country, $service, $price){
+function create_world_order($country, $service, $price, $cost){
 
     $key = env('WKEY');
     $curl = curl_init();
@@ -518,6 +525,12 @@ function create_world_order($country, $service, $price){
         $ver->type = 2;
 
         $ver->save();
+
+        User::where('id', Auth::id())->decrement('wallet', $cost);
+        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN | $cost";
+        send_notification($message);
+        send_notification2($message);
+
 
         return 3;
 

@@ -202,14 +202,7 @@ class WorldNumberController extends Controller
         }
 
 
-        User::where('id', Auth::id())->decrement('wallet', $cost);
-        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN | $cost";
-        send_notification($message);
-        send_notification2($message);
-
-
-
-        $order = create_world_order($country, $service, $price);
+        $order = create_world_order($country, $service, $price, $cost);
 
         if ($order == 5) {
             User::where('id', Auth::id())->increment('wallet', $request->price);
