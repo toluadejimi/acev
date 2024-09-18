@@ -54,7 +54,6 @@ class WorldNumberController extends Controller
 
 
         $body = json_encode($databody);
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => 'https://api.smspool.net/request/price',
@@ -93,9 +92,6 @@ class WorldNumberController extends Controller
 
 
 
-
-
-
         if ($price == null) {
             return redirect('world')->with('error', 'Verification not available for selected service');
         } else {
@@ -106,7 +102,6 @@ class WorldNumberController extends Controller
             $count_id = Country::where('country_id', $request->country)->first()->short_name ?? null;
 
             $ngnprice = ($price * $get_rate) + $margin;
-
 
             $data['count_id'] = $count_id;
             $data['serv'] = $request->service;
