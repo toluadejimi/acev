@@ -712,19 +712,20 @@ function pool_cost($service, $country){
     curl_close($curl);
     $var = json_decode($var);
 
+
     $get_s_price = $var->price ?? null;
     $high_price = $var->high_price ?? null;
     $rate = $var->success_rate ?? null;
-    $product = 1;
 
-    if($high_price > 4){
-        $price = $high_price * 1.3;
+    if($get_s_price < 4){
+        $price = $get_s_price * 1.3;
     }else{
-        $price = $high_price;
+        $price = $get_s_price;
     }
 
 
     return $price;
+
 
 }
 

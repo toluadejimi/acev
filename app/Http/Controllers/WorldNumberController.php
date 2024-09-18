@@ -84,10 +84,10 @@ class WorldNumberController extends Controller
 
 
 
-        if($high_price > 4){
-            $price = $high_price * 1.3;
+        if($get_s_price < 4){
+            $price = $get_s_price * 1.3;
         }else{
-            $price = $high_price;
+            $price = $get_s_price;
         }
 
 
@@ -192,6 +192,8 @@ class WorldNumberController extends Controller
         $gcost = pool_cost($service, $country);
 
         $cost = ($data['get_rate'] * $gcost) + $data['margin'];
+
+
         if (Auth::user()->wallet < $cost) {
             return back()->with('error', "Insufficient Funds");
         }
