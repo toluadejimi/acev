@@ -449,6 +449,7 @@
 
                                                 <a href="cancle-sms?id={{  $data->id }}&delete=1"
                                                    style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
+                                                   onclick="hideButtondelete(this)"
                                                    class="btn btn-warning btn-sm">Delete</span>
 
                                                     @else
@@ -520,6 +521,18 @@
             //change selectboxes to selectize mode to be searchable
             $("select").select2();
         });
+    </script>
+
+
+    <script>
+        function hideButtondelete(link) {
+            // Hide the clicked link
+            link.style.display = 'none';
+
+            setTimeout(function () {
+                link.style.display = 'inline'; // or 'block' depending on your layout
+            }, 5000); // 5 seconds
+        }
     </script>
 
 @endsection

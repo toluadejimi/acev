@@ -139,9 +139,6 @@ class HomeController extends Controller
         $service_name = $request->name;
 
         $order = create_order($service, $price, $cost, $service_name, $costs);
-
-
-
         if ($order == 8) {
             return back()->with('error', "Insufficient Funds");
         }
@@ -612,10 +609,10 @@ class HomeController extends Controller
 
 
                 if($order->status == 1){
-
                     $amount = number_format($order->cost, 2);
                     User::where('id', Auth::id())->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
+
 
                     $message = Auth::user()->email." just been refunded | $order->cost";
                     send_notification($message);
@@ -636,9 +633,11 @@ class HomeController extends Controller
 
 
             if ($can_order == 1) {
+
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
 
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);
@@ -650,12 +649,14 @@ class HomeController extends Controller
 
             if ($can_order == 3) {
                 $order = Verification::where('id', $request->id)->first() ?? null;
+
                 if ($order->status != 1 || $order == null) {
                     return redirect('world')->with('error', "Please try again later");
                 }
                 $amount = number_format($order->cost, 2);
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
+
 
                 $message = Auth::user()->email." just been refunded | $order->cost";
                 send_notification($message);

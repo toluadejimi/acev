@@ -280,7 +280,7 @@ class WorldNumberController extends Controller
         if ($order->status == 1) {
 
             $orderID = $order->order_id;
-            $can_order = cancel_order($orderID);
+            $can_order = cancel_world_order($orderID);
 
             if ($can_order == 0) {
                 return back()->with('error', "Please wait and try again later");
@@ -291,13 +291,11 @@ class WorldNumberController extends Controller
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
-                return redirect('home')->with('message', "Order has been cancled, NGN$amount has been refunded");
+                return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
 
             if ($can_order == 3) {
-
-
                 $order = Verification::where('id', $request->id)->first() ?? null;
                 if ($order->status != 1 || $order == null) {
                     return redirect('home')->with('error', "Please try again later");
@@ -306,7 +304,7 @@ class WorldNumberController extends Controller
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
-                return redirect('home')->with('message', "Order has been cancled, NGN$amount has been refunded");
+                return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
         }
     }
