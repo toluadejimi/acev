@@ -205,7 +205,6 @@ class WorldNumberController extends Controller
         $order = create_world_order($country, $service, $price, $cost);
 
         if ($order == 5) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
             return redirect('world')->with('error', 'Number Currently out of stock, Please check back later');
         }
 

@@ -169,7 +169,6 @@ class HomeController extends Controller
         }
 
         if ($order == 0) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
             $message = Auth::user()->email." just been refunded | $request->price";
             send_notification($message);
             send_notification2($message);
