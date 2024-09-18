@@ -125,7 +125,7 @@ class HomeController extends Controller
 
         $gcost = get_d_price($service);
 
-        $costs = $data['get_rate'] * $gcost + $data['margin'];
+        $costs = ($data['get_rate'] * $gcost) + $data['margin'];
         if (Auth::user()->wallet < $costs) {
             return back()->with('error', "Insufficient Funds");
         }

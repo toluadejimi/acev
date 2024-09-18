@@ -196,7 +196,7 @@ class WorldNumberController extends Controller
 
         $gcost = pool_cost($service, $country);
 
-        $cost = $data['get_rate'] * $gcost + $data['margin'];
+        $cost = ($data['get_rate'] * $gcost) + $data['margin'];
         if (Auth::user()->wallet < $cost) {
             return back()->with('error', "Insufficient Funds");
         }
