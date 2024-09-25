@@ -199,6 +199,7 @@ class WorldNumberController extends Controller
         }
 
 
+
         $order = create_world_order($country, $service, $price, $cost);
 
         if ($order == 5) {
@@ -206,7 +207,6 @@ class WorldNumberController extends Controller
         }
 
         if ($order == 1) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
             $message = "ACESMSVERIFY | Low balance";
             send_notification($message);
 
@@ -214,7 +214,6 @@ class WorldNumberController extends Controller
         }
 
         if ($order == 2) {
-            User::where('id', Auth::id())->increment('wallet', $request->price);
             $message = "ACESMSVERIFY | Error";
             send_notification($message);
             send_notification2($message);

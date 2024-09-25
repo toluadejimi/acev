@@ -131,8 +131,6 @@ class HomeController extends Controller
         }
 
 
-
-
         $service = $request->service;
         $price = $request->price;
         $cost = $request->cost;
@@ -169,23 +167,12 @@ class HomeController extends Controller
         }
 
         if ($order == 0) {
-            $message = Auth::user()->email." just been refunded | $request->price";
-            send_notification($message);
-            send_notification2($message);
             return redirect('home')->with('error', 'Number Currently out of stock, Please check back later');
         }
 
 
 
         if ($order == 1) {
-
-            $data['services'] = get_services();
-            $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-            $data['margin'] = Setting::where('id', 1)->first()->margin;
-            $data['sms_order'] = Verification::where('user_id', Auth::id())->where('status' , 1)->first();
-            $data['order'] = 1;
-
-            $data['verification'] = Verification::where('user_id', Auth::id())->paginate(10);
 
             return redirect('us');
         }
