@@ -264,6 +264,8 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $ver->save();
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
+
+
         $message = Auth::user()->email." just been ordered number on Diasy NGN | $costs";
         send_notification($message);
         send_notification2($message);
@@ -303,9 +305,7 @@ function cancel_order($orderID){
     $result = $var ?? null;
 
     if(strstr($result, "ACCESS_CANCEL") !== false){
-
         return 1;
-
     }else{
 
         return 0;
@@ -587,8 +587,6 @@ function cancel_world_order($orderID){
     $var = json_decode($var);
 
 
-
-
     $status = $var->success ?? null;
     $message = $var->message ?? null;
 
@@ -600,11 +598,6 @@ function cancel_world_order($orderID){
         return 0;
     }
 
-
-
-    if($status == 0){
-        return 0;
-    }
 
     if($status == 1){
         return 1;
