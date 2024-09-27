@@ -991,28 +991,6 @@ class HomeController extends Controller
     }
 
 
-    public
-    function verify_password(request $request)
-    {
-
-        $code = User::where('email', $request->email)->first()->code;
-
-
-        $storedExpiryTimestamp = $request->code;;
-
-        if (time() >= $storedExpiryTimestamp) {
-
-            $user = Auth::id() ?? null;
-            $email = $request->email;
-            return view('expired', compact('user', 'email'));
-        } else {
-
-            $user = Auth::id() ?? null;
-            $email = $request->email;
-
-            return view('verify-password', compact('user', 'email'));
-        }
-    }
 
 
     public
