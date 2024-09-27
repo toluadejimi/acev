@@ -457,7 +457,7 @@
                     <td class="content-cell">
                       <div class="f-fallback">
                         <h1>Hi {{$data1['user']}},</h1>
-                        <p>You recently requested to reset your password for your ACEVERIFY account. Use the button below to reset it. <strong>This password reset is only valid for the next 24 hours.</strong></p>
+                        <p>You recently requested to reset your password for your ACEVERIFY account. Use the button below to reset it.<br> <strong>This password reset is only valid for the next 24 hours.</strong></p>
                         <!-- Action -->
                         <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
