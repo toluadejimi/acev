@@ -781,7 +781,7 @@ class HomeController extends Controller
         } else {
 
             User::where('email', $request->email)->update(['verify' => 2]);
-            return view('Auth.verify-account-now-success');
+            return view('Auth.verify-account-now');
         }
 
     }
