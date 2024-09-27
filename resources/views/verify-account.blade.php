@@ -457,7 +457,7 @@
                     <td class="content-cell">
                       <div class="f-fallback">
                         <h1>Hi {{$data1['user']}},</h1>
-                        <p>We need to verify your email, Click the link below to continue<strong>This verification link is only valid for the next 24 hours.</strong></p>
+                        <p>We need to verify your email, Click the link below to continue <br> <strong>This verification link is only valid for the next 24 hours.</strong></p>
                         <!-- Action -->
                         <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
@@ -467,7 +467,7 @@
                               <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                                 <tr>
                                   <td align="center">
-                                    <a href="{{$data1['url']}}" class="f-fallback button button--green" target="_blank">Verify your account</a>
+                                    <a href="{{$data1['url']}}" class="f-fallback button button--red" target="_blank">Verify your account</a>
                                   </td>
                                 </tr>
                               </table>
