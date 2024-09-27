@@ -32,20 +32,22 @@
             @endif
 
 
-            <div class="card col-6 d-flex justify-content-center">
-                <div class="card-body ">
 
-                    <h1 class="text-center">Congratulations!!</h1>
-                    <p>Your account has been verified, Login to continue</p>
+                <form>
 
-                    <div class="d-grid mt-4">
-                        <a href="/login" type="submit"
-                           style="background: rgba(23, 69, 132, 1); border: 0px; border-radius: 2px"
-                           class="btn btn-primary w-70">Login
-                        </a>
-                    </div>
+                        <h1 class="text-center">Congratulations!!</h1>
+                        <p class="text-center">Your account has been verified, Login to continue</p>
 
-                </div>
+                        <div class="d-grid mt-4">
+                            <a href="/login" type="submit"
+                               style="background: rgba(23, 69, 132, 1); border: 0px; border-radius: 2px"
+                               class="btn btn-primary w-70">Login
+                            </a>
+                        </div>
+
+
+                </form>
+
 
 
 
