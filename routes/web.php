@@ -69,6 +69,14 @@ Route::get('policy',  [HomeController::class,'policy']);
 Route::get('rules',  [HomeController::class,'rules']);
 Route::post('update-password-now',  [HomeController::class,'update_password_now']);
 
+Route::get('verify-account-view',  [HomeController::class,'verify_account_now_view']);
+Route::get('verify-account-now',  [HomeController::class,'verify_account_now']);
+
+Route::get('verify-account-now-success',  [HomeController::class,'verify_account_now_page']);
+
+
+
+
 Route::any('get-smscode',  [HomeController::class,'get_smscode']);
 
 
