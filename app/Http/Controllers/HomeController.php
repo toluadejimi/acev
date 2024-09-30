@@ -1022,107 +1022,6 @@ class HomeController extends Controller
 
 
     public
-    function resloveDeposit(Request $request)
-    {
-        $dep = Transaction::where('ref_id', $request->trx_ref)->first() ?? null;
-
-
-        if ($dep == null) {
-            return back()->with('error', "Transaction not Found");
-        }
-
-        if ($dep->status == 2) {
-            return back()->with('error', "This Transaction has been successful");
-        }
-
-
-        if ($dep->status == 4) {
-            return back()->with('error', "This Transaction has been resolved");
-        }
-
-
-        if ($dep == null) {
-            return back()->with('error', "Transaction has been deleted");
-        } else {
-
-            $ref = $request->trx_ref;
-            $user = Auth::user() ?? null;
-            return view('resolve-page', compact('ref', 'user'));
-        }
-    }
-
-
-    public
-    function resolveNow(request $request)
-    {
-
-        if ($request->trx_ref == null || $request->session_id == null) {
-            return back()->with('error', "Session ID or Ref Can not be null");
-        }
-
-
-        $trx = Transaction::where('ref_id', $request->trx_ref)->first()->status ?? null;
-        $ck_trx = (int)$trx;
-        if ($ck_trx == 2) {
-
-            $email = Auth::user()->email;
-            $message = "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification2($message);
-
-            $message = "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification($message);
-
-
-            return back()->with('error', "This Transaction has been successful");
-        }
-
-
-        if ($ck_trx != 1) {
-
-            $email = Auth::user()->email;
-            $message = "$email | ACEVERIFY  | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification2($message);
-
-
-            $message = "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification($message);
-
-
-            return back()->with('error', "This Transaction has been successful");
-        }
-
-        if ($ck_trx == 2) {
-
-            $email = Auth::user()->email;
-            $message = "$email |ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification2($message);
-
-            $message = "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification($message);
-
-
-            return back()->with('error', "This Transaction has been successful");
-        }
-
-
-        if ($ck_trx == 4) {
-
-            $email = Auth::user()->email;
-            $message = "$email |ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification2($message);
-
-            $message = "$email | ACEVERIFY | is trying to fund and a successful order with orderid $request->trx_ref";
-            send_notification($message);
-
-
-            return back()->with('error', "This Transaction has been resolved");
-        }
-
-
-    }
-
-
-    public
     function get_smscode(request $request)
     {
 
@@ -1254,21 +1153,24 @@ class HomeController extends Controller
 
 
             if ($can_order == 1) {
-
-
                 $amount = number_format($order->cost, 2);
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
-                return back()->with('message', "Order has been cancled, NGN$amount has been refunded");
+                User::where('id', Auth::id())->increment('wallet', $order->cost);
+                $email = User::where('id', $order->user_id)->first()->email ?? null;
+                $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
+                $bb = number_format($balance, 2);
+                $message = $email. "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+                send_notification($message);
+                send_notification($message);
+
+                return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
             }
 
 
             if ($can_order == 3) {
-
                 $amount = number_format($order->cost, 2);
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
                 Verification::where('id', $request->id)->delete();
-                return back()->with('message', "Order has been cancled, NGN$amount has been refunded");
+                return back()->with('message', "Order has been canceled");
             }
         }
 
@@ -1289,27 +1191,27 @@ class HomeController extends Controller
             if ($order->status == 1) {
 
                 $orderID = $order->order_id;
-                $can_order = cancel_order($orderID);
+                $corder = cancel_order($orderID);
 
-                if ($can_order == 0) {
+                if ($corder == 0) {
                     return back()->with('error', "Please wait and try again later");
                 }
 
 
-                if ($can_order == 1) {
+                if ($corder == 1) {
                     $amount = number_format($order->cost, 2);
-                    User::where('id', Auth::id())->increment('wallet', $order->cost);
                     Verification::where('id', $request->id)->delete();
-                    return back()->with('message', "Order has been cancled, NGN$amount has been refunded");
+                    User::where('id', Auth::id())->increment('wallet', $order->cost);
+                    $email = User::where('id', $order->user_id)->first()->email ?? null;
+                    $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
+                    $bb = number_format($balance, 2);
+                    $message = $email. "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+                    send_notification($message);
+                    send_notification($message);
+                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
                 }
 
 
-                if ($can_order == 3) {
-                    $amount = number_format($order->cost, 2);
-                    User::where('id', Auth::id())->increment('wallet', $order->cost);
-                    Verification::where('id', $request->id)->delete();
-                    return back()->with('message', "Order has been cancled, NGN$amount has been refunded");
-                }
             }
 
         }
