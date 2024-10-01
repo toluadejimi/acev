@@ -209,7 +209,6 @@ class WorldNumberController extends Controller
         if ($order == 1) {
             $message = "ACESMSVERIFY | Low balance";
             send_notification($message);
-
             return redirect('world')->with('error', 'Error occurred, Please try again');
         }
 
@@ -217,123 +216,20 @@ class WorldNumberController extends Controller
             $message = "ACESMSVERIFY | Error";
             send_notification($message);
             send_notification2($message);
-
             return redirect('world')->with('error', 'Error occurred, Please try again');
         }
 
         if ($order == 3) {
 
-            $countries = get_world_countries();
-            $services = get_world_services();
-
-            $verification = Verification::where('user_id', Auth::id())->get();
-            $sms = Verification::where('user_id', Auth::id())->where('status', 1)->first()->sms;
-            $number = Verification::where('user_id', Auth::id())->where('status', 1)->first()->phone;
-            $num = Verification::where('user_id', Auth::id())->where('status', 1)->first();
-
-            $data['services'] = $services;
-            $data['countries'] = $countries;
-            $data['verification'] = $verification;
-            $data['sms'] = $sms;
-            $data['number'] = $number;
-            $data['product'] = null;
-
-            $data['number_order'] = 1;
-            $data['product'] = null;
-
-            $data['num'] = $num;
+            return redirect('orders');
 
 
-            $data['services'] = get_world_services();
-            $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-            $data['margin'] = Setting::where('id', 1)->first()->margin;
-            $data['sms_order'] = Verification::where('user_id', Auth::id())->where('status' , 1)->first();
-            $data['order'] = 1;
-
-            $data['verification'] = Verification::where('user_id', Auth::id())->paginate(10);
-
-            return redirect('world');
-
-            //return view('receivesmsworld', $data);
         }
     }
 
 
-    public function cancle_sms(Request $request)
-    {
-
-        $order = Verification::where('id', $request->id)->first() ?? null;
-
-        if ($order == null) {
-            return redirect('home')->with('error', 'Order not found');
-        }
-
-        if ($order->status == 2) {
-            return redirect('home')->with('message', "Order Completed");
-        }
-
-        if ($order->status == 1) {
-
-            $orderID = $order->order_id;
-            $can_order = cancel_world_order($orderID);
-
-            if ($can_order == 0) {
-                return back()->with('error', "Please wait and try again later");
-            }
 
 
-            if ($can_order == 1) {
-                $amount = number_format($order->cost, 2);
-                Verification::where('id', $request->id)->delete();
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
-                return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
-            }
 
-
-            if ($can_order == 3) {
-                $order = Verification::where('id', $request->id)->first() ?? null;
-                if ($order->status != 1 || $order == null) {
-                    return redirect('home')->with('error', "Please try again later");
-                }
-
-                $amount = number_format($order->cost, 2);
-                Verification::where('id', $request->id)->delete();
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
-                return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
-            }
-        }
-    }
-
-
-    public function check_sms(Request $request)
-    {
-
-        $order = Verification::where('id', $request->id)->first() ?? null;
-
-        if ($order == null) {
-            return back()->with('error', 'Order not found');
-        }
-
-        if ($order->status == 1) {
-
-            $orderID = $order->order_id;
-            $sms = check_sms($orderID);
-
-            if ($sms == 1) {
-                return redirect('home2')->with('error', 'Sms Pending, please wait and refresh again');
-            }
-
-            if ($sms == 6) {
-                $amount = number_format($order->cost, 2);
-                Verification::where('id', $request->id)->delete();
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
-                return redirect('home')->with('message', "Order has been canceled, NGN$amount has been refunded");
-            }
-
-            if ($sms == 6) {
-                return back()->with('message', 'Sms Received, order completed');
-            }
-        }
-    }
 
 }

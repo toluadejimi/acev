@@ -200,7 +200,9 @@ class AdminController extends Controller
             User::where('id',$request->id)->increment('wallet', $request->amount);
 
             $email = User::where('id', $request->id)->first()->email;
-            $message = "Wallet has been credited by admin | $email | $request->amount | on Ace Verify";
+            $balance = User::where('id', $request->id)->first()->wallet;
+
+            $message = "Wallet has been credited by admin | $email | $request->amount | Bal - $balance |on Ace Verify";
             send_notification($message);
             send_notification2($message);
 
