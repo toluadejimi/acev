@@ -382,7 +382,7 @@
 
 
                                                 function updateStatus{{$data->id}}() {
-                                                    fetch('{{url('')}}/api/cancle-sms', {
+                                                    fetch('{{url('')}}/api/delete-order', {
                                                         method: 'POST',
                                                         headers: {
                                                             'Content-Type': 'application/json',
@@ -447,7 +447,7 @@
                                         <td>
                                             @if ($data->status == 1)
 
-                                                <a href="cancle-sms?id={{  $data->id }}&delete=1"
+                                                <a href="delete-order?id={{  $data->id }}&delete=1"
                                                    style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
                                                    onclick="hideButtondelete(this)"
                                                    class="btn btn-warning btn-sm">Delete</span>
