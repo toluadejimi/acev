@@ -841,7 +841,7 @@ class HomeController extends Controller
     public
     function orders(request $request)
     {
-        $verification = Verification::where('user_id', Auth::id())->get() ?? null;
+        $verification = Verification::latest()->where('user_id', Auth::id())->get() ?? null;
         return view('orders', compact('verification'));
     }
 
@@ -933,7 +933,7 @@ class HomeController extends Controller
                     $bb = number_format($balance, 2);
                     $message = $email. "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
                     send_notification($message);
-                    send_notification($message);
+                    send_notification2($message);
                     return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
                 }
 

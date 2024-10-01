@@ -261,9 +261,9 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $ver->save();
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
-        $cost2 = number_format($cost, 2);
+        $cost2 = number_format($price, 2);
         $bal = number_format(Auth::user()->wallet, 2);
-        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN $cost2 | NGN $bal ";
+        $message = Auth::user()->email." just been ordered number on Diasy NGN $cost2 | NGN $bal ";
         send_notification($message);
         send_notification2($message);
 
