@@ -191,12 +191,9 @@ function get_services(){
 
 function create_order($service, $price, $cost, $service_name, $costs){
 
-
-
     if (Auth::user()->wallet < $price) {
         return 8;
     }
-
 
     if (Auth::user()->wallet < $price) {
         return 8;
@@ -264,9 +261,9 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $ver->save();
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
-
-
-        $message = Auth::user()->email." just been ordered number on Diasy NGN | $costs";
+        $cost2 = number_format($cost, 2);
+        $bal = number_format(Auth::user()->wallet, 2);
+        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN $cost2 | NGN $bal ";
         send_notification($message);
         send_notification2($message);
 
@@ -527,10 +524,11 @@ function create_world_order($country, $service, $price, $cost){
         $ver->save();
 
         User::where('id', Auth::id())->decrement('wallet', $cost);
-        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN | $cost";
+        $cost2 = number_format($cost, 2);
+        $bal = number_format(Auth::user()->wallet, 2);
+        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN $cost2 | NGN $bal ";
         send_notification($message);
         send_notification2($message);
-
 
         return 3;
 
