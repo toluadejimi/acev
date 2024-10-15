@@ -131,7 +131,7 @@
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
                                                             <button class="myButton"
                                                                     style="border: 0px; background: transparent"
-                                                                    onclick="hideButton(this)"><i
+                                                                    onclick="this.style.display='none'"><i
                                                                     class="fa fa-shopping-bag"></i></button>
                                                         </form>
 

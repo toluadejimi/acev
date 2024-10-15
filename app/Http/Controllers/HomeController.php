@@ -486,6 +486,16 @@ class HomeController extends Controller
                 $username = Auth::user()->username;
                 return back()->with('message', 'Account verification has been sent to your email, Verify your account');
             }else{
+
+                $user = Auth::user();
+                if ($user->sessiosession_idn_id && $user->session_id !== session()->getId()) {
+                    session()->getHandler()->destroy($user->session_id);
+                }
+                $user->session_id = session()->getId();
+                $user->save();
+
+
+
                 return redirect('us');
             }
         }
@@ -493,6 +503,19 @@ class HomeController extends Controller
         return back()->with('error', "Email or Password Incorrect");
     }
 
+
+    public function destroy(Request $request)
+    {
+        $user = Auth::user();
+        $user->session_id = null; // Clear session ID
+        $user->save();
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
 
     public
     function verify_account_now(request $request)
@@ -667,14 +690,6 @@ class HomeController extends Controller
         return back()->with('message', 'Password Changed Successfully');
     }
 
-
-    // public function forget_password(request $request)
-    // {
-
-    //     $user = Auth::id() ?? null;
-
-    //     return view('forget-password', compact('user'));
-    // }
 
     public
     function reset_password(request $request)

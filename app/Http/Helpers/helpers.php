@@ -502,8 +502,6 @@ function create_world_order($country, $service, $price, $cost){
     if($success == 1){
 
         Verification::where('phone', $var->cc.$var->phonenumber)->where('status', 2)->delete() ?? null;
-
-
         $currentTime = Carbon::now();
         $futureTime = $currentTime->addMinutes(15);
         $formattedTime = $futureTime->format('Y-m-d H:i:s');
@@ -528,7 +526,7 @@ function create_world_order($country, $service, $price, $cost){
         $cost2 = number_format($cost, 2);
         $cal = Auth::user()->wallet - $cost;
         $bal = number_format($cal, 2);
-        $message = Auth::user()->email." just been ordered number on SMSPOOL NGN $cost2 | NGN $bal ";
+        $message = Auth::user()->email." just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
         send_notification($message);
         send_notification2($message);
 

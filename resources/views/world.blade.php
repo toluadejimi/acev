@@ -182,7 +182,7 @@
 
                                             <button type="submit"
                                                     style="border: 0px; background: rgba(23, 69, 132, 1); color: white;"
-                                                    class="mb-2 btn btn w-100 btn-lg mt-6">Buy Number
+                                                    class="mb-2 btn btn w-100 btn-lg mt-6" onclick="this.style.display='none'">Buy Number
                                                 Now
                                             </button>
 
