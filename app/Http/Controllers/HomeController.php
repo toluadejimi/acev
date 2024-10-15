@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use PHPUnit\Framework\Constraint\IsEmpty;
 
 
 class HomeController extends Controller
@@ -1087,7 +1088,8 @@ class HomeController extends Controller
             $amount = number_format($request->amount, 2);
 
             $get_depo = Transaction::where('ref_id', $request->order_id)->first() ?? null;
-            if ($get_depo == null) {
+            if ($get_depo == null || $get_depo->isEmpty() ) {
+
                 $trx = new Transaction();
                 $trx->ref_id = $request->order_id;
                 $trx->user_id = $get_user->id;
