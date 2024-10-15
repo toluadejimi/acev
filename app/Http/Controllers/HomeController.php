@@ -1106,6 +1106,10 @@ class HomeController extends Controller
             }
 
 
+            $message = json_encode($get_depo);
+            send_notification($message);
+
+
             return response()->json([
                 'status' => true,
                 'message' => "NGN $amount has been successfully added to your wallet",
