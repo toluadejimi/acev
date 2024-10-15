@@ -1095,6 +1095,10 @@ class HomeController extends Controller
                 $trx->amount = $request->amount;
                 $trx->type = 2;
                 $trx->save();
+
+                $message = $trx->id . "| $request->order_id |saved";
+                send_notification($message);
+
             } else {
                 Transaction::where('ref_id', $request->order_id)->update(['status' => 2]);
             }
