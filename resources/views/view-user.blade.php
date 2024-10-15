@@ -359,18 +359,18 @@
 
                                         <div class="col-4">
                                             <h4>Total Funded</h4>
-                                            NGN {{$total_funded}}
+                                            NGN {{number_format($total_funded, 2)}}
 
                                         </div>
 
                                         <div class="col-4">
                                             <h4>Total Bought</h4>
-                                            {{$total_bought}}
+                                            {{number_format($total_bought, 2)}}
                                         </div>
 
                                         <div class="col-4">
                                             <h4>Balance</h4>
-                                            {{$total_balance}}
+                                            {{number_format($total_balance, 2)}}
                                         </div>
                                     </div>
 
