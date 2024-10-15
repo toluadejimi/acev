@@ -363,6 +363,36 @@
 
                                 </div>
                             </div>
+
+                            <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
+                                <div class="card">
+
+                                   <div class="row">
+
+                                       <div class="col-4">
+                                           <h4>Total Funded</h4>
+                                           NGN {{$total_funded}}
+
+                                       </div>
+
+                                       <div class="col-4">
+                                           <h4>Total Bought</h4>
+                                           {{$total_bought}}
+                                       </div>
+
+                                       <div class="col-4">
+                                           <h4>Balance</h4>
+                                           {{$total_balance}}
+                                       </div>
+
+
+                                   </div>
+
+
+
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
