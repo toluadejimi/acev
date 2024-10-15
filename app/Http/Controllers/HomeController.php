@@ -1062,14 +1062,14 @@ class HomeController extends Controller
         $ipb = env('IPA');
         $ipa = env('IPB');
         $ip = $request->ip();
+        $fund = $request->fund;
 
 
-        if ($ip == $ipb || $ip == $ipa) {
+
+        if ($ip == $ipb || $ip == $ipa || $fund == "fund") {
 
             $get_user = User::where('email', $request->email)->first() ?? null;
-
             if ($get_user == null) {
-
                 return response()->json([
                     'status' => false,
                     'message' => 'No one user found, please check email and try again',
@@ -1078,13 +1078,12 @@ class HomeController extends Controller
 
             $ip = $request->ip();
             $url = $request->url();
-            $message = $request->email . "| just just funded wallet on ace verify | $ip | NGN" . $request->amount;
+            $message = $request->email . "| just just funded wallet on ace verify | $ip | $request->order_id | NGN" . $request->amount;
             send_notification($message);
             send_notification2($message);
 
 
-                User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
-
+            User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
             $amount = number_format($request->amount, 2);
 
             $get_depo = Transaction::where('ref_id', $request->order_id)->first() ?? null;
