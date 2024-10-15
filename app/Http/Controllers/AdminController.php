@@ -253,12 +253,10 @@ class AdminController extends Controller
         $data['verification'] = verification::latest()->where('user_id', $request->id)->paginate(50);
 
         $data['total_funded'] = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
-        $data['total_bought'] = verification::where('user_id', $request->id)->where('status', 2)->sum('amount');
+        $data['total_bought'] = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
         $data['total_balance'] = $data['total_funded'] -  $data['total_bought'];
 
-
         return view('view-user',$data);
-
 
     }
 
