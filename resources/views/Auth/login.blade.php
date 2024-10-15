@@ -8,6 +8,11 @@
 
             <div class="d-flex justify-content-center mt-5 my-5">
 
+                <h4>Hi, Welcome Back! 👋</h4>
+            </div>
+
+            <div class="d-flex justify-content-center mt-5 my-5">
+
 
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -30,8 +35,6 @@
                 @endif
 
 
-
-                <h4>Hi, Welcome Back! 👋</h4>
             </div>
 
 
