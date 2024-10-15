@@ -488,7 +488,7 @@ class HomeController extends Controller
             }else{
 
                 $user = Auth::user();
-                if ($user->sessiosession_idn_id && $user->session_id !== session()->getId()) {
+                if ($user->session_id && $user->session_id !== session()->getId()) {
                     session()->getHandler()->destroy($user->session_id);
                 }
                 $user->session_id = session()->getId();

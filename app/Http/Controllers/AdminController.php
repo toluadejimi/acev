@@ -45,6 +45,15 @@ class AdminController extends Controller
 
             $role = User::where('username', $request->username)->first()->role_id;
 
+            $user = Auth::user();
+            if ($user->session_id && $user->session_id !== session()->getId()) {
+                session()->getHandler()->destroy($user->session_id);
+            }
+            $user->session_id = session()->getId();
+            $user->save();
+
+
+
             if($role == 5){
 
                 return redirect('admin-dashboard');
