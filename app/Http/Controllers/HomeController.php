@@ -90,7 +90,7 @@ class HomeController extends Controller
 
         $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
-        if($total_funded < $total_bought){
+        if($total_bought > $total_funded){
 
             $message = Auth::user()->email ." has been banned for cheating";
             send_notification($message);
