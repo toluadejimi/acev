@@ -183,6 +183,11 @@ class WorldNumberController extends Controller
         if($total_funded < $total_bought){
             User::where('id', Auth::id())->update(['status' => 9]);
             Auth::logout();
+
+            $message = Auth::user()->email ." has been banned for cheating";
+            send_notification($message);
+            send_notification2($message);
+
             return redirect('ban');
 
         }
