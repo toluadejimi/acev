@@ -283,7 +283,7 @@
                                         <div class="card-body p-3">
                                             <h5 class="">Status</h5>
 
-                                            @if(Auth::user()->status == 9)
+                                            @if($user->status == 9)
                                                <p class="text-warning">{{"Banned"}} </p>
                                             @else
                                                 {{"Active"}}
