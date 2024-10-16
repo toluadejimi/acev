@@ -221,8 +221,8 @@
                                                         <th class="border-0">Username</th>
                                                         <th class="border-0">Email</th>
                                                         <th class="border-0">Wallet(NGN)</th>
-                                                        <th class="border-0">Funded</th>
                                                         <th class="border-0">Bought</th>
+                                                        <th class="border-0">Funded</th>
                                                         <th class="border-0">Action</th>
                                                         <th class="border-0">Action</th>
                                                         <th class="border-0">Action</th>
