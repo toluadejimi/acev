@@ -88,8 +88,8 @@ class HomeController extends Controller
     {
 
 
-        $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
-        $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
+        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
+        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
         if($total_bought > $total_funded){
 
             $message = Auth::user()->email ." has been banned for cheating";
@@ -523,8 +523,8 @@ class HomeController extends Controller
                 $user->save();
 
 
-                $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
-                $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
+                $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
+                $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
                 if($total_funded < $total_bought){
                     User::where('id', Auth::id())->update(['status' => 9]);
                     Auth::logout();
