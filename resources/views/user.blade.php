@@ -228,12 +228,21 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+
+
                                                     @forelse ($users as $data)
+
+                                                        @php
+                                                            $total_bought = \App\Models\Verification::where('user_id', $user->id)
+                                                                ->where('status', 2)
+                                                                ->sum('cost');
+                                                        @endphp
 
                                                     <tr>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->username }}</a> </td>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->email }} </td></a>
                                                         <td>{{ number_format($data->wallet, 2) }} </td>
+                                                        <td>{{ number_format($total_bought,2) }}</td>
                                                         <td><a href="view-user?id={{ $data->id }}" class="btn btn-success btn-sm">View User</a> </td>
                                                         <td><a href="ban-user?id={{ $data->id }}" class="btn btn-warning btn-sm">Ban User</a> </td>
                                                         <td><a href="remove-user?id={{ $data->id }}" class="btn btn-danger btn-sm">Delete User</a> </td>
