@@ -284,7 +284,7 @@
                                             <h5 class="">Status</h5>
 
                                             @if($user->status == 9)
-                                               <p class="text-warning">{{"Banned"}} </p>
+                                               <span class="text-warning">{{"Banned"}} </span>
                                             @else
                                                 {{"Active"}}
                                             @endif
