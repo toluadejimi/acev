@@ -215,6 +215,6 @@
     </div>
 </div>
 <div class="txt3">For more information please </div>
-<a href="https://api.whatsapp.com/send?phone=2349138248126"><div class="button">Contact us</div></a>
+<a href="https://t.me/acesmsverify"><div class="button">Contact us</div></a>
 </body>
 </html>
