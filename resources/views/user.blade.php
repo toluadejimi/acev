@@ -218,14 +218,14 @@
                                             <table class="table">
                                                 <thead class="bg-light text-dark">
                                                     <tr class="border-0">
-                                                        <th class="border-0">Username</th>
-                                                        <th class="border-0">Email</th>
-                                                        <th class="border-0">Wallet(NGN)</th>
-                                                        <th class="border-0">Bought</th>
-                                                        <th class="border-0">Funded</th>
-                                                        <th class="border-0">Action</th>
-                                                        <th class="border-0">Action</th>
-                                                        <th class="border-0">Action</th>
+                                                        <th class="border-0 text-dark">Username</th>
+                                                        <th class="border-0 text-dark">Email</th>
+                                                        <th class="border-0 text-dark">Wallet(NGN)</th>
+                                                        <th class="border-0 text-dark">Funded</th>
+                                                        <th class="border-0 text-dark">Bought</th>
+                                                        <th class="border-0 text-dark">Action</th>
+                                                        <th class="border-0 text-dark">Action</th>
+                                                        <th class="border-0 text-dark">Action</th>
 
 
                                                     </tr>
@@ -250,8 +250,13 @@
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->username }}</a> </td>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->email }} </td></a>
                                                         <td>{{ number_format($data->wallet, 2) }} </td>
-                                                        <td>{{ number_format($total_bought,2) }}</td>
                                                         <td>{{ number_format($total_funded,2) }}</td>
+
+                                                        @if($total_funded < $total_bought)
+                                                            <td class="text-danger">{{ number_format($total_bought,2) }}</td>
+                                                        @else
+                                                            <td>{{ number_format($total_bought,2) }}</td>
+                                                        @endif
                                                         <td><a href="view-user?id={{ $data->id }}" class="btn btn-success btn-sm">View User</a> </td>
                                                         <td><a href="ban-user?id={{ $data->id }}" class="btn btn-warning btn-sm">Ban User</a> </td>
                                                         <td><a href="remove-user?id={{ $data->id }}" class="btn btn-danger btn-sm">Delete User</a> </td>
