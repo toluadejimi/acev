@@ -235,6 +235,7 @@
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->email }} </td></a>
                                                         <td>{{ number_format($data->wallet, 2) }} </td>
                                                         <td><a href="view-user?id={{ $data->id }}" class="btn btn-success btn-sm">View User</a> </td>
+                                                        <td><a href="ban-user?id={{ $data->id }}" class="btn btn-warning btn-sm">Ban User</a> </td>
                                                         <td><a href="remove-user?id={{ $data->id }}" class="btn btn-danger btn-sm">Delete User</a> </td>
 
 

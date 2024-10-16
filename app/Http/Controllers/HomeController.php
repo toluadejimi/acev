@@ -459,6 +459,16 @@ class HomeController extends Controller
     {
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
+
+
+            if(Auth::user()->status == 9){
+                Auth::logout();
+                return redirect('ban');
+            }
+
+
+
+
             if (Auth::user()->verify == 0) {
                 $email = $request->email;
                 $expiryTimestamp = time() + 24 * 60 * 60; // 24 hours in seconds
@@ -488,6 +498,9 @@ class HomeController extends Controller
                 return back()->with('message', 'Account verification has been sent to your email, Verify your account');
             }else{
 
+
+
+
                 $user = Auth::user();
                 if ($user->session_id && $user->session_id !== session()->getId()) {
                     session()->getHandler()->destroy($user->session_id);
@@ -496,12 +509,34 @@ class HomeController extends Controller
                 $user->save();
 
 
+                $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
+                $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
+
+
+                if($total_funded < $total_bought){
+                    User::where('id', Auth::id())->update(['status' => 9]);
+                    Auth::logout();
+                    return redirect('ban');
+
+                }
 
                 return redirect('us');
             }
         }
 
         return back()->with('error', "Email or Password Incorrect");
+    }
+
+
+    public function ban(Request $request)
+    {
+        return view('ban');
+    }
+
+    public function ban_user(Request $request)
+    {
+        User::where('id', $request->id)->update(['status' => 9]);
+        return view('ban');
     }
 
 

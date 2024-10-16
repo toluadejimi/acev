@@ -211,6 +211,10 @@ Route::get('view-user',  [AdminController::class,'view_user']);
 Route::any('update-user',  [AdminController::class,'update_user']);
 Route::any('remove-user',  [AdminController::class,'remove_user']);
 
+Route::get('ban',  [HomeController::class,'ban']);
+
+Route::get('ban-user',  [HomeController::class,'ban_user']);
+
 
 
 
