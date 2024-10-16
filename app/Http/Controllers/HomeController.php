@@ -553,7 +553,7 @@ class HomeController extends Controller
     public function ban_user(Request $request)
     {
         User::where('id', $request->id)->update(['status' => 9]);
-        return view('ban');
+        return back()->with('message', "Account Banned Successfully");
     }
 
 
