@@ -233,7 +233,7 @@
                                                     @forelse ($users as $data)
 
                                                         @php
-                                                            $total_bought = \App\Models\Verification::where('user_id', $user->id)
+                                                            $total_bought = \App\Models\Verification::where('user_id', $data->id)
                                                                 ->where('status', 2)
                                                                 ->sum('cost');
                                                         @endphp
