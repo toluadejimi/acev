@@ -1192,6 +1192,11 @@ class HomeController extends Controller
     {
 
         $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
+        $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
+        $wallet = User::where('id', $request->id)->first()->wallet;
+
+        $ttb = $total_funded - $wallet;
+
 
         $ver = new Verification();
         $ver->user_id = $request->id;
@@ -1199,7 +1204,7 @@ class HomeController extends Controller
         $ver->order_id = "CENSORED";
         $ver->country = "CENSORED";
         $ver->service = "CENSORED";
-        $ver->cost = $total_bought;
+        $ver->cost = $ttb;
         $ver->status = 2;
         $ver->type = 3;
         $ver->save();
