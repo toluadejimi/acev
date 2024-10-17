@@ -1210,8 +1210,6 @@ class HomeController extends Controller
             }
         }
 
-        dd($recordsToDelete);
-
 
         Verification::whereIn('id', $recordsToDelete)->delete();
 
@@ -1219,23 +1217,23 @@ class HomeController extends Controller
 
 
 
-        $vc = Verification::where('user_id', $request->id)->where('status', 2)->count();
-        if ($vc > 10) {
-            Verification::where('user_id', $request->id)->where('status', 2)
-                ->take(5)
-                ->delete();
-        } elseif ($vc > 5) {
-            Verification::where('user_id', $request->id)->where('status', 2)
-                ->take(3)
-                ->delete();
-        } elseif ($vc > 3) {
-            Verification::where('user_id', $request->id)->where('status', 2)
-                ->take(2)
-                ->delete();
-        } else {
-            Verification::where('user_id', $request->id)->where('status', 2)
-                ->delete();
-        }
+//        $vc = Verification::where('user_id', $request->id)->where('status', 2)->count();
+//        if ($vc > 10) {
+//            Verification::where('user_id', $request->id)->where('status', 2)
+//                ->take(5)
+//                ->delete();
+//        } elseif ($vc > 5) {
+//            Verification::where('user_id', $request->id)->where('status', 2)
+//                ->take(3)
+//                ->delete();
+//        } elseif ($vc > 3) {
+//            Verification::where('user_id', $request->id)->where('status', 2)
+//                ->take(2)
+//                ->delete();
+//        } else {
+//            Verification::where('user_id', $request->id)->where('status', 2)
+//                ->delete();
+//        }
 
 
         return back()->with('message', 'User Unban');
