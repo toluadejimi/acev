@@ -1191,49 +1191,26 @@ class HomeController extends Controller
     public function unban_users(request $request)
     {
 
+        $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
+
+        $ver = new Verification();
+        $ver->user_id = $request->id;
+        $ver->phone = "CENSORED";
+        $ver->order_id = "CENSORED";
+        $ver->country = "CENSORED";
+        $ver->service = "CENSORED";
+        $ver->cost = $total_bought;
+        $ver->status = 2;
+        $ver->type = 3;
+        $ver->save();
 
 
-        $targetAmount = User::where('id', $request->id)->first()->wallet;
-        $accumulatedAmount = 0;
-
-        $recordsToDelete = [];
-        $verifications = Verification::where('user_id', $request->id)
-            ->where('status', 2)
-            ->orderBy('id') // Ensure consistent order
-            ->get();
-
-        foreach ($verifications as $verification) {
-            $accumulatedAmount += $verification->amount;
-            $recordsToDelete[] = $verification->id;
-            if ($accumulatedAmount >= $targetAmount) {
-                break;
-            }
-        }
-
-
-        Verification::whereIn('id', $recordsToDelete)->delete();
+        Verification::where('user_id', $request->id)->where('type', 2)->delete();
+        Verification::where('user_id', $request->id)->where('type', 1)->delete();
+        Verification::where('user_id', $request->id)->where('type', 3)->delete();
 
         User::where('id', $request->id)->update(['status' => 0]);
 
-
-
-//        $vc = Verification::where('user_id', $request->id)->where('status', 2)->count();
-//        if ($vc > 10) {
-//            Verification::where('user_id', $request->id)->where('status', 2)
-//                ->take(5)
-//                ->delete();
-//        } elseif ($vc > 5) {
-//            Verification::where('user_id', $request->id)->where('status', 2)
-//                ->take(3)
-//                ->delete();
-//        } elseif ($vc > 3) {
-//            Verification::where('user_id', $request->id)->where('status', 2)
-//                ->take(2)
-//                ->delete();
-//        } else {
-//            Verification::where('user_id', $request->id)->where('status', 2)
-//                ->delete();
-//        }
 
 
         return back()->with('message', 'User Unban');
