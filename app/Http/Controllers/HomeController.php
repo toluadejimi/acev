@@ -1207,7 +1207,6 @@ class HomeController extends Controller
 
         Verification::where('user_id', $request->id)->where('type', 2)->delete();
         Verification::where('user_id', $request->id)->where('type', 1)->delete();
-        Verification::where('user_id', $request->id)->where('type', 3)->delete();
 
         User::where('id', $request->id)->update(['status' => 0]);
 
