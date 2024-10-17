@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use PHPUnit\Framework\Constraint\IsEmpty;
 
 
 class HomeController extends Controller
@@ -30,10 +29,6 @@ class HomeController extends Controller
         $data['order'] = 0;
         return view('welcome', $data);
     }
-
-
-
-
 
 
     public function home(request $request)
@@ -94,9 +89,9 @@ class HomeController extends Controller
 
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-        if($total_bought > $total_funded){
+        if ($total_bought > $total_funded) {
 
-            $message = Auth::user()->email ." has been banned for cheating";
+            $message = Auth::user()->email . " has been banned for cheating";
             send_notification($message);
             send_notification2($message);
 
@@ -336,8 +331,6 @@ class HomeController extends Controller
     }
 
 
-
-
     public function fund_wallet(Request $request)
     {
         $user = Auth::id() ?? null;
@@ -479,12 +472,10 @@ class HomeController extends Controller
         if (Auth::attempt($credentials)) {
 
 
-            if(Auth::user()->status == 9){
+            if (Auth::user()->status == 9) {
                 Auth::logout();
                 return redirect('ban');
             }
-
-
 
 
             if (Auth::user()->verify == 0) {
@@ -514,9 +505,7 @@ class HomeController extends Controller
 
                 $username = Auth::user()->username;
                 return back()->with('message', 'Account verification has been sent to your email, Verify your account');
-            }else{
-
-
+            } else {
 
 
                 $user = Auth::user();
@@ -529,11 +518,11 @@ class HomeController extends Controller
 
                 $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
                 $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-                if($total_funded < $total_bought){
+                if ($total_funded < $total_bought) {
                     User::where('id', Auth::id())->update(['status' => 9]);
                     Auth::logout();
 
-                    $message = Auth::user()->email ." has been banned for cheating";
+                    $message = Auth::user()->email . " has been banned for cheating";
                     send_notification($message);
                     send_notification2($message);
 
@@ -598,12 +587,6 @@ class HomeController extends Controller
         return view('verify-account-now-success');
 
     }
-
-
-
-
-
-
 
 
     public
@@ -789,8 +772,6 @@ class HomeController extends Controller
     }
 
 
-
-
     public
     function expired(request $request)
     {
@@ -957,7 +938,7 @@ class HomeController extends Controller
                 $email = User::where('id', $order->user_id)->first()->email ?? null;
                 $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
                 $bb = number_format($balance, 2);
-                $message = $email. "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+                $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
                 send_notification($message);
                 send_notification2($message);
 
@@ -1003,7 +984,7 @@ class HomeController extends Controller
                     $email = User::where('id', $order->user_id)->first()->email ?? null;
                     $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
                     $bb = number_format($balance, 2);
-                    $message = $email. "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+                    $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
                     send_notification($message);
                     send_notification2($message);
                     return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
@@ -1122,7 +1103,6 @@ class HomeController extends Controller
         $fund = $request->fund;
 
 
-
         if ($ip == $ipb || $ip == $ipa || $fund == "fund") {
 
             $get_user = User::where('email', $request->email)->first() ?? null;
@@ -1140,11 +1120,11 @@ class HomeController extends Controller
             send_notification2($message);
 
 
-            User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
+                User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
             $amount = number_format($request->amount, 2);
 
             $get_depo = Transaction::where('ref_id', $request->order_id)->first() ?? null;
-            if ($get_depo == null ) {
+            if ($get_depo == null) {
 
                 $trx = new Transaction();
                 $trx->ref_id = $request->order_id;
@@ -1208,18 +1188,39 @@ class HomeController extends Controller
     }
 
 
-    public function clear_verifications(request $request)
+    public function unban_users(request $request)
     {
-        Verification::where('user_id', $request->id)->where('status', 2)->delete();
         User::where('id', $request->id)->update(['status' => 0]);
+
+        $vc = Verification::where('user_id', $request->id)->where('status', 2)->count();
+        if ($vc > 10) {
+            Verification::where('user_id', $request->id)->where('status', 2)
+                ->take(5)
+                ->delete();
+        } elseif ($vc > 5) {
+            Verification::where('user_id', $request->id)->where('status', 2)
+                ->take(3)
+                ->delete();
+        } elseif ($vc > 3) {
+            Verification::where('user_id', $request->id)->where('status', 2)
+                ->take(2)
+                ->delete();
+        } else {
+            Verification::where('user_id', $request->id)->where('status', 2)
+                ->delete();
+        }
+
 
         return back()->with('message', 'User Unban');
 
     }
 
 
-
-
+    public function ban_users(request $request)
+    {
+        User::where('id', $request->id)->update(['status' => 9]);
+        return back()->with('message', 'User Banned');
+    }
 
 
 }

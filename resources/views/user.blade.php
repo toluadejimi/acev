@@ -258,7 +258,11 @@
                                                             <td>{{ number_format($total_bought,2) }}</td>
                                                         @endif
                                                         <td><a href="view-user?id={{ $data->id }}" class="btn btn-success btn-sm">View User</a> </td>
-                                                        <td><a href="ban-user?id={{ $data->id }}" class="btn btn-warning btn-sm">Ban User</a> </td>
+                                                        @if($data->status == 9)
+                                                            <td><a href="unban-users?id={{ $data->id }}" class="btn btn-success btn-sm">Unban User</a> </td>
+                                                        @else
+                                                            <td><a href="ban-user?id={{ $data->id }}" class="btn btn-warning btn-sm">Ban User</a> </td>
+                                                        @endif
                                                         <td><a href="remove-user?id={{ $data->id }}" class="btn btn-danger btn-sm">Delete User</a> </td>
 
 

@@ -386,26 +386,6 @@
 
                         </div>
 
-                        <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
-                            <div class="card">
-
-                                <div class="card-body">
-
-                                    <div class="row">
-
-
-                                        <div class="col-4">
-                                            <a href="unban-users?id={{$user->id}}" class="btn btn-warning"> Clear un-ban</a>
-                                        </div>
-
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-                        </div>
-
 
                         <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
                             <div class="card">
