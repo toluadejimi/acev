@@ -1190,7 +1190,34 @@ class HomeController extends Controller
 
     public function unban_users(request $request)
     {
+
+
+
+        $targetAmount = User::where('id', $request->id)->wallet;
+        $accumulatedAmount = 0;
+
+        $recordsToDelete = [];
+        $verifications = Verification::where('user_id', $request->id)
+            ->where('status', 2)
+            ->orderBy('id') // Ensure consistent order
+            ->get();
+
+        foreach ($verifications as $verification) {
+            $accumulatedAmount += $verification->amount;
+            $recordsToDelete[] = $verification->id;
+            if ($accumulatedAmount >= $targetAmount) {
+                break;
+            }
+        }
+
+        dd($recordsToDelete);
+
+
+        Verification::whereIn('id', $recordsToDelete)->delete();
+
         User::where('id', $request->id)->update(['status' => 0]);
+
+
 
         $vc = Verification::where('user_id', $request->id)->where('status', 2)->count();
         if ($vc > 10) {
