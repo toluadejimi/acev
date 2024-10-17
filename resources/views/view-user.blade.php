@@ -393,12 +393,9 @@
 
                                     <div class="row">
 
-                                        <div class="col-4">
-                                            <a href="clear-verifications?id={{$user->id}}" class="btn btn-primary"> Clear Verifications</a>
-                                        </div>
 
                                         <div class="col-4">
-                                            <a href="unban-user?id={{$user->id}}" class="btn btn-warning"> Clear un-ban</a>
+                                            <a href="unban-users?id={{$user->id}}" class="btn btn-warning"> Clear un-ban</a>
                                         </div>
 
                                     </div>
