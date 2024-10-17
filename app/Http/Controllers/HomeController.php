@@ -1193,7 +1193,7 @@ class HomeController extends Controller
 
 
 
-        $targetAmount = User::where('id', $request->id)->wallet;
+        $targetAmount = User::where('id', $request->id)->first()->wallet;
         $accumulatedAmount = 0;
 
         $recordsToDelete = [];
