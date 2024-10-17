@@ -354,6 +354,8 @@
                             </div>
                         </div>
 
+
+
                         <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
                             <div class="card">
 
@@ -383,6 +385,30 @@
                             </div>
 
                         </div>
+
+                        <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
+                            <div class="card">
+
+                                <div class="card-body">
+
+                                    <div class="row">
+
+                                        <div class="col-4">
+                                            <a href="clear-verifications?id={{$user->id}}" class="btn btn-primary"> Clear Verifications</a>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <a href="unban-user?id={{$user->id}}" class="btn btn-warning"> Clear un-ban</a>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+
 
                         <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
                             <div class="card">
@@ -461,7 +487,6 @@
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
                             <div class="card">

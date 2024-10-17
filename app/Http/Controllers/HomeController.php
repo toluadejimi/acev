@@ -32,6 +32,10 @@ class HomeController extends Controller
     }
 
 
+
+
+
+
     public function home(request $request)
     {
 
@@ -1200,6 +1204,22 @@ class HomeController extends Controller
             'username' => $get_user->username
         ]);
 
+
+    }
+
+
+    public function clear_verifications(request $request)
+    {
+        Verification::where('user_id', $request->id)->where('status', 2)->delete();
+        return back()->with('message', 'verification cleared');
+
+    }
+
+
+    public function unban_users(request $request)
+    {
+        User::where('id', $request->id)->update(['status' => 0]);
+        return back()->with('message', 'User Unban');
 
     }
 
