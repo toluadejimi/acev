@@ -521,14 +521,10 @@ class HomeController extends Controller
                 });
 
                 $username = Auth::user()->username;
-                return back()->with('message', 'Account verification has been sent to your email, Verify your account');
+                return redirect('login')->with('message', 'Account verification has been sent to your email, Verify your account');
+
+
             } else {
-
-                Passport::tokensExpireIn(Carbon::now()->addMinutes(20));
-                Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(20));
-
-                $token = auth()->user()->createToken('API Token')->accessToken;
-
 
 
                 $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');

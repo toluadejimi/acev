@@ -11,17 +11,14 @@ class CheckSession
 {
     public function handle($request, Closure $next)
     {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->session_id !== session()->getId()) {
+                Auth::logout();
+                return redirect('/login')->withErrors('You have been logged out due to another login.');
+            }
+        }
 
-//        dd($request->all());
-//
-//        if (Auth::check()) {
-//            $user = Auth::user();
-//            if ($user->session_id !== session()->getId()) {
-//                Auth::logout();
-//                return redirect('/login')->withErrors('You have been logged out due to another login.');
-//            }
-//        }
-//
-//        return $next($request);
+        return $next($request);
     }
 }
