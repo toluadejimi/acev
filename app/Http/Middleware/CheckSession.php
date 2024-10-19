@@ -13,7 +13,6 @@ class CheckSession
     {
         if (Auth::check()) {
             $user = Auth::user();
-
             $ck = User::where('email', $request->email)->first()->verify ?? null;
             if ($ck == 0) {
                 $email = $request->email;
@@ -40,8 +39,8 @@ class CheckSession
                     $message->subject($data['subject']);
                 });
 
-                $username = Auth::user()->username;
-                return back()->with('message', 'Account verification has been sent to your email, Verify your account');
+                return redirect('/login')->withErrors('Account verification has been sent to your email, Verify your account.');
+
 
             }
 
