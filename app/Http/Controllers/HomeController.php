@@ -6,19 +6,16 @@ use App\Models\AccountDetail;
 use App\Models\Deposit;
 use App\Models\ManualPayment;
 use App\Models\PaymentMethod;
-use App\Models\SessionID;
 use App\Models\Setting;
 use App\Models\SoldLog;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Laravel\Passport\Passport;
 use function Sodium\randombytes_random16;
 
 
@@ -33,16 +30,6 @@ class HomeController extends Controller
         $data['order'] = 0;
         return view('welcome', $data);
     }
-
-
-    public function user(request $request)
-    {
-
-
-
-
-    }
-
 
 
     public function home(request $request)
@@ -486,13 +473,10 @@ class HomeController extends Controller
         if (Auth::attempt($credentials)) {
 
 
-
             if (Auth::user()->status == 9) {
                 Auth::logout();
                 return redirect('ban');
             }
-
-
 
 
             if (Auth::user()->verify == 0) {
@@ -521,10 +505,14 @@ class HomeController extends Controller
                 });
 
                 $username = Auth::user()->username;
-                return redirect('login')->with('message', 'Account verification has been sent to your email, Verify your account');
-
-
+                return back()->with('message', 'Account verification has been sent to your email, Verify your account');
             } else {
+
+                session(['session_id' => session()->getId()]);
+                $user = Auth::user();
+                $user->session_id = session()->getId();
+                $user->save();
+
 
 
                 $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
