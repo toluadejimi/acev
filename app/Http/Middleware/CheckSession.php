@@ -41,7 +41,7 @@ class CheckSession
                 });
 
                 $username = Auth::user()->username;
-                return redirect('/login')->with('message', 'Account verification has been sent to your email, Verify your account');
+                return back()->with('message', 'Account verification has been sent to your email, Verify your account');
 
             }
 
