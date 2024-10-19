@@ -54,6 +54,10 @@ Route::get('login',  [HomeController::class,'login_index'])->name('login');
 Route::post('register_now',  [HomeController::class,'register']);
 Route::get('register',  [HomeController::class,'register_index']);
 
+Route::get('verify-email-now',  [HomeController::class,'verify_email_now']);
+Route::get('verify-email',  [HomeController::class,'verify_email']);
+
+
 
 
 

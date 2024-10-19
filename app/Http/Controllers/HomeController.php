@@ -1231,5 +1231,13 @@ class HomeController extends Controller
     }
 
 
+    public function verify_email()
+    {
+
+        return view('verify-email');
+
+    }
+
+
 }
 
