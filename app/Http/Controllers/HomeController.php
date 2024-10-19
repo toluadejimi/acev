@@ -505,7 +505,10 @@ class HomeController extends Controller
                 });
 
                 $username = Auth::user()->username;
-                return back()->with('message', 'Account verification has been sent to your email, Verify your account');
+                return redirect('/login')->with('message', 'Account verification has been sent to your email, Verify your account');
+
+
+
             } else {
 
                 session(['session_id' => session()->getId()]);
