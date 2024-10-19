@@ -222,6 +222,12 @@ class WorldNumberController extends Controller
             return redirect('world')->with('error', 'Number Currently out of stock, Please check back later');
         }
 
+
+        if ($order == 7) {
+            return redirect('ban');
+        }
+
+
         if ($order == 1) {
             $message = "ACESMSVERIFY | Low balance";
             send_notification($message);

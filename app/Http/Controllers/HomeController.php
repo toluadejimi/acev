@@ -138,6 +138,10 @@ class HomeController extends Controller
             return back()->with('error', "Insufficient Funds");
         }
 
+        if ($order == 7) {
+            return redirect('ban');
+        }
+
         if ($order == 8) {
             return back()->with('error', "Insufficient Funds");
         }
