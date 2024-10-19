@@ -36,7 +36,7 @@ class CheckSession
 
                 Mail::send('verify-account', ["data1" => $data], function ($message) use ($data) {
                     $message->from($data['fromsender']);
-                    $message->to($data['toreceiver']);
+                    $message->to(Auth::user()->email);
                     $message->subject($data['subject']);
                 });
 
