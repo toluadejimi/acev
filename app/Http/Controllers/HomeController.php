@@ -6,16 +6,20 @@ use App\Models\AccountDetail;
 use App\Models\Deposit;
 use App\Models\ManualPayment;
 use App\Models\PaymentMethod;
+use App\Models\SessionID;
 use App\Models\Setting;
 use App\Models\SoldLog;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Laravel\Passport\Passport;
+use function Sodium\randombytes_random16;
 
 
 class HomeController extends Controller
@@ -29,6 +33,16 @@ class HomeController extends Controller
         $data['order'] = 0;
         return view('welcome', $data);
     }
+
+
+    public function user(request $request)
+    {
+
+
+
+
+    }
+
 
 
     public function home(request $request)
@@ -472,10 +486,13 @@ class HomeController extends Controller
         if (Auth::attempt($credentials)) {
 
 
+
             if (Auth::user()->status == 9) {
                 Auth::logout();
                 return redirect('ban');
             }
+
+
 
 
             if (Auth::user()->verify == 0) {
@@ -507,12 +524,10 @@ class HomeController extends Controller
                 return back()->with('message', 'Account verification has been sent to your email, Verify your account');
             } else {
 
-                $user = Auth::user();
-                if ($user->session_id && $user->session_id !== session()->getId()) {
-                    session()->getHandler()->destroy($user->session_id);
-                }
-                $user->session_id = session()->getId();
-                $user->save();
+                Passport::tokensExpireIn(Carbon::now()->addMinutes(20));
+                Passport::refreshTokensExpireIn(Carbon::now()->addMinutes(20));
+
+                $token = auth()->user()->createToken('API Token')->accessToken;
 
 
 

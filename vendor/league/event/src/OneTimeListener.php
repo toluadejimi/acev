@@ -1,29 +1,57 @@
 <?php
 
-declare(strict_types=1);
-
 namespace League\Event;
 
-/**
- * @internal
- */
-class OneTimeListener implements Listener
+class OneTimeListener implements ListenerInterface
 {
     /**
-     * @var callable
+     * The listener instance.
+     *
+     * @var ListenerInterface
      */
     protected $listener;
 
-    public function __construct(callable $listener)
+    /**
+     * Create a new one time listener instance.
+     *
+     * @param ListenerInterface $listener
+     */
+    public function __construct(ListenerInterface $listener)
     {
         $this->listener = $listener;
     }
 
     /**
+     * Get the wrapped listener.
+     *
+     * @return ListenerInterface
+     */
+    public function getWrappedListener()
+    {
+        return $this->listener;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function __invoke(object $event): void
+    public function handle(EventInterface $event)
     {
-        call_user_func($this->listener, $event);
+        $name = $event->getName();
+        $emitter = $event->getEmitter();
+        $emitter->removeListener($name, $this->listener);
+
+        return call_user_func_array([$this->listener, 'handle'], func_get_args());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isListener($listener)
+    {
+        if ($listener instanceof OneTimeListener) {
+            $listener = $listener->getWrappedListener();
+        }
+
+        return $this->listener->isListener($listener);
     }
 }

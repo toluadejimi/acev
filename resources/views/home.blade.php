@@ -499,4 +499,21 @@
         }
     </script>
 
+
+    <script>
+
+        $.ajaxSetup({
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            }
+        });
+
+        // Example AJAX request
+        $.get('/api/user', function(response) {
+            console.log(response);
+        });
+
+
+    </script>
+
 @endsection

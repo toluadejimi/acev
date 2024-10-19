@@ -25,6 +25,7 @@ Route::any('updatesec',  [HomeController::class,'updatesec']);
 Route::any('cancle-sms',  [HomeController::class,'cancle_sms_timer']);
 
 
+Route::any('user',  [HomeController::class,'user']);
 
 
 
