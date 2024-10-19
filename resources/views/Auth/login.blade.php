@@ -110,7 +110,7 @@
 
 
                     <div class="d-grid mt-4">
-                        <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px; border-radius: 2px"
+                        <button type="submit" style="background: rgba(23, 69, 132, 1); border: 0px; border-radius: 2px" disabled
                                 class="btn btn-primary">Login
                         </button>
                     </div>
