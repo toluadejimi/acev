@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 
 function resolve_complete($order_id)
@@ -754,3 +755,45 @@ function get_d_price($service){
 
 }
 
+
+
+
+function send_verification_email($email)
+{
+
+
+    try{
+
+        $expiryTimestamp = time() + 24 * 60 * 60; // 24 hours in seconds
+        $url = url('') . "/verify-account-now?code=$expiryTimestamp&email=$email";
+        $username = User::where('email', $request->email)->first()->username ?? null;
+
+        User::where('email', $email)->update([
+            'code' => $expiryTimestamp
+        ]);
+
+        $data = array(
+            'fromsender' => 'noreply@acesmsverify.com', 'ACEVERIFY',
+            'subject' => "Verify Account",
+            'toreceiver' => $email,
+            'url' => $url,
+            'user' => $username,
+        );
+
+
+        Mail::send('verify-account', ["data1" => $data], function ($message) use ($data) {
+            $message->from($data['fromsender']);
+            $message->to(Auth::user()->email);
+            $message->subject($data['subject']);
+        });
+
+
+        return 1;
+
+    }catch (Exception $e) {
+
+        return 0;
+    }
+
+
+}
