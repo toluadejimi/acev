@@ -478,8 +478,8 @@ class HomeController extends Controller
                 return redirect('ban');
             }
 
-
-            if (Auth::user()->verify == 0) {
+            $ck = User::where('email', $request->email)->first()->verify ?? null;
+            if ($ck == 0) {
                 $email = $request->email;
                 $expiryTimestamp = time() + 24 * 60 * 60; // 24 hours in seconds
                 $url = url('') . "/verify-account-now?code=$expiryTimestamp&email=$request->email";
