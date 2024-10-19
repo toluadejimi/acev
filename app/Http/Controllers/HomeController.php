@@ -507,13 +507,13 @@ class HomeController extends Controller
                 return back()->with('message', 'Account verification has been sent to your email, Verify your account');
             } else {
 
-
                 $user = Auth::user();
                 if ($user->session_id && $user->session_id !== session()->getId()) {
                     session()->getHandler()->destroy($user->session_id);
                 }
                 $user->session_id = session()->getId();
                 $user->save();
+
 
 
                 $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');

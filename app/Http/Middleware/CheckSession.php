@@ -14,7 +14,6 @@ class CheckSession
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->session_id !== session()->getId()) {
-                // If session IDs do not match, log out the user
                 Auth::logout();
                 return redirect('/login')->withErrors('You have been logged out due to another login.');
             }
