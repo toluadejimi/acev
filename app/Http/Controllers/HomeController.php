@@ -377,7 +377,7 @@ class HomeController extends Controller
             $ref = "VERF" . random_int(000, 999) . date('ymdhis');
             $email = Auth::user()->email;
 
-            $url = "https://web.enkpay.com/pay?amount=$request->amount&key=$key&ref=$ref&email=$email";
+            $url = "https://web.sprintpay.online/pay?amount=$request->amount&key=$key&ref=$ref&email=$email";
 
 
             $data = new Transaction();
