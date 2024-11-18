@@ -807,7 +807,7 @@ class HomeController extends Controller
                 'message' => $sms
             ]);
         }
-    }_
+    }
 
 
     public

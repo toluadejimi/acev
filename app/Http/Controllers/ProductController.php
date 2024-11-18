@@ -30,8 +30,6 @@ class ProductController extends Controller
 
 
 
-
-
         if($pamount > Auth::user()->wallet){
 
             return back()->with('error', 'Insufficient Funds, Fund your wallet');
