@@ -186,10 +186,11 @@ class AdminController extends Controller
         }
 
         $users = User::where('status', 9)->orderBy('wallet', 'desc')->paginate(10);
+        $user = User::where('status', 9)->count();
 
 
 
-        return view('banned', compact( 'users'));
+        return view('banned', compact( 'users', 'user'));
 
 
     }
