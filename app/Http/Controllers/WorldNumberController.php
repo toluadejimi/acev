@@ -178,18 +178,12 @@ class WorldNumberController extends Controller
     {
 
 
-        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-        if($total_funded < $total_bought){
-            User::where('id', Auth::id())->update(['status' => 9]);
-            Auth::logout();
+        if($request->price < 0 || $request->price == 0){
+            return back()->with('error', "something went wrong");
+        }
 
-            $message = Auth::user()->email ." has been banned for cheating";
-            send_notification($message);
-            send_notification2($message);
-
-            return redirect('ban');
-
+        if($request->price < 500 ){
+            return back()->with('error', "something went wrong");
         }
 
         if (Auth::user()->wallet < $request->price) {

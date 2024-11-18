@@ -88,19 +88,14 @@ class HomeController extends Controller
     {
 
 
-        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-        if ($total_bought > $total_funded) {
-
-            $message = Auth::user()->email . " has been banned for cheating";
-            send_notification($message);
-            send_notification2($message);
-
-            User::where('id', Auth::id())->update(['status' => 9]);
-            Auth::logout();
-            return redirect('ban');
-
+        if($request->price < 0 || $request->price == 0){
+            return back()->with('error', "something went wrong");
         }
+
+        if($request->price < 500 ){
+            return back()->with('error', "something went wrong");
+        }
+
 
         if (Auth::user()->wallet < 0) {
             return back()->with('error', "Insufficient Funds");
@@ -515,27 +510,6 @@ class HomeController extends Controller
 
             } else {
 
-                session(['session_id' => session()->getId()]);
-                $user = Auth::user();
-                $user->session_id = session()->getId();
-                $user->save();
-
-
-
-                $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-                $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-                if ($total_funded < $total_bought) {
-                    User::where('id', Auth::id())->update(['status' => 9]);
-                    Auth::logout();
-
-                    $message = Auth::user()->email . " has been banned for cheating";
-                    send_notification($message);
-                    send_notification2($message);
-
-                    return redirect('ban');
-
-                }
-
                 return redirect('us');
             }
         }
@@ -554,6 +528,9 @@ class HomeController extends Controller
         User::where('id', $request->id)->update(['status' => 9]);
         return back()->with('message', "Account Banned Successfully");
     }
+
+
+
 
 
     public function destroy(Request $request)
@@ -830,7 +807,7 @@ class HomeController extends Controller
                 'message' => $sms
             ]);
         }
-    }
+    }_
 
 
     public
