@@ -93,7 +93,6 @@ Route::any('get-smscode',  [HomeController::class,'get_smscode']);
 
 
 
-
 Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () {
 
     Route::get('us',  [HomeController::class,'home']);
@@ -177,6 +176,12 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 
 //admin
 Route::get('admin',  [AdminController::class,'index']);
+
+Route::get('banned-user',  [AdminController::class,'ban_user']);
+
+
+
+
 
 Route::get('admin-dashboard',  [AdminController::class,'admin_dashboard']);
 

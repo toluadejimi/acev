@@ -79,6 +79,13 @@
 
                             </li>
 
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/banned-user" aria-controls="submenu-2"><i class="fa fa-fw fa-rocket"></i>Ban Users</a>
+
+                            </li>
+
+
                             <li class="nav-item ">
                                 <a class="nav-link " href="manual-payment"><i class="fab fa-fw fa-wpforms"></i>Manual Payment</a>
 

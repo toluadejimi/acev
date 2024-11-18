@@ -173,6 +173,28 @@ class AdminController extends Controller
     }
 
 
+
+    public function ban_user(request $request)
+    {
+
+        $role = User::where('id', Auth::id())->first()->role_id ?? null;
+        if($role != 5){
+
+            Auth::logout();
+            return redirect('/admin')->with('error', "You do not have permission");
+
+        }
+
+        $users = User::where('status', 9)->orderBy('wallet', 'desc')->paginate(10);
+
+
+
+        return view('banned', compact( 'users'));
+
+
+    }
+
+
     public function remove_user(request $request)
     {
 
