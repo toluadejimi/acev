@@ -165,8 +165,6 @@ class AdminController extends Controller
         $user = User::all()->count();
         $users = User::orderBy('wallet', 'desc')->paginate(10);
 
-
-
         return view('user', compact('user', 'users'));
 
 
