@@ -220,8 +220,6 @@ class AdminController extends Controller
     public function update_user(request $request)
 	{
 
-        dd($request->all());
-
         $role = User::where('id', Auth::id())->first()->role_id ?? null;
         if($role != 5){
 
@@ -232,19 +230,23 @@ class AdminController extends Controller
 
         if($request->trade == 'credit'){
 
-            User::where('id',$request->id)->increment('wallet', $request->amount);
 
-            $email = User::where('id', $request->id)->first()->email;
-            $balance = User::where('id', $request->id)->first()->wallet;
+
+            User::where('id',$request->id)->increment('wallet', $request->amount);
 
             $ref = "MANUAL".random_int(000000, 999999);
             $data = new Transaction();
-            $data->user_id = Auth::id();
+            $data->user_id = $request->id;
             $data->amount = $request->amount;
             $data->ref_id = $ref;
             $data->type = 2;
             $data->status = 2; //initiate
             $data->save();
+
+            $email = User::where('id', $request->id)->first()->email;
+            $balance = User::where('id', $request->id)->first()->wallet;
+
+
 
             $message = "Wallet has been credited by admin | $email | $request->amount | Bal - $balance |on Ace Verify";
             send_notification($message);
