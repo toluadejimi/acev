@@ -233,6 +233,15 @@ class AdminController extends Controller
             $email = User::where('id', $request->id)->first()->email;
             $balance = User::where('id', $request->id)->first()->wallet;
 
+            $ref = "MANUAL".random_int(000000, 999999);
+            $data = new Transaction();
+            $data->user_id = Auth::id();
+            $data->amount = $request->amount;
+            $data->ref_id = $ref;
+            $data->type = 2;
+            $data->status = 2; //initiate
+            $data->save();
+
             $message = "Wallet has been credited by admin | $email | $request->amount | Bal - $balance |on Ace Verify";
             send_notification($message);
             send_notification2($message);
@@ -293,6 +302,7 @@ class AdminController extends Controller
 
 
     }
+
 
 
     public function manual_payment_view(request $request)
