@@ -127,6 +127,9 @@
 
                                                             <input hidden name="service" value="{{ $key }}">
                                                             <input hidden name="price" value="{{ $cost }}">
+                                                            <input hidden name="price2" value="{{ $cost }}">
+                                                            <input hidden name="price3" value="{{ $cost }}">
+                                                            <input hidden name="price4" value="{{ $cost }}">
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
                                                             <button class="myButton"

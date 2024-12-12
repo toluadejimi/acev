@@ -177,6 +177,9 @@
 
                                             <input type="text" name="country" hidden value="{{ $count_id ?? null }}">
                                             <input type="text" name="price" hidden value="{{ $price ?? null }}">
+                                            <input type="text" name="price2" hidden value="{{ $price ?? null }}">
+                                            <input type="text" name="price3" hidden value="{{ $price ?? null }}">
+                                            <input type="text" name="price4" hidden value="{{ $price ?? null }}">
                                             <input type="text" name="service" hidden value="{{ $serv ?? null }}">
 
 

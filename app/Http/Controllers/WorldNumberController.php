@@ -182,6 +182,12 @@ class WorldNumberController extends Controller
             return back()->with('error', "something went wrong");
         }
 
+        if($request->price != $request->price2 && $request->price3 != $request->price4 ){
+
+            return back()->with('error', "something went wrong");
+
+        }
+
         if($request->price < 500 ){
             return back()->with('error', "something went wrong");
         }

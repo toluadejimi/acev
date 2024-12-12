@@ -24,6 +24,8 @@ class HomeController extends Controller
     public function index(request $request)
     {
         $data['services'] = get_services();
+
+
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::where('user_id', Auth::id())->paginate('10');
@@ -44,6 +46,8 @@ class HomeController extends Controller
         $data['pend'] = 0;
         $data['product'] = null;
         $data['orders'] = Verification::where('user_id', Auth::id())->get();
+
+
 
         return view('home', $data);
     }
@@ -86,6 +90,14 @@ class HomeController extends Controller
 
     public function order_now(Request $request)
     {
+
+
+
+        if($request->price != $request->price2 && $request->price3 != $request->price4 ){
+
+            return back()->with('error', "something went wrong");
+
+        }
 
 
         if($request->price < 0 || $request->price == 0){

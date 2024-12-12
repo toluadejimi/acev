@@ -176,7 +176,8 @@ function get_services(){
         ));
 
         $var = curl_exec($curl);
-        curl_close($curl);
+
+    curl_close($curl);
         $var = json_decode($var);
 
 
