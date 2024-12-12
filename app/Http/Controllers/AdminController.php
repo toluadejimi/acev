@@ -219,6 +219,9 @@ class AdminController extends Controller
 
     public function update_user(request $request)
 	{
+
+        dd($request->all());
+
         $role = User::where('id', Auth::id())->first()->role_id ?? null;
         if($role != 5){
 
@@ -228,6 +231,7 @@ class AdminController extends Controller
         }
 
         if($request->trade == 'credit'){
+
             User::where('id',$request->id)->increment('wallet', $request->amount);
 
             $email = User::where('id', $request->id)->first()->email;
