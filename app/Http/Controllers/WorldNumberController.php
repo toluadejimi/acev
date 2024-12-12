@@ -204,7 +204,7 @@ class WorldNumberController extends Controller
         $cost = ($data['get_rate'] * $gcost) + $data['margin'];
 
         if($cost < 500){
-            return back()->with('error', "Insufficient Funds");
+            return back()->with('error', "something went wrong");
         }
 
 
