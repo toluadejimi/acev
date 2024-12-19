@@ -289,13 +289,25 @@
                                                                 class="btn btn-warning btn-sm">Pending</span>
                                                             <a href="delete-order?id={{  $data->id }}&delete=1"
                                                                style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
-                                                               onclick="hideButtondelete(this)"
+                                                               onclick="hideButtondelete{{$data->id}}(this)"
                                                                class="btn btn-warning btn-sm">Delete</span>
 
                                                                 @else
                                                                     <span style="font-size: 10px;"
                                                                           class="text-white btn btn-success btn-sm">Completed</span>
                                                         @endif
+
+
+                                                                <script>
+                                                                    function hideButtondelete{{$data->id}}(link) {
+                                                                        // Hide the clicked link
+                                                                        link.style.display = 'none';
+
+                                                                        setTimeout(function () {
+                                                                            link.style.display = 'inline'; // or 'block' depending on your layout
+                                                                        }, 5000); // 5 seconds
+                                                                    }
+                                                                </script>
 
                                                     </td>
                                                     <td id="datetime{{$data->id}}"

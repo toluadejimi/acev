@@ -47,7 +47,6 @@ function resolve_complete($order_id)
 }
 
 
-
 function send_notification($message)
 {
 
@@ -75,12 +74,7 @@ function send_notification($message)
         $var = json_decode($var);
 }
 
-
-
-
-
-
-    function send_notification2($message)
+function send_notification2($message)
     {
 
         $curl = curl_init();
@@ -107,10 +101,6 @@ function send_notification($message)
 
         $var = json_decode($var);
     }
-
-
-
-
 
 function session_resolve($session_id, $ref){
 
@@ -152,9 +142,6 @@ function session_resolve($session_id, $ref){
 
 }
 
-
-
-
 function get_services(){
 
     $APIKEY = env('KEY');
@@ -190,7 +177,6 @@ function get_services(){
         return $services;
 
 }
-
 
 function create_order($service, $price, $cost, $service_name, $costs){
 
@@ -322,9 +308,7 @@ function cancel_order($orderID){
     if(strstr($result, "ACCESS_CANCEL") !== false){
         return 1;
     }else{
-
         return 0;
-
     }
 
 

@@ -952,8 +952,8 @@ class HomeController extends Controller
 
         if ($order->status == 1 && $order->type == 1) {
 
-            $order = Verification::where('id', $request->id)->first() ?? null;
 
+            $order = Verification::where('id', $request->id)->first() ?? null;
 
             if ($order == null) {
                 return redirect('home')->with('error', 'Order not found');
@@ -969,6 +969,8 @@ class HomeController extends Controller
                 $orderID = $order->order_id;
                 $corder = cancel_order($orderID);
 
+
+
                 if ($corder == 0) {
                     return back()->with('error', "Please wait and try again later");
                 }
@@ -976,11 +978,17 @@ class HomeController extends Controller
 
                 if ($corder == 1) {
                     $amount = number_format($order->cost, 2);
+
                     Verification::where('id', $request->id)->delete();
                     User::where('id', Auth::id())->increment('wallet', $order->cost);
+
+
                     $email = User::where('id', $order->user_id)->first()->email ?? null;
                     $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
                     $bb = number_format($balance, 2);
+
+
+
                     $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
                     send_notification($message);
                     send_notification2($message);
