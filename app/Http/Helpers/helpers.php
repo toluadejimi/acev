@@ -567,9 +567,7 @@ function create_world_order($country, $service, $price, $cost){
         $ver->save();
 
 
-        dd($price , $cost);
-
-        User::where('id', Auth::id())->decrement('wallet', $price);
+        User::where('id', Auth::id())->decrement('wallet', $cost);
 
 
 
