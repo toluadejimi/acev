@@ -90,9 +90,6 @@ Route::any('get-smscode',  [HomeController::class,'get_smscode']);
 
 
 
-
-
-
 Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () {
 
     Route::get('us',  [HomeController::class,'home']);
