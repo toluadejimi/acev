@@ -970,7 +970,7 @@ class HomeController extends Controller
 
             if ($can_order == 1) {
 
-                sleep(40);
+                sleep(5);
 
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
@@ -1030,7 +1030,7 @@ class HomeController extends Controller
 
                 if ($corder == 1) {
 
-                    sleep(40);
+                    sleep(5);
 
                     $amount = number_format($order->cost, 2);
 
