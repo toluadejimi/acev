@@ -209,6 +209,9 @@ class WorldNumberController extends Controller
 
         $cost = ($data['get_rate'] * $gcost) + $data['margin'];
 
+
+        dd($gcost, $data['get_rate'],  $data['margin']);
+
         if($cost < 500){
             return back()->with('error', "something went wrong");
         }
@@ -217,6 +220,8 @@ class WorldNumberController extends Controller
         if (Auth::user()->wallet < $cost) {
             return back()->with('error', "Insufficient Funds");
         }
+
+
 
 
 
