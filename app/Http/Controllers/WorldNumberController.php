@@ -212,15 +212,15 @@ class WorldNumberController extends Controller
 
         $gcost = pool_cost($service, $country);
 
-        $cost = ($data['get_rate'] * $gcost) + $data['margin'];
+        $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
+
+        if($request->price != $calculatrdcost){
+            return back()->with('error', "Price has been altered");
+        };
 
 
-        if($cost < 500){
-            return back()->with('error', "something went wrong");
-        }
 
-
-        if (Auth::user()->wallet < $cost) {
+        if (Auth::user()->wallet < $calculatrdcost) {
             return back()->with('error', "Insufficient Funds");
         }
 
@@ -228,7 +228,7 @@ class WorldNumberController extends Controller
 
 
 
-        $order = create_world_order($country, $service, $price, $cost);
+        $order = create_world_order($country, $service, $price, $calculatrdcost);
 
         if ($order == 5) {
             return redirect('world')->with('error', 'Number Currently out of stock, Please check back later');

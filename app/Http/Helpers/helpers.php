@@ -489,7 +489,7 @@ function get_world_services(){
 }
 
 
-function create_world_order($country, $service, $price, $cost){
+function create_world_order($country, $service, $price, $calculatrdcost){
 
 
 
@@ -557,7 +557,7 @@ function create_world_order($country, $service, $price, $cost){
         $ver->country = $var->country;
         $ver->service = $var->service;
         $ver->expires_in = $var->expires_in / 10 - 20;
-        $ver->cost = $price;
+        $ver->cost = $calculatrdcost;
         $ver->created_at = $formattedTime;
         $ver->expires_in = 300;
         $ver->api_cost = $var->cost;
@@ -567,7 +567,7 @@ function create_world_order($country, $service, $price, $cost){
         $ver->save();
 
 
-        User::where('id', Auth::id())->decrement('wallet', $cost);
+        User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
 
 
 
