@@ -293,6 +293,8 @@ class HomeController extends Controller
                     Verification::where('id', $request->id)->delete();
 
                     User::where('id', $user_id)->increment('wallet', $order->cost);
+                    User::where('id', $user_id)->increment('wallet', $order->cost);
+
 
                     $message = Auth::user()->email . " just been refunded | $order->cost | by admin";
                     send_notification($message);
@@ -957,11 +959,29 @@ class HomeController extends Controller
             }
 
 
+            if(Auth::user()->hold_wallet < $order->cost){
+                $hamount = Auth::user()->hold_wallet;
+                $hamm = number_format($hamount);
+                $mamm = number_format(Auth::user()->wallet);
+                return back()->with('message', "Something went wrong | $hamm | $order->cost | $mamm  ");
+            }
+
+
+
             if ($can_order == 1) {
+
+
+
+
+
+
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
+
+
+
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
-                User::where('id', Auth::id())->decrement('hold_wallet', $order->cost);
+                User::where('id', Auth::id())->decrement('hold_wallet',$order->cost);
 
                 $email = User::where('id', $order->user_id)->first()->email ?? null;
                 $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
