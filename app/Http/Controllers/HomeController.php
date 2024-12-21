@@ -970,15 +970,10 @@ class HomeController extends Controller
 
             if ($can_order == 1) {
 
-
-
-
-
+                sleep(10);
 
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
-
-
 
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 User::where('id', Auth::id())->decrement('hold_wallet',$order->cost);
@@ -1007,6 +1002,7 @@ class HomeController extends Controller
 
         if ($order->status == 1 && $order->type == 1) {
 
+            sleep(10);
 
             $order = Verification::where('id', $request->id)->first() ?? null;
 
