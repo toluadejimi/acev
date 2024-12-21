@@ -107,40 +107,40 @@ class AdminController extends Controller
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->paginate(50);
 
-        $users = User::all();
-        try {
-
-            DB::beginTransaction();
-            $users = User::where('wallet', '>', 0)->get();
-
-
-            foreach ($users as $user) {
-                Transaction::create([
-                    'user_id' => $user->id,
-                    'amount' => $user->wallet,
-                    'ref_id' => "VER".date('his'),
-                    'type' => 2,
-                    'status' => 2,
-                ]);
-
-                $user->save();
-
-
-            }
-
-            DB::commit();
-
-            return view('admin-dashboard', $data);
-
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ], 500);
-        }
+//        $users = User::all();
+//        try {
+//
+//            DB::beginTransaction();
+//            $users = User::where('wallet', '>', 0)->get();
+//
+//
+//            foreach ($users as $user) {
+//                Transaction::create([
+//                    'user_id' => $user->id,
+//                    'amount' => $user->wallet,
+//                    'ref_id' => "VER".date('his'),
+//                    'type' => 2,
+//                    'status' => 2,
+//                ]);
+//
+//                $user->save();
+//
+//
+//            }
+//
+//            DB::commit();
+//
+//            return view('admin-dashboard', $data);
+//
+//
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//
+//            return response()->json([
+//                'status' => 'error',
+//                'message' => 'An error occurred: ' . $e->getMessage(),
+//            ], 500);
+//        }
 
 
 //        try {
