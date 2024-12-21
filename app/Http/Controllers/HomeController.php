@@ -871,6 +871,10 @@ class HomeController extends Controller
     {
 
 
+        $message = json_encode($request->all());
+        send_notification2($message);
+
+
         $activationId = $request->activationId;
         $messageId = $request->messageId;
         $service = $request->service;
