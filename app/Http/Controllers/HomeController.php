@@ -946,7 +946,14 @@ class HomeController extends Controller
     public
     function delete_order(request $request)
     {
+
         $order = Verification::where('id', $request->id)->first() ?? null;
+
+        if($order == null){
+
+            return back()->with('error', "Order not found");
+
+        }
 
         if ($order->status == 1 && $order->type == 2) {
 
@@ -970,7 +977,7 @@ class HomeController extends Controller
 
             if ($can_order == 1) {
 
-                sleep(10);
+                sleep(40);
 
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
@@ -1002,7 +1009,7 @@ class HomeController extends Controller
 
         if ($order->status == 1 && $order->type == 1) {
 
-            sleep(10);
+
 
             $order = Verification::where('id', $request->id)->first() ?? null;
 
@@ -1036,6 +1043,9 @@ class HomeController extends Controller
 
 
                 if ($corder == 1) {
+
+                    sleep(40);
+
                     $amount = number_format($order->cost, 2);
 
                     Verification::where('id', $request->id)->delete();
