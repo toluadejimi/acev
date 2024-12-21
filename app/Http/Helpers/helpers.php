@@ -571,8 +571,8 @@ function create_world_order($country, $service, $price, $calculatrdcost){
 
 
 
-        $cost2 = number_format($cost, 2);
-        $cal = Auth::user()->wallet - $cost;
+        $cost2 = number_format($calculatrdcost, 2);
+        $cal = Auth::user()->wallet - $calculatrdcost;
         $bal = number_format($cal, 2);
         $message = Auth::user()->email." just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
         send_notification($message);
