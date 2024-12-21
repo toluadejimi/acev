@@ -182,7 +182,7 @@ class AdminController extends Controller
             foreach ($users as $user) {
                 $totalVerifications = Verification::where('user_id', $user->id)
                     ->where('status', 2)
-                    ->sum('amount');
+                    ->sum('cost');
 
                 $totalTransactions = Transaction::where('user_id', $user->id)
                     ->where('status', 2)
