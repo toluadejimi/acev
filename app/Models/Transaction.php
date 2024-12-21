@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     use HasFactory;
+
+
+    protected $fillable = [
+        'user_id',
+        'amount',
+        'ref_id',
+        'status',
+        'status'
+
+
+    ];
     public function item()
     {
         return $this->belongsTo('App\Models\Item');
