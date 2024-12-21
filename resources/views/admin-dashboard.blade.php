@@ -259,7 +259,7 @@
 
                                                     <tr>
 
-                                                        <td>{{ $data->user->username }} </td>
+                                                        <td>{{ $data->user->username ?? "name" }} </td>
                                                         <td>{{ $data->phone }} </td>
                                                         <td>{{ $data->service }} </td>
                                                          <td>{{ $data->order_id }} </td>
