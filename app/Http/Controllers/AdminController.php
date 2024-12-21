@@ -121,7 +121,7 @@ class AdminController extends Controller
         $data['user_wallet'] = User::where('role_id', 2)->sum('wallet');
         $data['usdtongn'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
-        $data['verification'] = Verification::latest()->paginate(10);
+        $data['verification'] = Verification::latest()->paginate(50);
 
 
 
