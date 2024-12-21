@@ -215,6 +215,11 @@ class WorldNumberController extends Controller
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
 
         if($request->price != $calculatrdcost){
+
+            $message = "Price altred >>>>>>>". Auth::user()->email. " |  Request====>". json_encode($request->all());
+            send_notification($message);
+            send_notification2($message);
+
             return back()->with('error', "Price has been altered");
         };
 
