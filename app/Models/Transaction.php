@@ -15,7 +15,8 @@ class Transaction extends Model
         'amount',
         'ref_id',
         'status',
-        'status'
+        'status',
+        'type'
 
 
     ];
