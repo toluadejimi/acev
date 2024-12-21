@@ -879,16 +879,14 @@ class HomeController extends Controller
         $country = $request->country;
         $receivedAt = $request->receivedAt;
 
-
-
-
         $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
-
-
         $order = Verification::where('order_id', $activationId)->first() ?? null;
         $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
         User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
 
+        $req = json_encode($request->all());
+        $message = "Message completed, | $user_id | $req";
+        send_notification2($message);
 
 
         $message = "Message completed";
