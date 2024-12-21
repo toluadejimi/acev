@@ -225,6 +225,12 @@ class WorldNumberController extends Controller
 
 
 
+        if($request->price < 1000){
+            return back()->with('error', "please try again later");
+
+        }
+
+
         if (Auth::user()->wallet < $calculatrdcost) {
             return back()->with('error', "Insufficient Funds");
         }
