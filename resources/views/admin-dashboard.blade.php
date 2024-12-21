@@ -244,7 +244,8 @@
                                                         <th class="border-0">User</th>
                                                         <th class="border-0">Order ID</th>
                                                         <th class="border-0">Service</th>
-                                                         <th class="border-0">Phone</th>
+                                                        <th class="border-0">Type</th>
+                                                        <th class="border-0">Phone</th>
                                                         <th class="border-0">SMS</th>
                                                         <th class="border-0">Amount</th>
                                                         <th class="border-0">Status</th>
@@ -262,7 +263,17 @@
                                                         <td>{{ $data->user->username ?? "name" }} </td>
                                                         <td>{{ $data->phone }} </td>
                                                         <td>{{ $data->service }} </td>
-                                                         <td>{{ $data->order_id }} </td>
+                                                        @if($data->type == 1)
+                                                            <td>
+                                                                <span class="badge badge-pill badge-success">Diasy</span>
+                                                            </td>
+                                                        @else
+                                                            <td>
+                                                                <span class="badge badge-pill badge-warning">SMSPOOL</span>
+
+                                                            </td>
+                                                        @endif
+                                                        <td>{{ $data->order_id }} </td>
                                                          <td>{{ $data->full_sms }} </td>
                                                         <td>{{ $data->cost }} </td>
                                                         @if($data->status == 2)
