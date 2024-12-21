@@ -879,9 +879,13 @@ class HomeController extends Controller
         $country = $request->country;
         $receivedAt = $request->receivedAt;
 
-        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
+
         $order = Verification::where('order_id', $activationId)->first() ?? null;
         User::where('id', Auth::id())->decrement('hold_wallet', $order->cost);
+
+
+        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
+
 
 
         $message = json_encode($request->all());
