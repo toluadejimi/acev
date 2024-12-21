@@ -872,7 +872,10 @@ class HomeController extends Controller
 
 
         $message = json_encode($request->all());
+        send_notification($message);
         send_notification2($message);
+
+
 
 
         $activationId = $request->activationId;
@@ -894,6 +897,7 @@ class HomeController extends Controller
 
         }catch (\Exception $e) {
             $message = $e->getMessage();
+            send_notification($message);
             send_notification2($message);
         }
 
