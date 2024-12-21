@@ -380,11 +380,32 @@ function check_sms($orderID){
         $data['sms'] = $sms;
         $data['full_sms'] = $sms;
 
+
+
+
+
+
         Verification::where('order_id', $orderID)->update([
             'status' => 2,
             'sms' => $sms,
             'full_sms' => $sms,
         ]);
+
+        try{
+
+            $order = Verification::where('order_id', $orderID)->first() ?? null;
+            $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
+            User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
+
+        }catch (\Exception $e) {
+            $message = $e->getMessage();
+            send_notification($message);
+            send_notification2($message);
+        }
+
+        $message = "$orderID | completed";
+        send_notification($message);
+
 
         return 3;
 
