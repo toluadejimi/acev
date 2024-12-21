@@ -966,13 +966,6 @@ class HomeController extends Controller
             }
 
 
-            if(Auth::user()->hold_wallet < $order->cost){
-                $hamount = Auth::user()->hold_wallet;
-                $hamm = number_format($hamount);
-                $mamm = number_format(Auth::user()->wallet);
-                return back()->with('message', "Something went wrong | $hamm | $order->cost | $mamm  ");
-            }
-
 
 
             if ($can_order == 1) {
@@ -1033,13 +1026,6 @@ class HomeController extends Controller
                     return back()->with('error', "Please wait and try again later");
                 }
 
-
-                if(Auth::user()->hold_wallet < $order->cost){
-                    $hamount = Auth::user()->hold_wallet;
-                    $hamm = number_format($hamount);
-                    $mamm = number_format(Auth::user()->wallet);
-                    return back()->with('message', "Something went wrong | $hamm | $order->cost | $mamm  ");
-                }
 
 
                 if ($corder == 1) {
