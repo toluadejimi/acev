@@ -373,41 +373,42 @@ function check_sms($orderID){
     if(strstr($result, "STATUS_OK") !== false) {
 
 
-    $parts = explode(":", $result);
-    $text = $parts[0];
-    $sms = $parts[1];
+        $status = Verification::where('order_id', $orderID)->first()->status ?? null;
+        if($status != 2){
+            $parts = explode(":", $result);
+            $text = $parts[0];
+            $sms = $parts[1];
 
-        $data['sms'] = $sms;
-        $data['full_sms'] = $sms;
+            $data['sms'] = $sms;
+            $data['full_sms'] = $sms;
 
+            Verification::where('order_id', $orderID)->update([
+                'status' => 2,
+                'sms' => $sms,
+                'full_sms' => $sms,
+            ]);
 
+            try{
 
+                $order = Verification::where('order_id', $orderID)->first() ?? null;
+                $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
+                User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
 
+            }catch (\Exception $e) {
+                $message = $e->getMessage();
+                send_notification($message);
+                send_notification2($message);
+            }
 
-
-        Verification::where('order_id', $orderID)->update([
-            'status' => 2,
-            'sms' => $sms,
-            'full_sms' => $sms,
-        ]);
-
-        try{
-
-            $order = Verification::where('order_id', $orderID)->first() ?? null;
-            $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
-            User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
-
-        }catch (\Exception $e) {
-            $message = $e->getMessage();
+            $message = "$orderID | completed";
             send_notification($message);
-            send_notification2($message);
+
+
+            return 3;
+
         }
 
-        $message = "$orderID | completed";
-        send_notification($message);
 
-
-        return 3;
 
     }
 
