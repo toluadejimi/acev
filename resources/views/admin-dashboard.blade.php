@@ -271,7 +271,7 @@
                                                         </td>
                                                         @else
                                                         <td>
-                                                            <span class="badge badge-pill badge-warning">Pendong</span>
+                                                            <span class="badge badge-pill badge-warning">Pending</span>
 
                                                         </td>
                                                         @endif
@@ -396,7 +396,7 @@
 
                                                         @elseif($data->status == 3)
                                                         <td>
-                                                            <span class="badge badge-pill badge-danger">Cancled</span>
+                                                            <span class="badge badge-pill badge-danger">Canceled</span>
                                                         </td>
 
                                                         @elseif($data->status == 4)
