@@ -858,6 +858,18 @@ class HomeController extends Controller
         $receivedAt = $request->receivedAt;
         $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
 
+        try{
+
+            $order = Verification::where('order_id', $activationId)->first() ?? null;
+            $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
+            User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
+
+        }catch (\Exception $e) {
+            $message = $e->getMessage();
+            send_notification($message);
+            send_notification2($message);
+        }
+
 
         $message = json_encode($request->all());
         send_notification($message);
@@ -874,8 +886,6 @@ class HomeController extends Controller
         $message = json_encode($request->all());
         send_notification($message);
         send_notification2($message);
-
-
 
 
         $activationId = $request->activationId;
@@ -951,8 +961,14 @@ class HomeController extends Controller
                 $amount = number_format($order->cost, 2);
                 Verification::where('id', $request->id)->delete();
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
+                User::where('id', Auth::id())->decrement('hold_wallet', $order->cost);
+
                 $email = User::where('id', $order->user_id)->first()->email ?? null;
                 $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
+
+
+
+
                 $bb = number_format($balance, 2);
                 $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
                 send_notification($message);
