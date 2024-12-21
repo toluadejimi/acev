@@ -174,42 +174,7 @@ class AdminController extends Controller
 //        }
 
 
-        try {
-            DB::beginTransaction();
 
-            $users = User::all();
-
-            foreach ($users as $user) {
-                $totalVerifications = Verification::where('user_id', $user->id)
-                    ->where('status', 2)
-                    ->sum('cost');
-
-                $totalTransactions = Transaction::where('user_id', $user->id)
-                    ->where('status', 2)
-                    ->where('type', 2)
-                    ->sum('amount');
-
-                $newWalletBalance = $totalTransactions - $totalVerifications;
-
-                // Update the user's wallet
-                $user->wallet = $newWalletBalance;
-                $user->save();
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User wallet balances have been updated successfully.',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while updating wallet balances: ' . $e->getMessage(),
-            ], 500);
-        }
 
         return view('admin-dashboard', $data);
 
