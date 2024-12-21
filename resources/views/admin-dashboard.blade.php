@@ -374,7 +374,7 @@
 
                                                     <tr>
                                                         <td>{{ $data->ref_id }} </td>
-                                                        <td>{{ $data->user->username }} </td>
+                                                        <td>{{ $data->user->username ?? "name" }} </td>
                                                         @if($data->type == 2)
                                                         <td><span class="badge badge-success">Credit</span>
                                                         </td>
