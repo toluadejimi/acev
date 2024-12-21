@@ -108,8 +108,6 @@ class AdminController extends Controller
         $data['verification'] = Verification::latest()->paginate(50);
 
         $users = User::all();
-        DB::beginTransaction();
-
 //        try {
 //            $users = User::where('wallet', '>', 0)->get();
 //
