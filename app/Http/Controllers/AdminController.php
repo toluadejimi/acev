@@ -108,67 +108,70 @@ class AdminController extends Controller
         $data['verification'] = Verification::latest()->paginate(50);
 
         $users = User::all();
-//        try {
-//            $users = User::where('wallet', '>', 0)->get();
-//
-//
-//            foreach ($users as $user) {
-//                Transaction::create([
-//                    'user_id' => $user->id,
-//                    'amount' => $user->wallet,
-//                    'ref_id' => "VER".date('his'),
-//                    'type' => 2,
-//                    'status' => 2,
-//                ]);
-//
-//                $user->wallet = 0;
-//                $user->save();
-//            }
-//
-//            DB::commit();
-//
-//            return view('admin-dashboard', $data);
-//
-//
-//        } catch (\Exception $e) {
-//            DB::rollBack();
-//
-//            return response()->json([
-//                'status' => 'error',
-//                'message' => 'An error occurred: ' . $e->getMessage(),
-//            ], 500);
-//        }
-
-
         try {
+
             DB::beginTransaction();
+            $users = User::where('wallet', '>', 0)->get();
 
-            $transactions = Transaction::where('type', 2)->where('status', 2)->get();
 
-            foreach ($transactions as $transaction) {
-                $user = User::find($transaction->user_id);
+            foreach ($users as $user) {
+                Transaction::create([
+                    'user_id' => $user->id,
+                    'amount' => $user->wallet,
+                    'ref_id' => "VER".date('his'),
+                    'type' => 2,
+                    'status' => 2,
+                ]);
 
-                if ($user) {
-                    $user->wallet += $transaction->amount;
-                    $user->save();
-                    $transaction->delete();
-                }
+                $user->save();
+
+
             }
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Wallet balances have been restored.',
-            ]);
+            return view('admin-dashboard', $data);
+
+
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'An error occurred while restoring wallet balances: ' . $e->getMessage(),
+                'message' => 'An error occurred: ' . $e->getMessage(),
             ], 500);
         }
+
+
+//        try {
+//            DB::beginTransaction();
+//
+//            $transactions = Transaction::where('type', 2)->where('status', 2)->get();
+//
+//            foreach ($transactions as $transaction) {
+//                $user = User::find($transaction->user_id);
+//
+//                if ($user) {
+//                    $user->wallet += $transaction->amount;
+//                    $user->save();
+//                    $transaction->delete();
+//                }
+//            }
+//
+//            DB::commit();
+//
+//            return response()->json([
+//                'status' => 'success',
+//                'message' => 'Wallet balances have been restored.',
+//            ]);
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//
+//            return response()->json([
+//                'status' => 'error',
+//                'message' => 'An error occurred while restoring wallet balances: ' . $e->getMessage(),
+//            ], 500);
+//        }
 
 
 
