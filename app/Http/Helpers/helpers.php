@@ -194,6 +194,10 @@ function create_order($service, $price, $cost, $service_name, $costs){
     }
 
 
+
+
+
+
     $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
     $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
     if ($total_bought > $total_funded) {
@@ -247,9 +251,6 @@ function create_order($service, $price, $cost, $service_name, $costs){
 
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
-
-
-
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $phone;
@@ -264,6 +265,10 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $ver->save();
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
+
+        User::where('id', Auth::id())->increment('hold_wallet', $costs);
+
+
         $cost2 = number_format($price, 2);
         $cal = Auth::user()->wallet - $costs;
         $bal = number_format($cal, 2);
