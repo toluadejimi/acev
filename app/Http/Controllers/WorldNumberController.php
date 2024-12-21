@@ -102,7 +102,12 @@ class WorldNumberController extends Controller
             $verification = Verification::where('user_id', Auth::id())->get();
             $count_id = Country::where('country_id', $request->country)->first()->short_name ?? null;
 
-            $ngnprice = ($price * $get_rate) + $margin;
+            $data['get_rate'] = Setting::where('id', 1)->first()->rate;
+            $data['margin'] = Setting::where('id', 1)->first()->margin;
+
+            $gcost = pool_cost($request->service, $count_id);
+
+            $ngnprice = ($data['get_rate'] * $gcost) + $data['margin'];;
 
             $data['count_id'] = $count_id;
             $data['serv'] = $request->service;
@@ -209,8 +214,6 @@ class WorldNumberController extends Controller
 
         $cost = ($data['get_rate'] * $gcost) + $data['margin'];
 
-
-        dd($gcost, $data['get_rate'],  $data['margin']);
 
         if($cost < 500){
             return back()->with('error', "something went wrong");
