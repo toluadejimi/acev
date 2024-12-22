@@ -305,7 +305,7 @@
 
                                                                         setTimeout(function () {
                                                                             link.style.display = 'inline'; // or 'block' depending on your layout
-                                                                        }, 60); // 5 seconds
+                                                                        }, 10); // 5 seconds
                                                                     }
                                                                 </script>
 
