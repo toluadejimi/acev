@@ -432,13 +432,23 @@
                                                                     class="btn btn-warning btn-sm">Pending</span>
                                                                 <a href="delete-order?id={{  $data->id }}&delete=1"
                                                                    style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
-                                                                   onclick="hideButtondelete(this)"
-                                                                   class="btn btn-warning btn-sm">Delete</span>
+                                                                   class="btn btn-warning btn-sm hideButton">Delete</span>
 
                                                                     @else
                                                                         <span style="font-size: 10px;"
                                                                               class="text-white btn btn-success btn-sm">Completed</span>
                                                             @endif
+
+
+
+                                                            <script>
+                                                                const buttons = document.querySelectorAll('.hideButton');
+                                                                buttons.forEach(button => {
+                                                                    button.addEventListener('click', function() {
+                                                                        this.style.display = 'none';  
+                                                                    });
+                                                                });
+                                                            </script>
 
                                                         </td>
                                                         <td id="datetime{{$data->id}}"
