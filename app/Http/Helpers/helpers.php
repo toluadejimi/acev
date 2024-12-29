@@ -198,28 +198,22 @@ function create_order($service, $price, $cost, $service_name, $costs){
 
 
 
-//    $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-//    $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-//    if ($total_bought > $total_funded) {
-//
-//        $message = Auth::user()->email . " has been banned for cheating";
-//        send_notification($message);
-//        send_notification2($message);
-//
-//        User::where('id', Auth::id())->update(['status' => 9]);
-//        Auth::logout();
-//        return 7;
-//
-//    }
+    $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
+    $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
+    if ($total_bought > $total_funded) {
+        $message = Auth::user()->email . " needs to be watched";
+        send_notification($message);
+        send_notification2($message);
+        return 7;
+    }
 
     $currentTime = Carbon::now();
     $futureTime = $currentTime->addMinutes(20);
     $formattedTime = $futureTime->format('Y-m-d H:i:s');
 
 
-
     $APIKEY = env('KEY');
-   $curl = curl_init();
+    $curl = curl_init();
 
    curl_setopt_array($curl, array(
        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
@@ -495,17 +489,11 @@ function create_world_order($country, $service, $price, $calculatrdcost){
 
     $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
     $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-//    if ($total_bought > $total_funded) {
-//
-//        $message = Auth::user()->email . " has been banned for cheating";
-//        send_notification($message);
-//        send_notification2($message);
-//
-//        User::where('id', Auth::id())->update(['status' => 9]);
-//        Auth::logout();
-//        return 7;
-//
-//    }
+    if ($total_bought > $total_funded) {
+        $message = Auth::user()->email . " need to be checked";
+        return 7;
+
+    }
 
     $key = env('WKEY');
     $curl = curl_init();

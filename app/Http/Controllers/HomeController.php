@@ -92,6 +92,16 @@ class HomeController extends Controller
     {
 
 
+        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
+        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
+        if ($total_bought > $total_funded) {
+            $message = Auth::user()->email . " need to be checked";
+            send_notification($message);
+            send_notification2($message);
+            return back()->with('error', "Kindly Fund your wallet");
+
+        }
+
 
         if($request->price != $request->price2 && $request->price3 != $request->price4 ){
 
@@ -146,7 +156,7 @@ class HomeController extends Controller
         }
 
         if ($order == 7) {
-            return redirect('ban');
+            return back()->with('error', "Kindly Fund your wallet");
         }
 
         if ($order == 8) {
