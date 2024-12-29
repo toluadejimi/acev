@@ -183,6 +183,7 @@ class WorldNumberController extends Controller
     {
 
 
+
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
         if ($total_bought > $total_funded) {
@@ -191,6 +192,14 @@ class WorldNumberController extends Controller
             send_notification2($message);
             return back()->with('error', "Kindly Fund your wallet");
 
+        }
+
+
+        if(Auth::user()->balance > $total_funded){
+            $message = Auth::user()->email . " need to be checked";
+            send_notification($message);
+            send_notification2($message);
+            return back()->with('error', "Please contact admin, for resolution");
         }
 
         if($request->price < 0 || $request->price == 0){
