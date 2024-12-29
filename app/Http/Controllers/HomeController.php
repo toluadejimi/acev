@@ -99,7 +99,14 @@ class HomeController extends Controller
             send_notification($message);
             send_notification2($message);
             return back()->with('error', "Kindly Fund your wallet");
+        }
 
+
+        if(Auth::user()->balance > $total_funded){
+            $message = Auth::user()->email . " need to be checked";
+            send_notification($message);
+            send_notification2($message);
+            return back()->with('error', "Please contact admin, for resolution");
         }
 
 
