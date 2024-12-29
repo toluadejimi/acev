@@ -195,7 +195,7 @@ class WorldNumberController extends Controller
         }
 
 
-        if(Auth::user()->balance > $total_funded){
+        if(Auth::user()->wallet > $total_funded){
             $message = Auth::user()->email . " need to be checked";
             send_notification($message);
             send_notification2($message);
