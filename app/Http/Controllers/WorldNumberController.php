@@ -134,7 +134,7 @@ class WorldNumberController extends Controller
 
 
 
-            dd($get_s_price,$high_price,$price, $ngnprice);
+            dd($get_s_price,$high_price,$price, $ngnprice, $data['get_rate']);
 
 
             return view('world', $data);
