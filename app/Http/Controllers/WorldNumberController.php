@@ -106,6 +106,8 @@ class WorldNumberController extends Controller
 
             $gcost = pool_cost($request->service, $count_id);
 
+            dd($gcost,$request->service, $count_id );
+
             $ngnprice = ($data['get_rate'] * $gcost) + $data['margin'];;
 
             $data['count_id'] = $count_id;
