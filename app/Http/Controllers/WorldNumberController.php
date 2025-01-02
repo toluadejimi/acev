@@ -77,7 +77,6 @@ class WorldNumberController extends Controller
         $var = json_decode($var);
 
 
-
         $get_s_price = $var->price ?? null;
         $high_price = $var->high_price ?? null;
         $rate = $var->success_rate ?? null;
@@ -132,6 +131,10 @@ class WorldNumberController extends Controller
             } else {
                 $data['pend'] = 0;
             }
+
+
+
+            dd($get_s_price,$high_price,$price, $ngnprice);
 
 
             return view('world', $data);
