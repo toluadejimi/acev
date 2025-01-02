@@ -714,7 +714,7 @@ function pool_cost($service, $country){
         "key" => $key,
         "country" => $country,
         "service" => $service,
-        "pool" => '7',
+        "pool" => '',
     );
 
     $body = json_encode($databody);
