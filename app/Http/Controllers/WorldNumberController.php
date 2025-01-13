@@ -186,6 +186,8 @@ class WorldNumberController extends Controller
 
 
 
+
+
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
         if ($total_bought > $total_funded) {
@@ -197,12 +199,15 @@ class WorldNumberController extends Controller
         }
 
 
-        if(Auth::user()->wallet > $total_funded){
+
+
+        if(Auth::user()->wallet < $total_funded){
             $message = Auth::user()->email . " need to be checked";
             send_notification($message);
             send_notification2($message);
             return back()->with('error', "Please contact admin, for resolution");
         }
+
 
         if($request->price < 0 || $request->price == 0){
             return back()->with('error', "something went wrong");
@@ -225,6 +230,7 @@ class WorldNumberController extends Controller
         $country = $request->country;
         $service = $request->service;
         $price = $request->price;
+
 
 
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
