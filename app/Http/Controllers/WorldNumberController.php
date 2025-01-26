@@ -243,8 +243,6 @@ class WorldNumberController extends Controller
 
 
         if((int)$request->price != (int)$calculatrdcost){
-
-            dd("hello1");
             $message = "Price altred >>>>>>>". Auth::user()->email. " |  Request====>". json_encode($request->all());
             send_notification($message);
             send_notification2($message);
@@ -252,8 +250,6 @@ class WorldNumberController extends Controller
             return back()->with('error', "Price has been altered");
         };
 
-
-        dd("hello2");
 
 
         if($request->price < 1000){
