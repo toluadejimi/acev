@@ -134,8 +134,6 @@ class WorldNumberController extends Controller
             }
 
 
-
-
             return view('world', $data);
         }
     }
