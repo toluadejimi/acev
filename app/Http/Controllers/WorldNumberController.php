@@ -239,9 +239,9 @@ class WorldNumberController extends Controller
         $gcost = pool_cost($service, $country);
 
 
-
-
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
+
+        dd($request->price, $calculatrdcost);
 
         if($request->price != $calculatrdcost){
 
@@ -266,7 +266,6 @@ class WorldNumberController extends Controller
 
 
 
-        dd("hello");
 
 
 
