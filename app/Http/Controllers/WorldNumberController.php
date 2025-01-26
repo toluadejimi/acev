@@ -230,6 +230,8 @@ class WorldNumberController extends Controller
         $price = $request->price;
 
 
+        dd('hello');
+
 
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
