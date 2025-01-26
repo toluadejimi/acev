@@ -241,7 +241,7 @@ class WorldNumberController extends Controller
 
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
 
-        dd($request->price, $calculatrdcost);
+        dd($request->price != $calculatrdcost);
 
         if($request->price != $calculatrdcost){
 
