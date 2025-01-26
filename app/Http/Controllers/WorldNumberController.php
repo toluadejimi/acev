@@ -239,6 +239,7 @@ class WorldNumberController extends Controller
         $gcost = pool_cost($service, $country);
 
 
+        dd("hello");
 
 
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
