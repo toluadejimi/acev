@@ -741,6 +741,8 @@ function pool_cost($service, $country){
     $var = json_decode($var);
 
 
+    dd($var);
+
     $get_s_price = $var->price ?? null;
     $high_price = $var->high_price ?? null;
     $rate = $var->success_rate ?? null;

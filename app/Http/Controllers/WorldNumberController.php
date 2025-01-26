@@ -230,7 +230,6 @@ class WorldNumberController extends Controller
         $price = $request->price;
 
 
-        dd('hello');
 
 
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
@@ -238,6 +237,9 @@ class WorldNumberController extends Controller
 
 
         $gcost = pool_cost($service, $country);
+
+
+
 
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
 
