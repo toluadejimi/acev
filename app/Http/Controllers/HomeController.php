@@ -508,41 +508,8 @@ class HomeController extends Controller
                 return redirect('ban');
             }
 
-            $ck = User::where('email', $request->email)->first()->verify ?? null;
-            if ($ck == 0) {
-                $email = $request->email;
-                $expiryTimestamp = time() + 24 * 60 * 60; // 24 hours in seconds
-                $url = url('') . "/verify-account-now?code=$expiryTimestamp&email=$request->email";
-                $username = User::where('email', $request->email)->first()->username ?? null;
+            return redirect('us');
 
-                User::where('email', $email)->update([
-                    'code' => $expiryTimestamp
-                ]);
-
-                $data = array(
-                    'fromsender' => 'noreply@acesmsverify.com', 'ACEVERIFY',
-                    'subject' => "Verify Account",
-                    'toreceiver' => $email,
-                    'url' => $url,
-                    'user' => $username,
-                );
-
-
-                Mail::send('verify-account', ["data1" => $data], function ($message) use ($data) {
-                    $message->from($data['fromsender']);
-                    $message->to($data['toreceiver']);
-                    $message->subject($data['subject']);
-                });
-
-                $username = Auth::user()->username;
-                return redirect('/login')->with('message', 'Account verification has been sent to your email, Verify your account');
-
-
-
-            } else {
-
-                return redirect('us');
-            }
         }
 
         return back()->with('error', "Email or Password Incorrect");
