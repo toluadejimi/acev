@@ -133,7 +133,6 @@ class WorldNumberController extends Controller
                 $data['pend'] = 0;
             }
 
-
             return view('world', $data);
         }
     }

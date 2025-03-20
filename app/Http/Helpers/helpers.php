@@ -521,7 +521,6 @@ function create_world_order($country, $service, $price, $calculatrdcost){
     curl_close($curl);
     $var = json_decode($var);
 
-
     $success = $var->success ?? null;
 
 
@@ -555,10 +554,7 @@ function create_world_order($country, $service, $price, $calculatrdcost){
 
         $ver->save();
 
-
         User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
-
-
 
         $cost2 = number_format($calculatrdcost, 2);
         $cal = Auth::user()->wallet - $calculatrdcost;
