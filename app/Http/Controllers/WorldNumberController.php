@@ -76,6 +76,8 @@ class WorldNumberController extends Controller
 
         $var = json_decode($var);
 
+        dd($var);
+
 
         $get_s_price = $var->price ?? null;
         $high_price = $var->high_price ?? null;
@@ -181,10 +183,6 @@ class WorldNumberController extends Controller
     public function order_now(Request $request)
     {
 
-
-
-
-
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
         if ($total_bought > $total_funded) {
@@ -268,7 +266,6 @@ class WorldNumberController extends Controller
 
         $order = create_world_order($country, $service, $price, $calculatrdcost);
 
-        dd($order);
 
         if ($order == 5) {
             return redirect('world')->with('error', 'Number Currently out of stock, Please check back later');
