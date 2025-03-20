@@ -268,6 +268,8 @@ class WorldNumberController extends Controller
 
         $order = create_world_order($country, $service, $price, $calculatrdcost);
 
+        dd($order);
+
         if ($order == 5) {
             return redirect('world')->with('error', 'Number Currently out of stock, Please check back later');
         }
