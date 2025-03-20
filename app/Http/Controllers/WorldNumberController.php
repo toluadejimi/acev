@@ -76,8 +76,6 @@ class WorldNumberController extends Controller
 
         $var = json_decode($var);
 
-        dd($var);
-
 
         $get_s_price = $var->price ?? null;
         $high_price = $var->high_price ?? null;
@@ -182,6 +180,8 @@ class WorldNumberController extends Controller
 
     public function order_now(Request $request)
     {
+
+        dd($request->all());
 
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
