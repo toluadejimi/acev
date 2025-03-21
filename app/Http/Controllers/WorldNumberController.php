@@ -194,15 +194,6 @@ class WorldNumberController extends Controller
 
 
 
-        dd(Auth::user()->wallet , $total_funded);
-
-
-        if(Auth::user()->wallet < $total_funded){
-            $message = Auth::user()->email . " need to be checked";
-            send_notification($message);
-            send_notification2($message);
-            return redirect('world')->with('error', "Please contact admin, for resolution");
-        }
 
 
         if($request->price < 0 || $request->price == 0){
