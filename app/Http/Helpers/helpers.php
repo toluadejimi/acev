@@ -498,14 +498,13 @@ function create_world_order($country, $service, $price, $calculatrdcost){
     $key = env('WKEY');
     $curl = curl_init();
 
-    $databody = array(
+    $databody = [
         'country' => $country,
         'service' => $service,
         'key' => $key,
+    ];
 
-
-    );
-    curl_setopt_array($curl, array(
+    curl_setopt_array($curl, [
         CURLOPT_URL => 'https://api.smspool.net/purchase/sms',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
@@ -515,63 +514,59 @@ function create_world_order($country, $service, $price, $calculatrdcost){
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => $databody,
-    ));
+    ]);
 
-    $var = curl_exec($curl);
+    $response = curl_exec($curl);
     curl_close($curl);
-    $var = json_decode($var);
+    $json_start = strpos($response, '{');
+    if ($json_start !== false) {
+        $json_string = substr($response, $json_start);
+        $var = json_decode($json_string, true);
+        $success = $var['success'] ?? null;
 
-    $success = $var->success ?? null;
+        if($success == 0){
+            return 5;
+
+        }
+
+        if($success == 1){
+
+                Verification::where('phone', $var->cc.$var->phonenumber)->where('status', 2)->delete() ?? null;
+            $currentTime = Carbon::now();
+            $futureTime = $currentTime->addMinutes(15);
+            $formattedTime = $futureTime->format('Y-m-d H:i:s');
+
+            $ver = new Verification();
+            $ver->user_id = Auth::id();
+            $ver->phone = $var->cc.$var->phonenumber;
+            $ver->order_id = $var->order_id;
+            $ver->country = $var->country;
+            $ver->service = $var->service;
+            $ver->expires_in = $var->expires_in / 10 - 20;
+            $ver->cost = $calculatrdcost;
+            $ver->created_at = $formattedTime;
+            $ver->expires_in = 300;
+            $ver->api_cost = $var->cost;
+            $ver->status = 1;
+            $ver->type = 2;
+
+            $ver->save();
+
+            User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
+
+            $cost2 = number_format($calculatrdcost, 2);
+            $cal = Auth::user()->wallet - $calculatrdcost;
+            $bal = number_format($cal, 2);
+            $message = Auth::user()->email." just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
+            send_notification($message);
+            send_notification2($message);
+
+            return 3;
 
 
-    if($success == 0){
-        return 5;
 
+        }
     }
-
-
-
-    if($success == 1){
-
-        Verification::where('phone', $var->cc.$var->phonenumber)->where('status', 2)->delete() ?? null;
-        $currentTime = Carbon::now();
-        $futureTime = $currentTime->addMinutes(15);
-        $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-        $ver = new Verification();
-        $ver->user_id = Auth::id();
-        $ver->phone = $var->cc.$var->phonenumber;
-        $ver->order_id = $var->order_id;
-        $ver->country = $var->country;
-        $ver->service = $var->service;
-        $ver->expires_in = $var->expires_in / 10 - 20;
-        $ver->cost = $calculatrdcost;
-        $ver->created_at = $formattedTime;
-        $ver->expires_in = 300;
-        $ver->api_cost = $var->cost;
-        $ver->status = 1;
-        $ver->type = 2;
-
-        $ver->save();
-
-        User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
-
-        $cost2 = number_format($calculatrdcost, 2);
-        $cal = Auth::user()->wallet - $calculatrdcost;
-        $bal = number_format($cal, 2);
-        $message = Auth::user()->email." just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
-        send_notification($message);
-        send_notification2($message);
-
-        return 3;
-
-
-
-    }
-
-
-
-
 
 
 
