@@ -181,7 +181,6 @@ class WorldNumberController extends Controller
     public function order_now(Request $request)
     {
 
-        dd($request->all());
 
         $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
         $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
@@ -200,26 +199,26 @@ class WorldNumberController extends Controller
             $message = Auth::user()->email . " need to be checked";
             send_notification($message);
             send_notification2($message);
-            return back()->with('error', "Please contact admin, for resolution");
+            return redirect('world')->with('error', "Please contact admin, for resolution");
         }
 
 
         if($request->price < 0 || $request->price == 0){
-            return back()->with('error', "something went wrong");
+            return redirect('world')->with('error', "something went wrong");
         }
 
         if($request->price != $request->price2 && $request->price3 != $request->price4 ){
 
-            return back()->with('error', "something went wrong");
+            return redirect('world')->with('error', "something went wrong");
 
         }
 
         if($request->price < 500 ){
-            return back()->with('error', "something went wrong");
+            return redirect('world')->with('error', "something went wrong");
         }
 
         if (Auth::user()->wallet < $request->price) {
-            return back()->with('error', "Insufficient Funds");
+            return redirect('world')->with('error', "Insufficient Funds");
         }
 
         $country = $request->country;
@@ -244,19 +243,19 @@ class WorldNumberController extends Controller
             send_notification($message);
             send_notification2($message);
 
-            return back()->with('error', "Price has been altered");
+            return redirect('world')->with('error', "Price has been altered");
         };
 
 
 
         if($request->price < 1000){
-            return back()->with('error', "please try again later");
+            return redirect('world')->with('error', "please try again later");
 
         }
 
 
         if (Auth::user()->wallet < $calculatrdcost) {
-            return back()->with('error', "Insufficient Funds");
+            return redirect('world')->with('error', "Insufficient Funds");
         }
 
 
