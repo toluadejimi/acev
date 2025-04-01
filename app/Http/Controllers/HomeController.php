@@ -1141,13 +1141,11 @@ class HomeController extends Controller
     {
 
 
-        $ipb = env('IPA');
-        $ipa = env('IPB');
-        $ip = $request->ip();
-        $fund = $request->fund;
+//        $ipb = env('IPA');
+//        $ipa = env('IPB');
+//        $ip = $request->ip();
+//        $fund = $request->fund;
 
-
-        if ($ip == $ipb || $ip == $ipa || $fund == "fund") {
 
             $get_user = User::where('email', $request->email)->first() ?? null;
             if ($get_user == null) {
@@ -1195,17 +1193,12 @@ class HomeController extends Controller
                 'message' => "NGN $amount has been successfully added to your wallet",
             ]);
 
-        } else {
-            $ip = $request->ip();
-            $url = $request->url();
-            $message = $request->email . "| just is trying to fund wallet on ace verify | $ip | $url | NGN" . $request->amount;
-            send_notification2($message);
-        }
 
-        return response()->json([
-            'status' => true,
-            'message' => "Something went wrong",
-        ]);
+
+//        return response()->json([
+//            'status' => true,
+//            'message' => "Something went wrong",
+//        ]);
 
 
     }
