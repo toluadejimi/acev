@@ -1057,7 +1057,19 @@ class HomeController extends Controller
 
                     Verification::where('id', $request->id)->delete();
                     User::where('id', Auth::id())->increment('wallet', $order->cost);
-                    User::where('id', Auth::id())->decrement('hold_wallet', $order->cost);
+
+                    WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
+
+
+                    $trx = new Transaction();
+                    $trx->ref_id = "Order Cancel";
+                    $trx->user_id = Auth::id();
+                    $trx->status = 2;
+                    $trx->amount = $order->cost;
+                    $trx->type = 2;
+                    $trx->save();
+
+
 
                     $email = User::where('id', $order->user_id)->first()->email ?? null;
                     $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
