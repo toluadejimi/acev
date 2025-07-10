@@ -389,20 +389,8 @@ function check_sms($orderID)
 
                 $order = Verification::where('order_id', $orderID)->first() ?? null;
                 $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
-                User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
+                //User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
 
-
-                WalletCheck::where('user_id', $user_id)->increment('total_bought', $order->cost);
-                WalletCheck::where('user_id', $user_id)->decrement('wallet_amount', $order->cost);
-
-
-                $trx = new Transaction();
-                $trx->ref_id = "Verification $orderID";
-                $trx->user_id = Auth::id();
-                $trx->status = 2;
-                $trx->amount = $order->cost;
-                $trx->type = 1;
-                $trx->save();
 
 
             } catch (\Exception $e) {
