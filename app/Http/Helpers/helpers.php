@@ -1,11 +1,11 @@
 <?php
 
 use App\Constants\Status;
+use App\Lib\GoogleAuthenticator;
 use App\Models\Extension;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
-use App\Lib\GoogleAuthenticator;
 use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -51,59 +51,60 @@ function resolve_complete($order_id)
 function send_notification($message)
 {
 
-        $curl = curl_init();
+    $curl = curl_init();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.telegram.org/bot7592678907:AAH4Eu7NbRiClgyTbvr5tS6XhATpZwt0JrQ/sendMessage?chat_id=1316552414',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'chat_id' => "1316552414",
-                'text' => $message,
-            ),
-            CURLOPT_HTTPHEADER => array(),
-        ));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.telegram.org/bot7592678907:AAH4Eu7NbRiClgyTbvr5tS6XhATpZwt0JrQ/sendMessage?chat_id=1316552414',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => array(
+            'chat_id' => "1316552414",
+            'text' => $message,
+        ),
+        CURLOPT_HTTPHEADER => array(),
+    ));
 
-        $var = curl_exec($curl);
-        curl_close($curl);
+    $var = curl_exec($curl);
+    curl_close($curl);
 
-        $var = json_decode($var);
+    $var = json_decode($var);
 }
 
 function send_notification2($message)
-    {
+{
 
-        $curl = curl_init();
+    $curl = curl_init();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.telegram.org/bot7158474563:AAGGy_0ZGUV_vZbagi3V1MvMuleMLpUseEc/sendMessage?chat_id=7109127373',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'chat_id' => "7109127373",
-                'text' => $message,
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.telegram.org/bot7158474563:AAGGy_0ZGUV_vZbagi3V1MvMuleMLpUseEc/sendMessage?chat_id=7109127373',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => array(
+            'chat_id' => "7109127373",
+            'text' => $message,
 
-            ),
-            CURLOPT_HTTPHEADER => array(),
-        ));
+        ),
+        CURLOPT_HTTPHEADER => array(),
+    ));
 
-        $var = curl_exec($curl);
-        curl_close($curl);
+    $var = curl_exec($curl);
+    curl_close($curl);
 
-        $var = json_decode($var);
-    }
+    $var = json_decode($var);
+}
 
-function session_resolve($session_id, $ref){
+function session_resolve($session_id, $ref)
+{
 
     $curl = curl_init();
 
@@ -143,43 +144,45 @@ function session_resolve($session_id, $ref){
 
 }
 
-function get_services(){
+function get_services()
+{
 
     $APIKEY = env('KEY');
 
     $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPricesVerification",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ),
-        ));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPricesVerification",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ),
+    ));
 
-        $var = curl_exec($curl);
+    $var = curl_exec($curl);
 
     curl_close($curl);
-        $var = json_decode($var);
+    $var = json_decode($var);
 
 
-        $services = $var ?? null;
+    $services = $var ?? null;
 
-        if ($var == null) {
-            $services = null;
-        }
+    if ($var == null) {
+        $services = null;
+    }
 
-        return $services;
+    return $services;
 
 }
 
-function create_order($service, $price, $cost, $service_name, $costs){
+function create_order($service, $price, $cost, $service_name, $costs)
+{
 
     if (Auth::user()->wallet < $price) {
         return 8;
@@ -195,12 +198,11 @@ function create_order($service, $price, $cost, $service_name, $costs){
     }
 
 
-
-    $wallet_check =WalletCheck::where('user_id', Auth::id())->first();
-    if($wallet_check){
+    $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
+    if ($wallet_check) {
         if ($wallet_check->total_wallet < $wallet_check->total_funded) {
 
-            User::where('id', Auth::id())->update(['status' =>  9]);
+            User::where('id', Auth::id())->update(['status' => 9]);
 
             $message = Auth::user()->email . " needs to be watched";
             send_notification($message);
@@ -212,8 +214,6 @@ function create_order($service, $price, $cost, $service_name, $costs){
     }
 
 
-    }
-
     $currentTime = Carbon::now();
     $futureTime = $currentTime->addMinutes(20);
     $formattedTime = $futureTime->format('Y-m-d H:i:s');
@@ -222,22 +222,22 @@ function create_order($service, $price, $cost, $service_name, $costs){
     $APIKEY = env('KEY');
     $curl = curl_init();
 
-   curl_setopt_array($curl, array(
-       CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
-       CURLOPT_RETURNTRANSFER => true,
-       CURLOPT_ENCODING => '',
-       CURLOPT_MAXREDIRS => 10,
-       CURLOPT_TIMEOUT => 0,
-       CURLOPT_FOLLOWLOCATION => true,
-       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-       CURLOPT_CUSTOMREQUEST => 'GET',
-   ));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+    ));
 
-   $var = curl_exec($curl);
-   curl_close($curl);
-   $result = $var ??  null;
+    $var = curl_exec($curl);
+    curl_close($curl);
+    $result = $var ?? null;
 
-    if(strstr($result, "ACCESS_NUMBER") !== false) {
+    if (strstr($result, "ACCESS_NUMBER") !== false) {
 
 
         if (Auth::user()->wallet < $price) {
@@ -250,7 +250,7 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $phone = $parts[2];
 
 
-        Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+            Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
         $ver = new Verification();
         $ver->user_id = Auth::id();
@@ -280,116 +280,110 @@ function create_order($service, $price, $cost, $service_name, $costs){
         $trx->save();
 
 
-
-       // User::where('id', Auth::id())->increment('hold_wallet', $costs);
+        // User::where('id', Auth::id())->increment('hold_wallet', $costs);
 
 
         $cost2 = number_format($price, 2);
         $cal = Auth::user()->wallet - $costs;
         $bal = number_format($cal, 2);
-        $message = Auth::user()->email." just been ordered number on Diasy NGN $cost2 | NGN $bal ";
+        $message = Auth::user()->email . " just been ordered number on Diasy NGN $cost2 | NGN $bal ";
         send_notification($message);
         send_notification2($message);
 
         return 1;
 
-    }elseif($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
-        return 0;
-    }else{
+    }
+
+    if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
         return 0;
     }
 
-
-
-
 }
 
-function cancel_order($orderID){
+
+function cancel_order($orderID)
+{
 
 
-   $APIKEY = env('KEY');
-   $curl = curl_init();
+    $APIKEY = env('KEY');
+    $curl = curl_init();
 
-   curl_setopt_array($curl, array(
-       CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=setStatus&id=$orderID&status=8",
-       CURLOPT_RETURNTRANSFER => true,
-       CURLOPT_ENCODING => '',
-       CURLOPT_MAXREDIRS => 10,
-       CURLOPT_TIMEOUT => 0,
-       CURLOPT_FOLLOWLOCATION => true,
-       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-       CURLOPT_CUSTOMREQUEST => 'GET',
-   ));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=setStatus&id=$orderID&status=8",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+    ));
 
     $var = curl_exec($curl);
     curl_close($curl);
     $result = $var ?? null;
 
-    if(strstr($result, "ACCESS_CANCEL") !== false){
+    if (strstr($result, "ACCESS_CANCEL") !== false) {
         return 1;
-    }else{
+    } else {
         return 0;
     }
 
 
-
-
 }
 
-function check_sms($orderID){
+function check_sms($orderID)
+{
 
 
+    $APIKEY = env('KEY');
+    $curl = curl_init();
 
-   $APIKEY = env('KEY');
-   $curl = curl_init();
-
-   curl_setopt_array($curl, array(
-       CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getStatus&id=$orderID",
-       CURLOPT_RETURNTRANSFER => true,
-       CURLOPT_ENCODING => '',
-       CURLOPT_MAXREDIRS => 10,
-       CURLOPT_TIMEOUT => 0,
-       CURLOPT_FOLLOWLOCATION => true,
-       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-       CURLOPT_CUSTOMREQUEST => 'GET',
-   ));
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getStatus&id=$orderID",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+    ));
 
     $var = curl_exec($curl);
     curl_close($curl);
     $result = $var ?? null;
 
-    if(strstr($result, "NO_ACTIVATION") !== false){
+    if (strstr($result, "NO_ACTIVATION") !== false) {
 
         return 1;
 
     }
 
-    if(strstr($result, "NO_ACTIVATION") !== false){
+    if (strstr($result, "NO_ACTIVATION") !== false) {
 
         return 1;
 
     }
 
-    if(strstr($result, "STATUS_WAIT_CODE") !== false){
+    if (strstr($result, "STATUS_WAIT_CODE") !== false) {
 
         return 2;
 
     }
 
-    if(strstr($result, "STATUS_CANCEL") !== false){
+    if (strstr($result, "STATUS_CANCEL") !== false) {
 
         return 4;
 
     }
 
 
-
-
-    if(strstr($result, "STATUS_OK") !== false) {
+    if (strstr($result, "STATUS_OK") !== false) {
 
 
         $status = Verification::where('order_id', $orderID)->first()->status ?? null;
-        if($status != 2){
+        if ($status != 2) {
             $parts = explode(":", $result);
             $text = $parts[0];
             $sms = $parts[1];
@@ -403,7 +397,7 @@ function check_sms($orderID){
                 'full_sms' => $sms,
             ]);
 
-            try{
+            try {
 
                 $order = Verification::where('order_id', $orderID)->first() ?? null;
                 $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
@@ -423,8 +417,7 @@ function check_sms($orderID){
                 $trx->save();
 
 
-
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $message = $e->getMessage();
                 send_notification($message);
                 send_notification2($message);
@@ -439,15 +432,14 @@ function check_sms($orderID){
         }
 
 
-
     }
 
 
 }
 
 
-
-function get_world_countries(){
+function get_world_countries()
+{
 
     $key = env('WKEY');
 
@@ -473,17 +465,14 @@ function get_world_countries(){
     });
 
 
-
-
     return $countries;
-
-
 
 
 }
 
 
-function get_world_services(){
+function get_world_services()
+{
 
 
     $key = env('WKEY');
@@ -510,24 +499,21 @@ function get_world_services(){
     });
 
 
-
     return $services;
-
-
 
 
 }
 
 
-function create_world_order($country, $service, $price, $calculatrdcost){
+function create_world_order($country, $service, $price, $calculatrdcost)
+{
 
 
-
-    $wallet_check =WalletCheck::where('user_id', Auth::id())->first();
-    if($wallet_check){
+    $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
+    if ($wallet_check) {
         if ($wallet_check->total_wallet < $wallet_check->total_funded) {
 
-            User::where('id', Auth::id())->update(['status' =>  9]);
+            User::where('id', Auth::id())->update(['status' => 9]);
 
             $message = Auth::user()->email . " needs to be watched";
             send_notification($message);
@@ -568,22 +554,21 @@ function create_world_order($country, $service, $price, $calculatrdcost){
         $success = $var['success'] ?? null;
 
 
-
-        if($success == 0){
+        if ($success == 0) {
             return 5;
 
         }
 
-        if($success == 1){
+        if ($success == 1) {
 
-                Verification::where('phone', $var['cc'].$var['phonenumber'])->where('status', 2)->delete() ?? null;
+                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
             $currentTime = Carbon::now();
             $futureTime = $currentTime->addMinutes(15);
             $formattedTime = $futureTime->format('Y-m-d H:i:s');
 
             $ver = new Verification();
             $ver->user_id = Auth::id();
-            $ver->phone = $var['cc'].$var['phonenumber'];
+            $ver->phone = $var['cc'] . $var['phonenumber'];
             $ver->order_id = $var['order_id'];
             $ver->country = $var['country'];
             $ver->service = $var['service'];
@@ -605,7 +590,7 @@ function create_world_order($country, $service, $price, $calculatrdcost){
 
 
             $trx = new Transaction();
-            $trx->ref_id = "Verification ".$var['order_id'];
+            $trx->ref_id = "Verification " . $var['order_id'];
             $trx->user_id = Auth::id();
             $trx->status = 2;
             $trx->amount = $calculatrdcost;
@@ -613,41 +598,36 @@ function create_world_order($country, $service, $price, $calculatrdcost){
             $trx->save();
 
 
-
             $cost2 = number_format($calculatrdcost, 2);
             $cal = Auth::user()->wallet - $calculatrdcost;
             $bal = number_format($cal, 2);
-            $message = Auth::user()->email." just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
+            $message = Auth::user()->email . " just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
             send_notification($message);
             send_notification2($message);
 
             return 3;
 
 
-
         }
     }
 
 
-
-
     $status = $var->type ?? null;
 
-    if($status == "BALANCE_ERROR"){
-        return  1;
+    if ($status == "BALANCE_ERROR") {
+        return 1;
     }
 
-    if($status == null){
+    if ($status == null) {
         return 2;
 
     }
 
 
-
-
 }
 
-function cancel_world_order($orderID){
+function cancel_world_order($orderID)
+{
 
     $key = env('WKEY');
     $curl = curl_init();
@@ -676,25 +656,24 @@ function cancel_world_order($orderID){
     $status = $var->success ?? null;
     $message = $var->message ?? null;
 
-    if($status == 0 && $message == "We could not find this order!"){
+    if ($status == 0 && $message == "We could not find this order!") {
         return 3;
     }
 
-    if($status == 0 && $message == "Your order cannot be cancelled yet, please try again later."){
+    if ($status == 0 && $message == "Your order cannot be cancelled yet, please try again later.") {
         return 0;
     }
 
 
-    if($status == 1){
+    if ($status == 1) {
         return 1;
     }
 
 
-
-
 }
 
-function check_world_sms($orderID){
+function check_world_sms($orderID)
+{
 
     $key = env('KEY');
     $curl = curl_init();
@@ -724,7 +703,7 @@ function check_world_sms($orderID){
     $full_sms = $var->full_sms ?? null;
 
 
-    if($status == 1){
+    if ($status == 1) {
 
         Verification::where('order_id', $orderID)->update([
             'expires_in' => $var->time_left / 10 - 20,
@@ -733,12 +712,12 @@ function check_world_sms($orderID){
         return 1;
     }
 
-    if($status == 6){
+    if ($status == 6) {
         return 6;
     }
 
 
-    if($status == 3){
+    if ($status == 3) {
 
         $data['sms'] = $sms;
         $data['full_sms'] = $full_sms;
@@ -753,12 +732,12 @@ function check_world_sms($orderID){
     }
 
 
-
     dd($var);
 }
 
 
-function pool_cost($service, $country){
+function pool_cost($service, $country)
+{
 
     $key = env('WKEY');
 
@@ -796,9 +775,9 @@ function pool_cost($service, $country){
     $high_price = $var->high_price ?? null;
     $rate = $var->success_rate ?? null;
 
-    if($get_s_price < 4){
+    if ($get_s_price < 4) {
         $price = $get_s_price * 1.3;
-    }else{
+    } else {
         $price = $get_s_price;
     }
 
@@ -808,7 +787,8 @@ function pool_cost($service, $country){
 
 }
 
-function get_d_price($service){
+function get_d_price($service)
+{
     $APIKEY = env('KEY');
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -831,9 +811,9 @@ function get_d_price($service){
     $var = json_decode($var);
 
 
-    foreach($var as $key => $value){
+    foreach ($var as $key => $value) {
 
-        $service2['data'] =  $value;
+        $service2['data'] = $value;
 
     }
 
@@ -843,13 +823,11 @@ function get_d_price($service){
 }
 
 
-
-
 function send_verification_email($email)
 {
 
 
-    try{
+    try {
 
         $expiryTimestamp = time() + 24 * 60 * 60; // 24 hours in seconds
         $url = url('') . "/verify-account-now?code=$expiryTimestamp&email=$email";
@@ -877,7 +855,7 @@ function send_verification_email($email)
 
         return 1;
 
-    }catch (Exception $e) {
+    } catch (Exception $e) {
 
         return 0;
     }
