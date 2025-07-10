@@ -238,13 +238,18 @@
                                                         @php
 
                                                         $wal = \App\Models\WalletCheck::where('user_id', $data->id)->first() ?? 0;
+
+                                                        $wallet_amount = (int)$wal->wallet_amount;
+                                                        $total_funded =  (int)$wal->total_funded;
+
+
                                                         @endphp
 
                                                     <tr>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->username }}</a> </td>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->email }} </td></a>
-                                                        <td>{{ number_format($wal->wallet_amount, 2) }} </td>
-                                                        <td>{{ number_format($wal->total_funded,2) }}</td>
+                                                        <td>{{ number_format($wallet_amount, 2) }} </td>
+                                                        <td>{{ number_format($total_funded,2) }}</td>
 
 {{--                                                        @if($total_funded < $total_bought)--}}
 {{--                                                            <td class="text-danger">{{ number_format($total_bought,2) }}</td>--}}
