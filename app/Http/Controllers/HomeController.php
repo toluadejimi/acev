@@ -515,11 +515,11 @@ class HomeController extends Controller
 
             $get_user_balance = Auth::user()->wallet;
             $ck = WalletCheck::where('user_id', Auth::user())->first();
-            $total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
+            //$total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
             if(!$ck){
                 $wal = new WalletCheck();
                 $wal->user_id = Auth::id();
-                $wal->total_funded = $total_funded;
+                $wal->total_funded = Auth::user()->wallet;
                 $wal->wallet_amount = Auth::user()->wallet;
                 $wal->save();
             }
