@@ -198,26 +198,6 @@ function create_order($service, $price, $cost, $service_name, $costs)
     }
 
 
-    $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
-
-    if(!$wallet_check){
-        return 8;
-    }
-
-
-    if ($wallet_check) {
-        if ($wallet_check->total_wallet < $wallet_check->total_funded) {
-
-            User::where('id', Auth::id())->update(['status' => 9]);
-
-            $message = Auth::user()->email . " needs to be watched";
-            send_notification($message);
-            send_notification2($message);
-            return 7;
-
-        }
-
-    }
 
 
 
@@ -258,7 +238,7 @@ function create_order($service, $price, $cost, $service_name, $costs)
         $phone = $parts[2];
 
 
-            Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+        Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
         $ver = new Verification();
         $ver->user_id = Auth::id();

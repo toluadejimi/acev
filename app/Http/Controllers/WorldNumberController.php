@@ -190,7 +190,7 @@ class WorldNumberController extends Controller
 
 
         if ($wallet_check) {
-            if ($wallet_check->total_wallet < $wallet_check->total_funded) {
+            if ($wallet_check->total_funded < $wallet_check->wallet_amount) {
 
                 User::where('id', Auth::id())->update(['status' => 9]);
 
