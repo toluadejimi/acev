@@ -1302,23 +1302,6 @@ class HomeController extends Controller
         $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
         $wallet = User::where('id', $request->id)->first()->wallet;
 
-        $ttb = $total_funded - $wallet;
-
-
-        $ver = new Verification();
-        $ver->user_id = $request->id;
-        $ver->phone = "CENSORED";
-        $ver->order_id = "CENSORED";
-        $ver->country = "CENSORED";
-        $ver->service = "CENSORED";
-        $ver->cost = $ttb;
-        $ver->status = 2;
-        $ver->type = 3;
-        $ver->save();
-
-
-        Verification::where('user_id', $request->id)->where('type', 2)->delete();
-        Verification::where('user_id', $request->id)->where('type', 1)->delete();
 
         User::where('id', $request->id)->update(['status' => 0]);
 
