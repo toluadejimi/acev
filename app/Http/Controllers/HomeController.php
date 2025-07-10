@@ -93,21 +93,25 @@ class HomeController extends Controller
     {
 
 
-        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-        if ($total_bought > $total_funded) {
-            $message = Auth::user()->email . " need to be checked";
-            send_notification($message);
-            send_notification2($message);
-            return back()->with('error', "Kindly Fund your wallet");
+        $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
+        if(!$wallet_check){
+            Auth::logout();
+            return redirect('login');
         }
 
 
-        if(Auth::user()->wallet > $total_funded){
-            $message = Auth::user()->email . " need to be checked";
-            send_notification($message);
-            send_notification2($message);
-            return back()->with('error', "Please contact admin, for resolution");
+        if ($wallet_check) {
+            if ($wallet_check->total_wallet < $wallet_check->total_funded) {
+
+                User::where('id', Auth::id())->update(['status' => 9]);
+
+                $message = Auth::user()->email . " needs to be watched";
+                send_notification($message);
+                send_notification2($message);
+                return 7;
+
+            }
+
         }
 
 

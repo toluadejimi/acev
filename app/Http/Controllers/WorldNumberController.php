@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -180,30 +181,27 @@ class WorldNumberController extends Controller
 
     public function order_now(Request $request)
     {
+        $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
 
-
-        $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-        $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-        if ($total_bought > $total_funded) {
-            $message = Auth::user()->email . " need to be checked";
-            send_notification($message);
-            send_notification2($message);
-            return back()->with('error', "Kindly Fund your wallet");
-
+        if(!$wallet_check){
+            Auth::logout();
+            return redirect('login');
         }
 
 
+        if ($wallet_check) {
+            if ($wallet_check->total_wallet < $wallet_check->total_funded) {
 
+                User::where('id', Auth::id())->update(['status' => 9]);
 
-        if( $total_funded >= Auth::user()->wallet){
+                $message = Auth::user()->email . " needs to be watched";
+                send_notification($message);
+                send_notification2($message);
+                return 7;
 
-        }else{
-            $message = Auth::user()->email . " need to be checked";
-            send_notification($message);
-            send_notification2($message);
-            return redirect('world')->with('error', "Please contact admin, for resolution");
+            }
+
         }
-
 
 
         if($request->price < 0 || $request->price == 0){

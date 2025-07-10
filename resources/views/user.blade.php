@@ -236,27 +236,21 @@
                                                     @forelse ($users as $data)
 
                                                         @php
-                                                            $total_bought = \App\Models\Verification::where('user_id', $data->id)
-                                                                ->where('status', 2)
-                                                                ->sum('cost');
 
-
-                                                            $total_funded = \App\Models\Transaction::where('user_id', $data->id)
-                                                                ->where('status', 2)
-                                                                ->sum('amount');
+                                                        $wal = \App\Models\WalletCheck::where('user_id', $data->id)->first() ?? 0;
                                                         @endphp
 
                                                     <tr>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->username }}</a> </td>
                                                         <td><a href="view-user?id={{ $data->id }}">{{ $data->email }} </td></a>
-                                                        <td>{{ number_format($data->wallet, 2) }} </td>
-                                                        <td>{{ number_format($total_funded,2) }}</td>
+                                                        <td>{{ number_format($wal->wallet_amount, 2) }} </td>
+                                                        <td>{{ number_format($wal->total_funded,2) }}</td>
 
-                                                        @if($total_funded < $total_bought)
-                                                            <td class="text-danger">{{ number_format($total_bought,2) }}</td>
-                                                        @else
-                                                            <td>{{ number_format($total_bought,2) }}</td>
-                                                        @endif
+{{--                                                        @if($total_funded < $total_bought)--}}
+{{--                                                            <td class="text-danger">{{ number_format($total_bought,2) }}</td>--}}
+{{--                                                        @else--}}
+{{--                                                            <td>{{ number_format($total_bought,2) }}</td>--}}
+{{--                                                        @endif--}}
                                                         <td><a href="view-user?id={{ $data->id }}" class="btn btn-success btn-sm">View User</a> </td>
                                                         @if($data->status == 9)
                                                             <td><a href="unban-users?id={{ $data->id }}" class="btn btn-success btn-sm">Unban User</a> </td>

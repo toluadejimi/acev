@@ -199,6 +199,12 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
 
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
+
+    if(!$wallet_check){
+        return 8;
+    }
+
+
     if ($wallet_check) {
         if ($wallet_check->total_wallet < $wallet_check->total_funded) {
 
@@ -212,6 +218,8 @@ function create_order($service, $price, $cost, $service_name, $costs)
         }
 
     }
+
+
 
 
     $currentTime = Carbon::now();
@@ -510,6 +518,12 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
 
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
+
+    if(!$wallet_check){
+        return 8;
+    }
+
+
     if ($wallet_check) {
         if ($wallet_check->total_wallet < $wallet_check->total_funded) {
 
