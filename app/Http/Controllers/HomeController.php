@@ -1001,7 +1001,7 @@ class HomeController extends Controller
 
 
                 $trx = new Transaction();
-                $trx->ref_id = "Order Cancel";
+                $trx->ref_id = "Order Cancel ".$request->id;
                 $trx->user_id = Auth::id();
                 $trx->status = 2;
                 $trx->amount = $order->cost;
@@ -1072,7 +1072,7 @@ class HomeController extends Controller
 
 
                     $trx = new Transaction();
-                    $trx->ref_id = "Order Cancel";
+                    $trx->ref_id = "Order Cancel ".$request->id;
                     $trx->user_id = Auth::id();
                     $trx->status = 2;
                     $trx->amount = $order->cost;
