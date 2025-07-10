@@ -1205,7 +1205,7 @@ class HomeController extends Controller
         $ip = $request->ip();
         //$fund = $request->fund;
 
-        if($ip != $ipb ?? $ipa){
+        if($ip != $ipb || $ip != $ipb){
 
                 return response()->json([
                     'status' => false,
