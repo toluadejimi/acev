@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -283,6 +284,9 @@ class AdminController extends Controller
 
             User::where('id', $request->id)->increment('wallet', $request->amount);
 
+            WalletCheck::where('user_id', $request->id)->increment('total_funded', $request->amount);
+            WalletCheck::where('user_id', $request->id)->increment('wallet_amount', $request->amount);
+
             $ref = "MANUAL" . random_int(000000, 999999);
             $data = new Transaction();
             $data->user_id = $request->id;
@@ -304,6 +308,10 @@ class AdminController extends Controller
         } else {
 
             User::where('id', $request->id)->decrement('wallet', $request->amount);
+
+            WalletCheck::where('user_id', $request->id)->decrement('wallet_amount', $request->amount);
+
+
             $email = User::where('id', $request->id)->first()->email;
             $message = "Wallet has been debited by admin | $email | $request->amount | on Ace Verify";
             send_notification($message);
@@ -419,6 +427,10 @@ class AdminController extends Controller
         ManualPayment::where('id', $request->id)->update(['status' => 1]);
 
         User::where('id', $request->user_id)->increment('wallet', $request->amount);
+
+
+        WalletCheck::where('user_id', $request->user_id)->increment('total_funded', $request->amount);
+        WalletCheck::where('user_id', $request->user_id)->increment('wallet_amount', $request->amount);
 
         $email = User::where('id', $request->user_id)->first()->email;
 

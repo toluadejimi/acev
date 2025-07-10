@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
 use App\Lib\GoogleAuthenticator;
+use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -195,16 +196,22 @@ function create_order($service, $price, $cost, $service_name, $costs){
 
 
 
+    $wallet_check =WalletCheck::where('user_id', Auth::id())->first();
+    if($wallet_check){
+        if ($wallet_check->total_wallet < $wallet_check->total_funded) {
+
+            User::where('id', Auth::id())->update(['status' =>  9]);
+
+            $message = Auth::user()->email . " needs to be watched";
+            send_notification($message);
+            send_notification2($message);
+            return 7;
+
+        }
+
+    }
 
 
-
-    $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-    $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-    if ($total_bought > $total_funded) {
-        $message = Auth::user()->email . " needs to be watched";
-        send_notification($message);
-        send_notification2($message);
-        return 7;
     }
 
     $currentTime = Carbon::now();
@@ -260,7 +267,21 @@ function create_order($service, $price, $cost, $service_name, $costs){
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
 
-        User::where('id', Auth::id())->increment('hold_wallet', $costs);
+        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
+        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
+
+
+        $trx = new Transaction();
+        $trx->ref_id = "Verification-$id";
+        $trx->user_id = Auth::id();
+        $trx->status = 2;
+        $trx->amount = $costs;
+        $trx->type = 1;
+        $trx->save();
+
+
+
+       // User::where('id', Auth::id())->increment('hold_wallet', $costs);
 
 
         $cost2 = number_format($price, 2);
@@ -388,6 +409,21 @@ function check_sms($orderID){
                 $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
                 User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
 
+
+                WalletCheck::where('user_id', $user_id)->increment('total_bought', $order->cost);
+                WalletCheck::where('user_id', $user_id)->decrement('wallet_amount', $order->cost);
+
+
+                $trx = new Transaction();
+                $trx->ref_id = "Verification $orderID";
+                $trx->user_id = Auth::id();
+                $trx->status = 2;
+                $trx->amount = $order->cost;
+                $trx->type = 1;
+                $trx->save();
+
+
+
             }catch (\Exception $e) {
                 $message = $e->getMessage();
                 send_notification($message);
@@ -487,11 +523,18 @@ function create_world_order($country, $service, $price, $calculatrdcost){
 
 
 
-    $total_funded = Transaction::where('user_id', Auth::id())->where('status', 2)->sum('amount');
-    $total_bought = verification::where('user_id', Auth::id())->where('status', 2)->sum('cost');
-    if ($total_bought > $total_funded) {
-        $message = Auth::user()->email . " need to be checked";
-        return 7;
+    $wallet_check =WalletCheck::where('user_id', Auth::id())->first();
+    if($wallet_check){
+        if ($wallet_check->total_wallet < $wallet_check->total_funded) {
+
+            User::where('id', Auth::id())->update(['status' =>  9]);
+
+            $message = Auth::user()->email . " needs to be watched";
+            send_notification($message);
+            send_notification2($message);
+            return 7;
+
+        }
 
     }
 
@@ -555,6 +598,21 @@ function create_world_order($country, $service, $price, $calculatrdcost){
             $ver->save();
 
             User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
+
+
+            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);
+            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $calculatrdcost);
+
+
+            $trx = new Transaction();
+            $trx->ref_id = "Verification ".$var['order_id'];
+            $trx->user_id = Auth::id();
+            $trx->status = 2;
+            $trx->amount = $calculatrdcost;
+            $trx->type = 1;
+            $trx->save();
+
+
 
             $cost2 = number_format($calculatrdcost, 2);
             $cal = Auth::user()->wallet - $calculatrdcost;

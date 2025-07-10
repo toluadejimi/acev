@@ -11,6 +11,7 @@ use App\Models\SoldLog;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -163,7 +164,8 @@ class HomeController extends Controller
         }
 
         if ($order == 7) {
-            return back()->with('error', "Kindly Fund your wallet");
+            Auth::logout();
+            return redirect('login')->with('error', "Please Contact admin");
         }
 
         if ($order == 8) {
@@ -505,8 +507,25 @@ class HomeController extends Controller
 
             if (Auth::user()->status == 9) {
                 Auth::logout();
-                return redirect('ban');
+                return back()->with('error', "You have been Temporarily ban, please contact admin");
+
             }
+
+
+
+            $get_user_balance = Auth::user()->wallet;
+            $ck = WalletCheck::where('user_id', Auth::user())->first();
+            $total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
+            if(!$ck){
+                $wal = new WalletCheck();
+                $wal->user_id = Auth::id();
+                $wal->total_funded = $total_funded;
+                $wal->wallet_amount = Auth::user()->wallet;
+                $wal->save();
+            }
+
+
+
 
             return redirect('us');
 
@@ -632,8 +651,22 @@ class HomeController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        // Log in the user after registration (optional)
+
         auth()->login($user);
+
+
+        $get_user_balance = Auth::user()->wallet;
+        $ck = WalletCheck::where('user_id', Auth::user())->first();
+        $total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
+        if(!$ck){
+            $wal = new WalletCheck();
+            $wal->user_id = Auth::id();
+            $wal->total_funded = $total_funded;
+            $wal->wallet_amount = 0;
+            $wal->save();
+        }
+
+
 
         // Redirect the user to a protected route or dashboard
         return redirect('home');
@@ -1141,11 +1174,19 @@ class HomeController extends Controller
     {
 
 
-//        $ipb = env('IPA');
-//        $ipa = env('IPB');
-//        $ip = $request->ip();
-//        $fund = $request->fund;
+        $ipb = env('IPA');
+        $ipa = env('IPB');
+        $ip = $request->ip();
+        //$fund = $request->fund;
 
+        if($ip != $ipb ?? $ipa){
+
+                return response()->json([
+                    'status' => false,
+                    'message' =>  "Wrong IP | $ip"
+                ]);
+
+        }
 
             $get_user = User::where('email', $request->email)->first() ?? null;
             if ($get_user == null) {
@@ -1175,6 +1216,9 @@ class HomeController extends Controller
                 $trx->amount = $request->amount;
                 $trx->type = 2;
                 $trx->save();
+
+                WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
+                WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
 
                 $message = $trx->id . "| $request->order_id |saved";
                 send_notification($message);

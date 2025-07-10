@@ -275,7 +275,8 @@ class WorldNumberController extends Controller
 
 
         if ($order == 7) {
-            return redirect('world')->with('error', 'kindly fund your account and try again');
+            Auth::logout();
+            return redirect('login')->with('error', "Please Contact admin");
         }
 
 
