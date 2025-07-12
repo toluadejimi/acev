@@ -379,7 +379,8 @@
                                                         <th style="color: #0a0c0d" class="border-0">User</th>
                                                         <th style="color: #0a0c0d" class="border-0">Type</th>
                                                         <th style="color: #0a0c0d" class="border-0">Amount</th>
-                                                        <th style="color: #0a0c0d" class="border-0">Balance</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Old Balance</th>
+                                                        <th style="color: #0a0c0d" class="border-0">New Balance</th>
                                                         <th style="color: #0a0c0d" class="border-0">Status</th>
                                                         <th style="color: #0a0c0d" class="border-0">Date</th>
                                                         <th  style="color: #0a0c0d" class="border-0">Time</th>
@@ -400,6 +401,7 @@
                                                         </td>
                                                         @endif
                                                         <td>{{ number_format($data->amount, 2) }} </td>
+                                                        <td>{{ number_format($data->old_balance, 2) }} </td>
                                                         <td>{{ number_format($data->balance, 2) }} </td>
                                                         @if($data->status == 1)
                                                         <td>

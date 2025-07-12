@@ -211,7 +211,8 @@
                                                 <th class="border-0">Ref</th>
                                                 <th class="border-0">User</th>
                                                 <th class="border-0">Wallet(NGN)</th>
-                                                <th class="border-0">Balance</th>
+                                                <th class="border-0">OLD Balance</th>
+                                                <th class="border-0">NEW Balance</th>
                                                 <th class="border-0">Type</th>
                                                 <th class="border-0">Status</th>
                                                 <th class="border-0">Date/Time</th>
@@ -225,6 +226,7 @@
                                                 <tr>
                                                     <td>{{ $data->ref_id }} </td>
                                                     <td>{{ number_format($data->amount, 2) }} </td>
+                                                    <td>{{ number_format($data->old_balance, 2) }} </td>
                                                     <td>{{ number_format($data->balance, 2) }} </td>
                                                     @if($data->type == 2)
                                                         <td><span class="badge badge-success">Credit</span>
