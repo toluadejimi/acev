@@ -122,7 +122,53 @@
                                                                 class="fas fa-wallet"></i></a>
 
                                                     @else
-                                                        <form action="order-usano" method="POST">
+{{--                                                        <form action="order-usano" method="POST">--}}
+{{--                                                            @csrf--}}
+
+{{--                                                            <input hidden name="service" value="{{ $key }}">--}}
+{{--                                                            <input hidden name="price" value="{{ $cost }}">--}}
+{{--                                                            <input hidden name="price2" value="{{ $cost }}">--}}
+{{--                                                            <input hidden name="price3" value="{{ $cost }}">--}}
+{{--                                                            <input hidden name="price4" value="{{ $cost }}">--}}
+{{--                                                            <input hidden name="cost" value="{{ $innerValue->cost }}">--}}
+{{--                                                            <input hidden name="name" value="{{ $innerValue->name }}">--}}
+{{--                                                            <button class="myButton"--}}
+{{--                                                                    style="border: 0px; background: transparent"--}}
+{{--                                                                    onclick="confirmPurchase(this)">--}}
+{{--                                                                <i class="fa fa-shopping-bag"></i>--}}
+{{--                                                            </button>--}}
+
+{{--                                                            <script>--}}
+{{--                                                                function confirmPurchase(button) {--}}
+{{--                                                                    Swal.fire({--}}
+{{--                                                                        title: 'Are you sure?',--}}
+{{--                                                                        text: "Do you want to purchase this number?",--}}
+{{--                                                                        icon: 'question',--}}
+{{--                                                                        showCancelButton: true,--}}
+{{--                                                                        confirmButtonColor: '#3085d6',--}}
+{{--                                                                        cancelButtonColor: '#d33',--}}
+{{--                                                                        confirmButtonText: 'Proceed',--}}
+{{--                                                                        cancelButtonText: 'Cancel'--}}
+{{--                                                                    }).then((result) => {--}}
+{{--                                                                        if (result.isConfirmed) {--}}
+
+{{--                                                                            button.style.display = 'none';--}}
+
+
+{{--                                                                            Swal.fire(--}}
+{{--                                                                                'Purchased!',--}}
+{{--                                                                                'Your item has been added.',--}}
+{{--                                                                                'success'--}}
+{{--                                                                            );--}}
+{{--                                                                        }--}}
+{{--                                                                    });--}}
+{{--                                                                }--}}
+{{--                                                            </script>--}}
+{{--                                                        </form>--}}
+
+
+
+                                                        <form action="order-usano" method="POST" onsubmit="return confirmPurchase(event, this)">
                                                             @csrf
 
                                                             <input hidden name="service" value="{{ $key }}">
@@ -132,39 +178,36 @@
                                                             <input hidden name="price4" value="{{ $cost }}">
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
-                                                            <button class="myButton"
-                                                                    style="border: 0px; background: transparent"
-                                                                    onclick="confirmPurchase(this)">
+
+                                                            <button class="myButton" style="border: 0px; background: transparent" type="submit">
                                                                 <i class="fa fa-shopping-bag"></i>
                                                             </button>
-
-                                                            <script>
-                                                                function confirmPurchase(button) {
-                                                                    Swal.fire({
-                                                                        title: 'Are you sure?',
-                                                                        text: "Do you want to purchase this number?",
-                                                                        icon: 'question',
-                                                                        showCancelButton: true,
-                                                                        confirmButtonColor: '#3085d6',
-                                                                        cancelButtonColor: '#d33',
-                                                                        confirmButtonText: 'Proceed',
-                                                                        cancelButtonText: 'Cancel'
-                                                                    }).then((result) => {
-                                                                        if (result.isConfirmed) {
-
-                                                                            button.style.display = 'none';
-
-
-                                                                            Swal.fire(
-                                                                                'Purchased!',
-                                                                                'Your item has been added.',
-                                                                                'success'
-                                                                            );
-                                                                        }
-                                                                    });
-                                                                }
-                                                            </script>
                                                         </form>
+
+
+
+                                                        <script>
+                                                            function confirmPurchase(event, form) {
+                                                                event.preventDefault(); // Stop default form submission
+
+                                                                Swal.fire({
+                                                                    title: 'Are you sure?',
+                                                                    text: "Do you want to purchase this number?",
+                                                                    icon: 'question',
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: '#3085d6',
+                                                                    cancelButtonColor: '#d33',
+                                                                    confirmButtonText: 'Proceed',
+                                                                    cancelButtonText: 'Cancel'
+                                                                }).then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        form.submit(); // Submit the form if confirmed
+                                                                    }
+                                                                });
+
+                                                                return false; // Prevent default submission temporarily
+                                                            }
+                                                        </script>
 
                                                     @endif
 
