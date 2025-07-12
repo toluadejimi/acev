@@ -411,10 +411,12 @@ class HomeController extends Controller
 
             $url = "https://web.sprintpay.online/pay?amount=$request->amount&key=$key&ref=$ref&email=$email";
 
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
 
             $data = new Transaction();
             $data->user_id = Auth::id();
             $data->amount = $request->amount;
+            $data->balance = $get_balance;
             $data->ref_id = $ref;
             $data->type = 2;
             $data->status = 1; //initiate
@@ -444,10 +446,13 @@ class HomeController extends Controller
             $ref = "VERFM" . random_int(000, 999) . date('ymdhis');
             $email = Auth::user()->email;
 
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+
 
             $data = new Transaction();
             $data->user_id = Auth::id();
             $data->amount = $request->amount;
+            $data->balance = $get_balance;
             $data->ref_id = $ref;
             $data->type = 2; //manual funding
             $data->status = 1; //initiate
@@ -999,12 +1004,16 @@ class HomeController extends Controller
                 User::where('id', Auth::id())->increment('wallet', $order->cost);
                 WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
 
+                $get_balance = User::where('id', Auth::id())->first()->wallet;
+                $balance = $get_balance + $order->cost;
+
 
                 $trx = new Transaction();
                 $trx->ref_id = "Order Cancel ".$request->id;
                 $trx->user_id = Auth::id();
                 $trx->status = 2;
                 $trx->amount = $order->cost;
+                $trx->balance = $balance;
                 $trx->type = 2;
                 $trx->save();
 
@@ -1070,12 +1079,15 @@ class HomeController extends Controller
 
                     WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
 
+                    $get_balance = User::where('id', Auth::id())->first()->wallet;
+                    $balance = $get_balance + $order->cost;
 
                     $trx = new Transaction();
                     $trx->ref_id = "Order Cancel ".$request->id;
                     $trx->user_id = Auth::id();
                     $trx->status = 2;
                     $trx->amount = $order->cost;
+                    $trx->balance = $balance;
                     $trx->type = 2;
                     $trx->save();
 
@@ -1229,17 +1241,22 @@ class HomeController extends Controller
             send_notification2($message);
 
 
-                User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
+            User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
             $amount = number_format($request->amount, 2);
 
             $get_depo = Transaction::where('ref_id', $request->order_id)->first() ?? null;
             if ($get_depo == null) {
+
+                $get_balance = User::where('email', $request->email)->first()->wallet;
+                $balance = $get_balance + $request->amount;
+
 
                 $trx = new Transaction();
                 $trx->ref_id = $request->order_id;
                 $trx->user_id = $get_user->id;
                 $trx->status = 2;
                 $trx->amount = $request->amount;
+                $trx->balance = $balance;
                 $trx->type = 2;
                 $trx->save();
 
@@ -1250,7 +1267,19 @@ class HomeController extends Controller
                 send_notification($message);
 
             } else {
-                Transaction::where('ref_id', $request->order_id)->update(['status' => 2]);
+
+
+                WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
+                WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
+
+                $get_balance = User::where('email', $request->email)->first()->wallet;
+                $balance = $get_balance + $request->amount;
+
+                Transaction::where('ref_id', $request->order_id)->update(['status' => 2, 'balance' => $balance]);
+
+
+
+
             }
 
 

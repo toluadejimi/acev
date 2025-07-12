@@ -258,12 +258,17 @@ function create_order($service, $price, $cost, $service_name, $costs)
         WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
         WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
 
+        $get_balance = User::where('id', Auth::id())->first()->wallet;
+        $balance = $get_balance - $costs;
+
+
 
         $trx = new Transaction();
         $trx->ref_id = "Verification-$id";
         $trx->user_id = Auth::id();
         $trx->status = 2;
         $trx->amount = $costs;
+        $trx->balance = $balance;
         $trx->type = 1;
         $trx->save();
 
@@ -570,12 +575,16 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);
             WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $calculatrdcost);
 
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            $balance = $get_balance - $calculatrdcost;
+
 
             $trx = new Transaction();
             $trx->ref_id = "Verification " . $var['order_id'];
             $trx->user_id = Auth::id();
             $trx->status = 2;
             $trx->amount = $calculatrdcost;
+            $trx->balance = $balance;
             $trx->type = 1;
             $trx->save();
 

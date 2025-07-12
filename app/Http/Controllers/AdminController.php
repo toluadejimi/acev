@@ -287,10 +287,14 @@ class AdminController extends Controller
             WalletCheck::where('user_id', $request->id)->increment('total_funded', $request->amount);
             WalletCheck::where('user_id', $request->id)->increment('wallet_amount', $request->amount);
 
+            $get_balance = User::where('id', $request->id)->first()->wallet;
+            $balance = $get_balance + $request->amount;
+
             $ref = "MANUAL" . random_int(000000, 999999);
             $data = new Transaction();
             $data->user_id = $request->id;
             $data->amount = $request->amount;
+            $data->balance = $balance;
             $data->ref_id = $ref;
             $data->type = 2;
             $data->status = 2; //initiate
