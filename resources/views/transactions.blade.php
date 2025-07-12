@@ -228,7 +228,6 @@
                                                     <td>{{ $data->ref_id }} </td>
                                                     @php $user = User::where('id', $data->user_id)->first()->email; @endphp
                                                     <td>{{$user}}</td>
-                                                    <td>{{ $data->ref_id }} </td>
                                                     <td>{{ number_format($data->amount, 2) }} </td>
                                                     <td>{{ number_format($data->old_balance, 2) }} </td>
                                                     <td>{{ number_format($data->balance, 2) }} </td>
