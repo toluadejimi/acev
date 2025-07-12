@@ -374,6 +374,7 @@
                                                         <th class="border-0">User</th>
                                                         <th class="border-0">Type</th>
                                                         <th class="border-0">Amount</th>
+                                                        <th class="border-0">Balance</th>
                                                         <th class="border-0">Status</th>
                                                         <th class="border-0">Date</th>
                                                         <th class="border-0">Time</th>
@@ -394,6 +395,7 @@
                                                         </td>
                                                         @endif
                                                         <td>{{ number_format($data->amount, 2) }} </td>
+                                                        <td>{{ number_format($data->balance, 2) }} </td>
                                                         @if($data->status == 1)
                                                         <td>
                                                             <span class="badge badge-pill badge-warning">Intitated</span>

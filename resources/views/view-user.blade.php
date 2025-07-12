@@ -397,6 +397,7 @@
                                             <tr class="border-0">
                                                 <th class="border-0">Ref</th>
                                                 <th class="border-0">Wallet(NGN)</th>
+                                                <th class="border-0">Balance</th>
                                                 <th class="border-0">Type</th>
                                                 <th class="border-0">Status</th>
                                                 <th class="border-0">Date/Time</th>
@@ -410,7 +411,8 @@
                                                 <tr>
                                                     <td>{{ $data->ref_id }} </td>
                                                     <td>{{ number_format($data->amount, 2) }} </td>
-                                                    @if($data->type == 2)
+                                                    <td>{{ number_format($data->balance, 2) }} </td>
+                                                @if($data->type == 2)
                                                         <td><span class="badge badge-success">Credit</span>
                                                         </td>
                                                     @else
