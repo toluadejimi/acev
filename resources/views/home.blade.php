@@ -183,9 +183,6 @@
                                                                 <i class="fa fa-shopping-bag"></i>
                                                             </button>
                                                         </form>
-
-
-
                                                         <script>
                                                             function confirmPurchase(event, form) {
                                                                 event.preventDefault(); // Stop default form submission
@@ -201,11 +198,11 @@
                                                                     cancelButtonText: 'Cancel'
                                                                 }).then((result) => {
                                                                     if (result.isConfirmed) {
-                                                                        form.submit(); // Submit the form if confirmed
+                                                                        form.submit();
                                                                     }
                                                                 });
 
-                                                                return false; // Prevent default submission temporarily
+                                                                return false;
                                                             }
                                                         </script>
 

@@ -172,7 +172,7 @@
                                         <a href="fund-wallet" class="btn btn-secondary text-white btn-lg">Fund
                                             Wallet</a>
                                     @else
-                                        <form action="order_now" method="POST">
+                                        <form action="order_now" method="POST" onsubmit="return confirmBuyNumberNow(event, this)">
                                             @csrf
 
                                             <input type="text" name="country" hidden value="{{ $count_id ?? null }}">
@@ -182,23 +182,42 @@
                                             <input type="text" name="price4" hidden value="{{ $price ?? null }}">
                                             <input type="text" name="service" hidden value="{{ $serv ?? null }}">
 
-
                                             <button type="submit"
                                                     style="border: 0px; background: rgba(23, 69, 132, 1); color: white;"
-                                                    class="mb-2 btn btn w-100 btn-lg mt-6" onclick="this.style.display='none'">Buy Number
-                                                Now
+                                                    class="mb-2 btn btn w-100 btn-lg mt-6">
+                                                Buy Number Now
                                             </button>
 
-
                                             <p class="text-muted text-center my-5">
-                                                At AceSMSVerify, we prioritize quality, ensuring that you receive the
-                                                highest standard of SMS verifications for all your needs. Our commitment
-                                                to excellence means we only offer non-VoIP phone numbers, guaranteeing
-                                                compatibility with any service you require.
+                                                At AceSMSVerify, we prioritize quality, ensuring that you receive the highest standard of SMS verifications for all your needs. Our commitment to excellence means we only offer non-VoIP phone numbers, guaranteeing compatibility with any service you require.
                                             </p>
-
-
                                         </form>
+
+                                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                                        <script>
+                                            function confirmBuyNumberNow(event, form) {
+                                                event.preventDefault();
+
+                                                Swal.fire({
+                                                    title: 'Confirm Purchase',
+                                                    text: "Are you sure you want to buy this number now?",
+                                                    icon: 'warning',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Yes, Buy it!',
+                                                    cancelButtonText: 'Cancel',
+                                                    confirmButtonColor: '#1f7ded',
+                                                    cancelButtonColor: '#d33',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        form.querySelector('button[type="submit"]').style.display = 'none';
+                                                        form.submit();
+                                                    }
+                                                });
+
+                                                return false;
+                                            }
+                                        </script>
                                     @endif
 
 
