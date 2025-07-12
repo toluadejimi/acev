@@ -370,14 +370,14 @@
                                             <table class="table">
                                                 <thead class="bg-light">
                                                     <tr class="border-0">
-                                                        <th class="border-0">Transaction ID</th>
-                                                        <th class="border-0">User</th>
-                                                        <th class="border-0">Type</th>
-                                                        <th class="border-0">Amount</th>
-                                                        <th class="border-0">Balance</th>
-                                                        <th class="border-0">Status</th>
-                                                        <th class="border-0">Date</th>
-                                                        <th class="border-0">Time</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Transaction ID</th>
+                                                        <th style="color: #0a0c0d" class="border-0">User</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Type</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Amount</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Balance</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Status</th>
+                                                        <th style="color: #0a0c0d" class="border-0">Date</th>
+                                                        <th  style="color: #0a0c0d" class="border-0">Time</th>
 
                                                     </tr>
                                                 </thead>
