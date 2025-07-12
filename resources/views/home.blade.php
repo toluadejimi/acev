@@ -134,8 +134,36 @@
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
                                                             <button class="myButton"
                                                                     style="border: 0px; background: transparent"
-                                                                    onclick="this.style.display='none'"><i
-                                                                    class="fa fa-shopping-bag"></i></button>
+                                                                    onclick="confirmPurchase(this)">
+                                                                <i class="fa fa-shopping-bag"></i>
+                                                            </button>
+
+                                                            <script>
+                                                                function confirmPurchase(button) {
+                                                                    Swal.fire({
+                                                                        title: 'Are you sure?',
+                                                                        text: "Do you want to purchase this number?",
+                                                                        icon: 'question',
+                                                                        showCancelButton: true,
+                                                                        confirmButtonColor: '#3085d6',
+                                                                        cancelButtonColor: '#d33',
+                                                                        confirmButtonText: 'Proceed',
+                                                                        cancelButtonText: 'Cancel'
+                                                                    }).then((result) => {
+                                                                        if (result.isConfirmed) {
+
+                                                                            button.style.display = 'none';
+
+
+                                                                            Swal.fire(
+                                                                                'Purchased!',
+                                                                                'Your item has been added.',
+                                                                                'success'
+                                                                            );
+                                                                        }
+                                                                    });
+                                                                }
+                                                            </script>
                                                         </form>
 
                                                     @endif
@@ -445,7 +473,7 @@
                                                                 const buttons = document.querySelectorAll('.hideButton');
                                                                 buttons.forEach(button => {
                                                                     button.addEventListener('click', function() {
-                                                                        this.style.display = 'none';  
+                                                                        this.style.display = 'none';
                                                                     });
                                                                 });
                                                             </script>

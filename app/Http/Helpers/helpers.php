@@ -198,10 +198,6 @@ function create_order($service, $price, $cost, $service_name, $costs)
     }
 
 
-
-
-
-
     $currentTime = Carbon::now();
     $futureTime = $currentTime->addMinutes(20);
     $formattedTime = $futureTime->format('Y-m-d H:i:s');
@@ -260,6 +256,7 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
         $get_balance = User::where('id', Auth::id())->first()->wallet;
         $balance = $get_balance - $costs;
+
 
 
 
