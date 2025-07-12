@@ -175,6 +175,7 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 Route::get('admin',  [AdminController::class,'index']);
 
 Route::get('banned-user',  [AdminController::class,'ban_user']);
+Route::get('transactions',  [AdminController::class,'transactions']);
 
 
 

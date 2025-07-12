@@ -416,7 +416,8 @@ class HomeController extends Controller
             $data = new Transaction();
             $data->user_id = Auth::id();
             $data->amount = $request->amount;
-            $data->balance = $get_balance;
+            $data->balance = 0;
+            $data->old_balance = $get_balance;
             $data->ref_id = $ref;
             $data->type = 2;
             $data->status = 1; //initiate
@@ -452,7 +453,8 @@ class HomeController extends Controller
             $data = new Transaction();
             $data->user_id = Auth::id();
             $data->amount = $request->amount;
-            $data->balance = $get_balance;
+            $data->balance = 0;
+            $data->old_balance = $get_balance;
             $data->ref_id = $ref;
             $data->type = 2; //manual funding
             $data->status = 1; //initiate
@@ -1014,6 +1016,7 @@ class HomeController extends Controller
                 $trx->status = 2;
                 $trx->amount = $order->cost;
                 $trx->balance = $balance;
+                $trx->old_balance = $get_balance;
                 $trx->type = 2;
                 $trx->save();
 
@@ -1088,6 +1091,7 @@ class HomeController extends Controller
                     $trx->status = 2;
                     $trx->amount = $order->cost;
                     $trx->balance = $balance;
+                    $trx->old_balance = $get_balance;
                     $trx->type = 2;
                     $trx->save();
 
@@ -1257,6 +1261,7 @@ class HomeController extends Controller
                 $trx->status = 2;
                 $trx->amount = $request->amount;
                 $trx->balance = $balance;
+                $trx->old_balance = $get_balance;
                 $trx->type = 2;
                 $trx->save();
 
@@ -1275,7 +1280,7 @@ class HomeController extends Controller
                 $get_balance = User::where('email', $request->email)->first()->wallet;
                 $balance = $get_balance + $request->amount;
 
-                Transaction::where('ref_id', $request->order_id)->update(['status' => 2, 'balance' => $balance]);
+                Transaction::where('ref_id', $request->order_id)->update(['status' => 2, 'balance' => $balance, 'old_balance' => $get_balance]);
 
 
 

@@ -269,6 +269,7 @@ function create_order($service, $price, $cost, $service_name, $costs)
         $trx->status = 2;
         $trx->amount = $costs;
         $trx->balance = $balance;
+        $trx->old_balance = $get_balance;
         $trx->type = 1;
         $trx->save();
 
@@ -585,6 +586,7 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             $trx->status = 2;
             $trx->amount = $calculatrdcost;
             $trx->balance = $balance;
+            $trx->old_balance = $get_balance;
             $trx->type = 1;
             $trx->save();
 

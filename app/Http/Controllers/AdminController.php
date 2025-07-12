@@ -14,7 +14,6 @@ use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -25,6 +24,28 @@ class AdminController extends Controller
 
 
         return view('admin-login');
+
+
+    }
+
+
+    public function transactions(request $request)
+    {
+
+
+        $role = User::where('id', Auth::id())->first()->role_id ?? null;
+        if ($role != 5) {
+
+            Auth::logout();
+            return redirect('/admin')->with('error', "You do not have permission");
+
+        }
+
+
+        $data['transaction'] = Transaction::latest()->paginate(100);
+        $data['credit'] = Transaction::where('type', 2)->where('status', 2)->sum('amount');
+        $data['debit'] = Transaction::where('type', 1)->where('status', 2)->sum('amount');
+        return view('transactions', $data);
 
 
     }
@@ -173,8 +194,6 @@ class AdminController extends Controller
 //                'message' => 'An error occurred while restoring wallet balances: ' . $e->getMessage(),
 //            ], 500);
 //        }
-
-
 
 
         return view('admin-dashboard', $data);
