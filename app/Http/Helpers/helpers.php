@@ -251,11 +251,12 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
         User::where('id', Auth::id())->decrement('wallet', $costs);
 
+        $get_balance = User::where('id', Auth::id())->first()->wallet;
+        $balance = $get_balance - $costs;
+
         WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
         WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
 
-        $get_balance = User::where('id', Auth::id())->first()->wallet;
-        $balance = $get_balance - $costs;
 
 
 
@@ -554,14 +555,17 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
             $ver->save();
 
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            $balance = $get_balance - $calculatrdcost;
+
             User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
 
 
             WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);
             WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $calculatrdcost);
 
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            $balance = $get_balance - $calculatrdcost;
+
 
 
             $trx = new Transaction();
