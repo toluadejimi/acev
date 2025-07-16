@@ -498,9 +498,40 @@
                                                                 <span
                                                                     style="background: orange; border:0px; font-size: 10px"
                                                                     class="btn btn-warning btn-sm">Pending</span>
-                                                                <a href="delete-order?id={{  $data->id }}&delete=1"
-                                                                   style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
-                                                                   class="btn btn-warning btn-sm hideButton">Delete</span>
+
+                                                                <form method="POST" action="delete-order?id={{ $data->id }}&delete=1"
+                                                                      style="display: inline;"
+                                                                      onsubmit="return confirmDelete(event, this);">
+                                                                    @csrf
+                                                                    <button type="submit"
+                                                                            style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
+                                                                            class="btn btn-warning btn-sm hideButton">
+                                                                        Delete
+                                                                    </button>
+                                                                </form>
+
+                                                                <script>
+                                                                    function confirmDelete(event, form) {
+                                                                        event.preventDefault();
+
+                                                                        Swal.fire({
+                                                                            title: 'Are you sure?',
+                                                                            text: "Do you want to cancel this order?",
+                                                                            icon: 'question',
+                                                                            showCancelButton: true,
+                                                                            confirmButtonColor: '#3085d6',
+                                                                            cancelButtonColor: '#d33',
+                                                                            confirmButtonText: 'Proceed',
+                                                                            cancelButtonText: 'Cancel'
+                                                                        }).then((result) => {
+                                                                            if (result.isConfirmed) {
+                                                                                form.submit();
+                                                                            }
+                                                                        });
+
+                                                                        return false;
+                                                                    }
+                                                                </script>
 
                                                                     @else
                                                                         <span style="font-size: 10px;"
