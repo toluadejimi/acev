@@ -82,7 +82,6 @@
                                                         </td>
                                                     @else
                                                         <style>
-                                                            /* HTML: <div class="loader"></div> */
                                                             .loader {
                                                                 width: 50px;
                                                                 aspect-ratio: 1;
@@ -301,7 +300,7 @@
                                                             const buttons = document.querySelectorAll('.hideButton');
                                                             buttons.forEach(button => {
                                                                 button.addEventListener('click', function() {
-                                                                    this.style.display = 'none';  
+                                                                    this.style.display = 'none';
                                                                 });
                                                             });
                                                         </script>
