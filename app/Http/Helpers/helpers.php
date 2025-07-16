@@ -259,12 +259,10 @@ function create_order($service, $price, $cost, $service_name, $costs)
             ], 400);
         }
 
-        $balance = $get_balance - $costs;
-        User::where('id', Auth::id())->decrement('wallet', $costs);
-
         $get_balance = User::where('id', Auth::id())->first()->wallet;
         $balance = $get_balance - $costs;
 
+        User::where('id', Auth::id())->decrement('wallet', $costs);
         WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
         WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
 
@@ -279,8 +277,6 @@ function create_order($service, $price, $cost, $service_name, $costs)
         $trx->type = 1;
         $trx->save();
 
-
-        // User::where('id', Auth::id())->increment('hold_wallet', $costs);
 
 
         $cost2 = number_format($price, 2);
