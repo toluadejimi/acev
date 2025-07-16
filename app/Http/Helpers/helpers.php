@@ -249,6 +249,17 @@ function create_order($service, $price, $cost, $service_name, $costs)
         $ver->type = 1;
         $ver->save();
 
+
+        $get_balance = User::where('id', Auth::id())->first()->wallet;
+
+        if ($get_balance < $costs) {
+            return response([
+                'status' => false,
+                'message' => 'Insufficient balance'
+            ], 400);
+        }
+
+        $balance = $get_balance - $costs;
         User::where('id', Auth::id())->decrement('wallet', $costs);
 
         $get_balance = User::where('id', Auth::id())->first()->wallet;
@@ -256,9 +267,6 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
         WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
         WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
-
-
-
 
 
         $trx = new Transaction();
@@ -557,16 +565,20 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
 
             $get_balance = User::where('id', Auth::id())->first()->wallet;
+
+            if ($get_balance < $calculatrdcost) {
+                return response([
+                    'status' => false,
+                    'message' => 'Insufficient balance'
+                ], 400);
+            }
+
             $balance = $get_balance - $calculatrdcost;
 
             User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
 
-
             WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);
             WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $calculatrdcost);
-
-
-
 
             $trx = new Transaction();
             $trx->ref_id = "Verification " . $var['order_id'];
@@ -577,6 +589,8 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             $trx->old_balance = $get_balance;
             $trx->type = 1;
             $trx->save();
+
+
 
 
             $cost2 = number_format($calculatrdcost, 2);
