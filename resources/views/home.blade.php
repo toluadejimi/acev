@@ -179,13 +179,13 @@
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
 
-                                                            <button  class="myButton" style="border: 0px; color:black; background: transparent" type="submit">
+                                                            <button class="myButton" style="border: 0px; color:#041a6c; background: transparent" type="submit">
                                                                 <i class="fa fa-shopping-bag"></i>
                                                             </button>
                                                         </form>
                                                         <script>
                                                             function confirmPurchase(event, form) {
-                                                                event.preventDefault(); // Stop default form submission
+                                                                event.preventDefault();
 
                                                                 Swal.fire({
                                                                     title: 'Are you sure?',
