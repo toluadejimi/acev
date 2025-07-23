@@ -179,7 +179,7 @@
                                                             <input hidden name="cost" value="{{ $innerValue->cost }}">
                                                             <input hidden name="name" value="{{ $innerValue->name }}">
 
-                                                            <button class="myButton" style="border: 0px; background: transparent" type="submit">
+                                                            <button  class="myButton" style="border: 0px; color:black; background: transparent" type="submit">
                                                                 <i class="fa fa-shopping-bag"></i>
                                                             </button>
                                                         </form>
