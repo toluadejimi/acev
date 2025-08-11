@@ -90,6 +90,12 @@
                     </li>
 
 
+                    <li class="nav-item px-1">
+                        <a class="nav-link"
+                           href="api-docs" > Api Docs</a >
+                    </li>
+
+
 
                     <li class="nav-item px-1">
                         <a class="nav-link text-danger" href="log-out">Log Out</a>

@@ -491,8 +491,6 @@ function get_world_services()
 
 function create_world_order($country, $service, $price, $calculatrdcost)
 {
-
-
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
 
     if(!$wallet_check){
@@ -524,6 +522,8 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
     $response = curl_exec($curl);
     curl_close($curl);
+
+
     $json_start = strpos($response, '{');
     if ($json_start !== false) {
         $json_string = substr($response, $json_start);
@@ -538,7 +538,7 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
         if ($success == 1) {
 
-                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
+            Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
             $currentTime = Carbon::now();
             $futureTime = $currentTime->addMinutes(15);
             $formattedTime = $futureTime->format('Y-m-d H:i:s');

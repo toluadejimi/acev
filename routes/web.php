@@ -105,6 +105,13 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
 
     Route::any('ban-users',  [HomeController::class,'ban_users']);
     Route::any('unban-users',  [HomeController::class,'unban_users']);
+    Route::any('api-docs',  [HomeController::class,'api_docs']);
+
+
+    Route::post('set-webhook',  [HomeController::class,'set_webhook']);
+    Route::any('generate-token',  [HomeController::class,'generate_token']);
+
+
 
 
 

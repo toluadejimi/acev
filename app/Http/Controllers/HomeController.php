@@ -12,17 +12,52 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
 use App\Models\WalletCheck;
+use App\Models\WebhookResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use function Sodium\randombytes_random16;
 
 
 class HomeController extends Controller
 {
-    public function index(request $request)
+    public function api_docs(request $request)
+    {
+
+        $data['api_key'] = Auth::user()->api_key ?? null;
+        $data['webhook_url'] = Auth::user()->webhook_url ?? null;
+        return view('api', $data);
+
+    }
+
+    public function set_webhook(request $request)
+    {
+
+        User::where('id', Auth::id())->update(['webhook_url' => $request->webhook]);
+        return back()->with('message', 'Webhook Set successfully');
+
+
+    }
+
+
+    public function generate_token(request $request)
+    {
+
+        $token = Str::random(30).date('mhis');
+
+        User::where('id', Auth::id())->update(['api_key' => $token]);
+        return back()->with('message', 'Api Key Set successfully');
+
+    }
+
+
+
+        public function index(request $request)
     {
         $data['services'] = get_services();
 
@@ -875,21 +910,74 @@ class HomeController extends Controller
         $receivedAt = $request->receivedAt;
         $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
 
+        $get_user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
+        $ver = Verification::where('order_id', $activationId)->first() ?? null;
+        $get_webhook_url = User::where('id', $get_user_id)->first()->webhook_url ?? null;
+
+        if($get_webhook_url){
+
+
+            try {
+
+                $url = $get_webhook_url;
+
+                $body = [
+                    "phone" => $ver->phone,
+                    "code" => $code,
+                    "service" => $service,
+                    "order_id" => $ver->id,
+                    "full_sms" => $ver->text,
+                ];
+
+
+                $response = Http::withBody(json_encode($body), 'application/json')->post($url);
+
+                if ($response->status() === 200) {
+                    $data = $response->json();
+                    $returnedCode = $data['code'] ?? null;
+                    $fullContent = $response->body();
+
+                    WebhookResponse::create([
+                        'order_id' => $ver->id,
+                        'response_code' => $returnedCode,
+                        'response_body' => $fullContent,
+                    ]);
+
+
+                } else {
+
+
+                    WebhookResponse::create([
+                        'order_id' => $ver->id,
+                        'response_code' => $response->json()['code'],
+                        'response_body' => $response->body(),
+                        'url' => $get_webhook_url,
+                    ]);
+
+                    Log::error("Webhook failed with status {$response->status()}", [
+                        'body' => $response->body()
+                    ]);
+                }
+
+
+            } catch (\Exception$th) {
+                return $th->getMessage();
+            }
+
+
+        }
+
         try{
 
             $order = Verification::where('order_id', $activationId)->first() ?? null;
             $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
-            User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
+
 
         }catch (\Exception $e) {
-            $message = $e->getMessage();
-            send_notification($message);
-            send_notification2($message);
+
+
         }
 
-
-        $message = json_encode($request->all());
-        send_notification($message);
 
 
     }
