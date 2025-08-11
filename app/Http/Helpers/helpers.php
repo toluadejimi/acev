@@ -175,11 +175,12 @@ function get_services_api()
 
     $data = json_decode($response, true);
 
-    if (!$data || empty($data['data'])) {
+
+    if (!$data || empty($data)) {
         return null;
     }
 
-    foreach ($data['data'] as $serviceKey => &$service) {
+    foreach ($data as $serviceKey => &$service) {
         foreach ($service as $countryId => &$details) {
             $usdCost = (float)$details['cost'];
             $nairaCost = ($usdCost * $rate) + $extraCharge;
