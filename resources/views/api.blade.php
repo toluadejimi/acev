@@ -103,6 +103,7 @@ GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-servi
             "name": "2RedBeans",
             "count": 100,
             "repeatable": true,
+            "service_key": "auw",
             "cost_ngn": 1275
         }
 }
