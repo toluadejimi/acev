@@ -97,15 +97,14 @@ GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-servi
 # Success Response
 {
     "status": true,
-    "data": [
-        {
-            "ID": 1,
-            "name": "United States",
-            "short_name": "US",
-            "cc": "1",
-            "region": "North America"
+    "data":"status": true,
+    "data": {
+        "2redbeans": {
+            "name": "2RedBeans",
+            "count": 100,
+            "repeatable": true,
+            "cost_ngn": 1275
         }
-    ]
 }
 
 # Error
