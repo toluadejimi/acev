@@ -118,15 +118,16 @@ GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-servi
                     <div class="mb-5">
                         <h5 class="fw-bold">5. Rent UAS Number</h5>
                         <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-number&service_key=2redbeans"
+GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-number&service=2RedBeans&service_key=2redbeans"
 
 # Success Response
 {
-    "status": true,
-    "order_id": 389,
-    "phone_no": "19362441517",
-    "country": "US",
-    "service": "1012"
+    "status":true,
+    "order_id":34941,
+    "phone_no":"12178062080",
+    "country":"USA",
+    "service":"2RedBeans",
+    "expires":300
 }
 
 # Error

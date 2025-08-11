@@ -475,6 +475,7 @@ class ApiController extends Controller
 
 
             $service = $request->service;
+            $service_key = $request->service_key;
 
             $APIKEY = env('KEY');
             $curl = curl_init();
@@ -505,7 +506,8 @@ class ApiController extends Controller
                 }
             }
 
-            dd($data);
+
+
 
 
             $settings = Setting::find(1);
@@ -529,10 +531,9 @@ class ApiController extends Controller
             $APIKEY = env('KEY');
             $curl = curl_init();
 
-            dd($service);
 
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
+                CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service_key&max_price=$cost",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -546,8 +547,6 @@ class ApiController extends Controller
             curl_close($curl);
             $result = $var ?? null;
 
-
-            dd($var);
 
             if (strstr($result, "ACCESS_NUMBER") !== false) {
 
@@ -590,7 +589,7 @@ class ApiController extends Controller
                 WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $nairaCost);
 
                 $trx = new Transaction();
-                $trx->ref_id = "APIVerification " . $var['order_id'];
+                $trx->ref_id = "APIVerification " . date('mhis');
                 $trx->user_id = $user->id;
                 $trx->status = 2;
                 $trx->amount = $nairaCost;
