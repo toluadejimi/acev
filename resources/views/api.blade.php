@@ -92,7 +92,7 @@ GET "{{ $baseUrl }}/api/balance?api_key={{ $api_key }}&action=balance"
                     <div class="mb-5">
                         <h5 class="fw-bold">2. Get USA Only Services</h5>
                         <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-countries?api_key={{ $api_key }}&action=get-world-countries"
+GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-services"
 
 # Success Response
 {

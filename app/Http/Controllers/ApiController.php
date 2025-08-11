@@ -504,10 +504,38 @@ class ApiController extends Controller
 
     public function get_usa_services(request $request)
     {
-        return response()->json([
-            'status' => true,
-            'data' => get_services()
-        ], 200);
+
+
+        if ($request->api_key == null) {
+
+            return response()->json([
+                'status' => false,
+                'message' => "Api key is missing"
+            ], 422);
+
+        }
+
+        if ($request->action == null) {
+
+            return response()->json([
+                'status' => false,
+                'message' => "action can not be null"
+            ], 422);
+
+        }
+
+
+
+
+
+        if ($request->action == "get-usa-services") {
+
+            return response()->json([
+                'status' => true,
+                'data' => get_services()
+            ], 200);
+
+        }
 
 
     }
