@@ -192,8 +192,6 @@ class ApiController extends Controller
             $ngnprice = ($price * $get_rate) + $margin;
 
 
-
-
             return response()->json([
                 'status' => true,
                 'cost' => $ngnprice,
@@ -235,9 +233,6 @@ class ApiController extends Controller
         }
 
 
-
-
-
         if ($request->action == "rent-world-number") {
 
 
@@ -257,7 +252,6 @@ class ApiController extends Controller
                 }
 
             }
-
 
 
             $key = env('WKEY');
@@ -362,7 +356,7 @@ class ApiController extends Controller
 
                 if ($success == 1) {
 
-                    Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
+                        Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
                     $currentTime = Carbon::now();
                     $futureTime = $currentTime->addMinutes(15);
                     $formattedTime = $futureTime->format('Y-m-d H:i:s');
@@ -419,7 +413,7 @@ class ApiController extends Controller
                         'order_id' => $ver->id,
                         'phone_no' => $var['cc'] . $var['phonenumber'],
                         'country' => $var['country'],
-                        'service' =>$var['service'],
+                        'service' => $var['service'],
                         'expires' => $var['expires_in']
 
                     ], 200);
@@ -435,6 +429,199 @@ class ApiController extends Controller
 
         }
 
+
+    }
+
+    public function rent_usa_number(request $request)
+    {
+
+        if ($request->api_key == null) {
+
+            return response()->json([
+                'status' => false,
+                'message' => "Api key is missing"
+            ], 422);
+
+        }
+
+        if ($request->action == null) {
+
+            return response()->json([
+                'status' => false,
+                'message' => "action can not be null"
+            ], 422);
+
+        }
+
+
+        if ($request->action == "rent-usa-number") {
+
+
+            $user = User::where('api_key', $request->api_key)->first() ?? null;
+
+            $wallet_check = WalletCheck::where('user_id', $user->id)->first();
+            if (!$wallet_check) {
+
+                $ck = WalletCheck::where('user_id', $user->id)->first();
+                if (!$ck) {
+                    $wal = new WalletCheck();
+                    $wal->user_id = $user->id;
+                    $wal->total_funded = $user->wallet;
+                    $wal->wallet_amount = $user->wallet;
+                    $wal->save();
+                }
+
+            }
+
+
+            $service = $request->service;
+
+            $APIKEY = env('KEY');
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPrices&service=$service",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $data = json_decode($response, true);
+            $countryData = reset($data);
+            $cost = null;
+            foreach ($countryData as $key => $details) {
+                if (strcasecmp($details['name'], $service) === 0) {
+                    $cost = $details['cost'];
+                    break;
+                }
+            }
+
+            dd($data);
+
+
+            $settings = Setting::find(1);
+            $rate = $settings->rate;
+            $margin = $settings->margin;
+
+            if ($cost !== null) {
+                $nairaCost = ($cost * $rate) + $margin;
+            }
+
+
+            if ($user->wallet < $nairaCost) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET",
+                ], 422);
+
+            }
+
+
+            $APIKEY = env('KEY');
+            $curl = curl_init();
+
+            dd($service);
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+
+            $var = curl_exec($curl);
+            curl_close($curl);
+            $result = $var ?? null;
+
+
+            dd($var);
+
+            if (strstr($result, "ACCESS_NUMBER") !== false) {
+
+
+                if ($user->wallet < $nairaCost) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET",
+                    ], 422);
+
+                }
+
+                $parts = explode(":", $result);
+                $accessNumber = $parts[0];
+                $id = $parts[1];
+                $phone = $parts[2];
+
+                Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+
+                $ver = new Verification();
+                $ver->user_id = $user->id;
+                $ver->phone = $phone;
+                $ver->order_id = $id;
+                $ver->country = "US";
+                $ver->service = $service;
+                $ver->cost = $nairaCost;
+                $ver->api_cost = $cost;
+                $ver->status = 1;
+                $ver->expires_in = 300;
+                $ver->type = 1;
+                $ver->save();
+
+
+                $get_balance = User::where('id', $user->id)->first()->wallet;
+                $balance = $get_balance - $nairaCost;
+
+                User::where('id', Auth::id())->decrement('wallet', $nairaCost);
+
+                WalletCheck::where('user_id', Auth::id())->increment('total_bought', $nairaCost);
+                WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $nairaCost);
+
+                $trx = new Transaction();
+                $trx->ref_id = "APIVerification " . $var['order_id'];
+                $trx->user_id = $user->id;
+                $trx->status = 2;
+                $trx->amount = $nairaCost;
+                $trx->balance = $balance;
+                $trx->old_balance = $get_balance;
+                $trx->type = 1;
+                $trx->save();
+
+
+                return response()->json([
+                    'status' => true,
+                    'order_id' => $ver->id,
+                    'phone_no' => $phone,
+                    'country' => "USA",
+                    'service' => $service,
+                    'expires' => $ver->expires_in,
+
+                ], 200);
+
+            }
+
+
+            return response()->json([
+
+                'status' => false,
+                'message' => "Number Currently out of stock, Please check back later",
+
+            ]);
+
+
+        }
 
 
     }
@@ -462,44 +649,37 @@ class ApiController extends Controller
         }
 
 
-
-
-
         if ($request->action == "get-world-sms") {
 
-            $full_sms = Verification::where('id',$request->order_id)->first()->full_sms;
-            $code = Verification::where('id',$request->order_id)->first()->sms;
-            $country = Verification::where('id',$request->order_id)->first()->country;
-            $service = Verification::where('id',$request->order_id)->first()->service;
-            $status = Verification::where('id',$request->order_id)->first()->status;
-            $phone = Verification::where('id',$request->order_id)->first()->phone;
+            $full_sms = Verification::where('id', $request->order_id)->first()->full_sms;
+            $code = Verification::where('id', $request->order_id)->first()->sms;
+            $country = Verification::where('id', $request->order_id)->first()->country;
+            $service = Verification::where('id', $request->order_id)->first()->service;
+            $status = Verification::where('id', $request->order_id)->first()->status;
+            $phone = Verification::where('id', $request->order_id)->first()->phone;
 
-            if($status == 1){
+            if ($status == 1) {
                 $sms_status = "PENDING";
-            }elseif ($status == 2){
+            } elseif ($status == 2) {
                 $sms_status = "COMPLETED";
-            }else{
+            } else {
                 $sms_status = "REJECTED";
             }
 
 
-
             return response()->json([
-                    'status' => true,
-                    'sms_status' => $sms_status,
-                    'full_sms' => $full_sms,
-                    'code' => $code,
-                    'country' => $country,
-                    'service' => $service,
-                    'phone' => $phone,
-                ], 200);
-            }
-
-
+                'status' => true,
+                'sms_status' => $sms_status,
+                'full_sms' => $full_sms,
+                'code' => $code,
+                'country' => $country,
+                'service' => $service,
+                'phone' => $phone,
+            ], 200);
         }
 
 
-
+    }
 
 
     public function get_usa_services(request $request)
@@ -525,9 +705,6 @@ class ApiController extends Controller
         }
 
 
-
-
-
         if ($request->action == "get-usa-services") {
 
             return response()->json([
@@ -539,7 +716,6 @@ class ApiController extends Controller
 
 
     }
-
 
 
 }

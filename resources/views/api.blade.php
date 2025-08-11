@@ -112,47 +112,12 @@ GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-servi
                     </pre>
                     </div>
 
-                    <div class="mb-5">
-                        <h5 class="fw-bold">3. Get World Services</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-services?api_key={{ $api_key }}&action=get-world-services"
 
-# Success Response
-{
-    "status": true,
-    "data": [
-        { "ID": 1, "name": "1688", "favourite": 0 }
-    ]
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
 
                     <div class="mb-5">
-                        <h5 class="fw-bold">4. Check Number Availability</h5>
+                        <h5 class="fw-bold">5. Rent UAS Number</h5>
                         <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/check-world-number-availability?api_key={{ $api_key }}&action=check-availability&country=US&service=1"
-
-# Success Response
-{
-    "status": true,
-    "cost": 500,
-    "stock": 8444,
-    "country": "US",
-    "service": "1"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">5. Rent World Number</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/rent-world-number?api_key={{ $api_key }}&action=rent-world-number&country=US&service=1"
+GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-number&service_key=2redbeans"
 
 # Success Response
 {

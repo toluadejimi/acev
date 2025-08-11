@@ -46,6 +46,7 @@ Route::any('get-world-sms',  [ApiController::class,'get_world_sms']);
 
 
 Route::any('usa-services',  [ApiController::class,'get_usa_services']);
+Route::any('rent-usa-number',  [ApiController::class,'rent_usa_number']);
 
 
 

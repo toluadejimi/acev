@@ -146,9 +146,9 @@ function session_resolve($session_id, $ref)
 }
 
 
+
 function get_services_api()
 {
-
     $APIKEY = env('KEY');
     $settings = Setting::find(1);
     $rate = $settings->rate;
@@ -181,16 +181,19 @@ function get_services_api()
 
     $newData = [];
 
-    foreach ($data as $serviceKey => $service) {
-        foreach ($service as $countryId => $details) {
+    foreach ($data as $serviceKey => $countries) {
+        foreach ($countries as $countryId => $details) {
             $usdCost = (float)$details['cost'];
             $nairaCost = ($usdCost * $rate) + $extraCharge;
 
-            unset($details['cost']);
-            unset($details['ttl']);
-            $details['cost_ngn'] = round($nairaCost, 2);
+            $serviceDetails = $details;
+            unset($serviceDetails['cost'], $serviceDetails['ttl']);
 
-            $newData[$serviceKey] = $details;
+            $serviceDetails['service_key'] = $serviceKey; // add service key
+            $serviceDetails['country_id'] = $countryId;   // keep country if needed
+            $serviceDetails['cost_ngn'] = round($nairaCost, 2);
+
+            $newData[] = $serviceDetails;
         }
     }
 
@@ -333,12 +336,6 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
 
 
-        $cost2 = number_format($price, 2);
-        $cal = Auth::user()->wallet - $costs;
-        $bal = number_format($cal, 2);
-        $message = Auth::user()->email . " just been ordered number on Diasy NGN $cost2 | NGN $bal ";
-        send_notification($message);
-        send_notification2($message);
 
         return 1;
 
