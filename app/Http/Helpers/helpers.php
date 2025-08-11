@@ -150,9 +150,9 @@ function get_services_api()
 {
 
     $APIKEY = env('KEY');
-    $rate = Setting::where('id', 1)->first()->rate;
-    $extraCharge = Setting::where('id', 1)->first()->margin;;
-
+    $settings = Setting::find(1);
+    $rate = $settings->rate;
+    $extraCharge = $settings->margin;
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -175,21 +175,26 @@ function get_services_api()
 
     $data = json_decode($response, true);
 
-
     if (!$data || empty($data)) {
         return null;
     }
 
-    foreach ($data as $serviceKey => &$service) {
-        foreach ($service as $countryId => &$details) {
+    $newData = [];
+
+    foreach ($data as $serviceKey => $service) {
+        foreach ($service as $countryId => $details) {
             $usdCost = (float)$details['cost'];
             $nairaCost = ($usdCost * $rate) + $extraCharge;
+
+            unset($details['cost']);
+            unset($details['ttl']);
             $details['cost_ngn'] = round($nairaCost, 2);
+
+            $newData[$serviceKey] = $details;
         }
     }
 
-    return $data;
-
+    return $newData;
 }
 
 
