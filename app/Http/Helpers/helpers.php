@@ -3,6 +3,7 @@
 use App\Constants\Status;
 use App\Lib\GoogleAuthenticator;
 use App\Models\Extension;
+use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
@@ -143,6 +144,53 @@ function session_resolve($session_id, $ref)
 
 
 }
+
+
+function get_services_api()
+{
+
+    $APIKEY = env('KEY');
+    $rate = Setting::where('id', 1)->first()->rate;
+    $extraCharge = Setting::where('id', 1)->first()->margin;;
+
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPricesVerification",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ),
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    $data = json_decode($response, true);
+
+    if (!$data || empty($data['data'])) {
+        return null;
+    }
+
+    foreach ($data['data'] as $serviceKey => &$service) {
+        foreach ($service as $countryId => &$details) {
+            $usdCost = (float)$details['cost'];
+            $nairaCost = ($usdCost * $rate) + $extraCharge;
+            $details['cost_ngn'] = round($nairaCost, 2);
+        }
+    }
+
+    return $data;
+
+}
+
 
 function get_services()
 {

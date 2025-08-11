@@ -532,7 +532,7 @@ class ApiController extends Controller
 
             return response()->json([
                 'status' => true,
-                'data' => get_services()
+                'data' => get_services_api()
             ], 200);
 
         }
