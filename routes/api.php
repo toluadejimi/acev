@@ -43,10 +43,13 @@ Route::any('get-world-services',  [ApiController::class,'get_world_services']);
 Route::any('check-world-number-availability',  [ApiController::class,'check_availability']);
 Route::any('rent-world-number',  [ApiController::class,'rent_world_number']);
 Route::any('get-world-sms',  [ApiController::class,'get_world_sms']);
+Route::any('get-usa-sms',  [ApiController::class,'get_usa_sms']);
 
 
 Route::any('usa-services',  [ApiController::class,'get_usa_services']);
 Route::any('rent-usa-number',  [ApiController::class,'rent_usa_number']);
+Route::any('cancel-usa-number',  [ApiController::class,'cancel_usa_number']);
+Route::any('cancel-world-number',  [ApiController::class,'cancel_world_number']);
 
 
 

@@ -49,7 +49,8 @@
                         <h5 class="fw-bold mb-3">Webhook URL</h5>
                         <div class="row align-items-center">
                             <div class="col-md-8 mb-2">
-                                <input type="text" name="webhook" class="form-control" value="{{ $webhook_url }}" placeholder="https://yourdomain.com/webhook">
+                                <input type="text" name="webhook" class="form-control" value="{{ $webhook_url }}"
+                                       placeholder="https://yourdomain.com/webhook">
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary w-100">Set Webhook</button>
@@ -66,7 +67,8 @@
 
                     <h3 class="fw-bold text-center mb-4">USA Numbers only Api Documentation</h3>
                     <p class="text-muted">
-                        All requests must include your API key, either in the <code>ApiKey</code>  as <code>api_key</code> in the query string.
+                        All requests must include your API key, either in the <code>ApiKey</code> as
+                        <code>api_key</code> in the query string.
                     </p>
 
                     @php
@@ -114,9 +116,8 @@ GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-servi
                     </div>
 
 
-
                     <div class="mb-5">
-                        <h5 class="fw-bold">5. Rent USA Number</h5>
+                        <h5 class="fw-bold">3. Rent USA Number</h5>
                         <pre class="bg-light p-3 rounded">
 GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-number&service=2RedBeans&service_key=2redbeans"
 
@@ -135,10 +136,10 @@ GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-n
                     </pre>
                     </div>
 
-                    <div>
-                        <h5 class="fw-bold">6. Get World SMS</h5>
+                    <div class="mb-5">
+                        <h5 class="fw-bold">4. Get USA SMS</h5>
                         <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sms&order_id=389"
+GET "{{ $baseUrl }}/api/get-usa-sms?api_key={{ $api_key }}&action=get-usa-sms&order_id=389"
 
 # Success Response
 {
@@ -155,6 +156,43 @@ GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sm
                     </pre>
                     </div>
 
+                    <div class="mb-5">
+                        <h5 class="fw-bold">5. Cancel USA SMS</h5>
+                        <pre class="bg-light p-3 rounded">
+GET "{{ $baseUrl }}/api/cancel-usa-sms?api_key={{ $api_key }}&action=cancel-usa-sms&order_id=389"
+
+# Success Response
+{
+    "status": true,
+    "message": "ORDER CANCELLED"
+}
+
+# Error
+"Wrong or Bad Api key"
+
+                    </pre>
+                    </div>
+
+                    <div>
+                        <h5 class="fw-bold">Webhook Notification</h5>
+                        <pre class="bg-light p-3 rounded">
+
+
+
+# Webhook Sample
+{
+    "phone": 1287665455,
+    "code": "23554",
+    "service": "Aliexpress",
+    "order_id": "2217",
+    "full_sms": "Your code is 2233344",
+    "country": "United State"
+}
+
+                    </pre>
+                    </div>
+
+
                 </div>
             </div>
 
@@ -165,7 +203,8 @@ GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sm
 
                     <h3 class="fw-bold text-center mb-4">World Numbers API Documentation</h3>
                     <p class="text-muted">
-                        All requests must include your API key, either in the <code>X-ApiKey</code> header or as <code>api_key</code> in the query string.
+                        All requests must include your API key, either in the <code>X-ApiKey</code> header or as <code>api_key</code>
+                        in the query string.
                     </p>
 
                     @php
@@ -268,7 +307,7 @@ GET "{{ $baseUrl }}/api/rent-world-number?api_key={{ $api_key }}&action=rent-wor
                     </pre>
                     </div>
 
-                    <div>
+                    <div class="mb-5">
                         <h5 class="fw-bold">6. Get World SMS</h5>
                         <pre class="bg-light p-3 rounded">
 GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sms&order_id=389"
@@ -281,6 +320,23 @@ GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sm
     "code": "123456",
     "country": "United States",
     "service": "WhatsApp"
+}
+
+# Error
+"Wrong or Bad Api key"
+                    </pre>
+                    </div>
+
+
+                    <div>
+                        <h5 class="fw-bold">7. Cancel World SMS</h5>
+                        <pre class="bg-light p-3 rounded">
+GET "{{ $baseUrl }}/api/cancel-world-sms?api_key={{ $api_key }}&action=cancel-world-sms&order_id=389"
+
+# Success Response
+{
+    "status": true,
+    "message": "CANCELLED SUCCESSFULLY"
 }
 
 # Error

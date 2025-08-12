@@ -927,6 +927,7 @@ class HomeController extends Controller
                     "service" => $service,
                     "order_id" => $ver->id,
                     "full_sms" => $ver->text,
+                    "country" => $ver->country,
                 ];
 
 
