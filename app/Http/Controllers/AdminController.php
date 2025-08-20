@@ -128,6 +128,9 @@ class AdminController extends Controller
         $data['usdtongn'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->paginate(50);
+        $data['user_total'] = User::sum('wallet');
+
+
 
 //        $users = User::all();
 //        try {
