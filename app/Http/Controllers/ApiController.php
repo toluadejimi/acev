@@ -473,7 +473,7 @@ class ApiController extends Controller
             $trx->amount = $order->cost;
             $trx->balance = $balance;
             $trx->old_balance = $get_balance;
-            $trx->type = 2;
+            $trx->type = 3;
             $trx->save();
 
 
@@ -554,7 +554,7 @@ class ApiController extends Controller
                 $trx->amount = $order->cost;
                 $trx->balance = $balance;
                 $trx->old_balance = $get_balance;
-                $trx->type = 2;
+                $trx->type = 3;
                 $trx->save();
 
 
