@@ -51,7 +51,12 @@
                                     <div class="btn-group" role="group" aria-label="Third group">
                                         <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
                                            href="/us" class="btn  w-200 mt-1">
-                                            🇺🇸 USA NUMBERS
+                                            🇺🇸 USA SV1
+                                        </a>
+
+                                        <a style="font-size: 12px; background: rgb(132,23,94); color: white"
+                                           href="/us2" class="btn  w-200 mt-1">
+                                            🇺🇸 USA SV2
                                         </a>
 
                                         <a style="font-size: 12px; box-shadow: deeppink" href="/world"
@@ -70,180 +75,179 @@
 
                             <p class="d-flex justify-content-center">You are on 🇺🇸 USA Numbers only Panel</p>
 
-
-                            <div class="">
-
-                                <div class="p-2 col-lg-6">
+                            <div class="p-2 col-lg-12 position-relative">
+                                <!-- Search input + settings -->
+                                <div class="d-flex align-items-center">
                                     <input type="text" id="searchInput" class="form-control"
-                                           placeholder="Search for a service..." onkeyup="filterServices()">
+                                           placeholder="Search for a service...">
+
+                                    <!-- Settings icon -->
+                                    <button class="btn btn-outline-secondary ms-2" id="toggleSettings" type="button">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
                                 </div>
 
-
-                                <div class="row my-3 p-1 text-white"
-                                     style="background: #dedede; border-radius: 10px; font-size: 10px; border-radius: 12px">
-                                    <div class="col-5">
-                                        <h5 class="mt-2">Services</h5>
-                                    </div>
-                                    <div class="col">
-                                        <h5 class="mt-2">Price</h5>
-                                    </div>
-                                </div>
-
-
-                            </div>
-
-
-                            <div style="height:150px; width:100%; overflow-y: scroll;" class="p-2">
-
-
-                                @foreach ($services as $key => $value)
-                                    <div class="row service-row">
+                                <!-- Dropdown (services) -->
+                                <div id="servicesDropdown" class="list-group mt-2 position-absolute w-100  bg-white shadow-sm"
+                                     style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
+                                    @foreach ($services as $key => $value)
                                         @foreach ($value as $innerKey => $innerValue)
-                                            <div style="font-size: 11px" class="col-5 service-name">
-                                                {{ $innerValue->name }}
-                                            </div>
-
-                                            <div style="font-size: 11px" class="col">
-                                                @php $cost = $get_rate * $innerValue->cost + $margin  @endphp
-                                                <strong>N{{ number_format($cost, 2) }}</strong>
-                                            </div>
-
-                                            <div style="font-size: 11px" class="col">
-
-                                            </div>
-
-
-                                            <div class="col mr-3">
-                                                @auth
-
-                                                    @if(Auth::user()->wallet < $cost)
-
-                                                        <a href="fund-wallet" style="color: #7c7c7c"><i
-                                                                class="fas fa-wallet"></i></a>
-
-                                                    @else
-{{--                                                        <form action="order-usano" method="POST">--}}
-{{--                                                            @csrf--}}
-
-{{--                                                            <input hidden name="service" value="{{ $key }}">--}}
-{{--                                                            <input hidden name="price" value="{{ $cost }}">--}}
-{{--                                                            <input hidden name="price2" value="{{ $cost }}">--}}
-{{--                                                            <input hidden name="price3" value="{{ $cost }}">--}}
-{{--                                                            <input hidden name="price4" value="{{ $cost }}">--}}
-{{--                                                            <input hidden name="cost" value="{{ $innerValue->cost }}">--}}
-{{--                                                            <input hidden name="name" value="{{ $innerValue->name }}">--}}
-{{--                                                            <button class="myButton"--}}
-{{--                                                                    style="border: 0px; background: transparent"--}}
-{{--                                                                    onclick="confirmPurchase(this)">--}}
-{{--                                                                <i class="fa fa-shopping-bag"></i>--}}
-{{--                                                            </button>--}}
-
-{{--                                                            <script>--}}
-{{--                                                                function confirmPurchase(button) {--}}
-{{--                                                                    Swal.fire({--}}
-{{--                                                                        title: 'Are you sure?',--}}
-{{--                                                                        text: "Do you want to purchase this number?",--}}
-{{--                                                                        icon: 'question',--}}
-{{--                                                                        showCancelButton: true,--}}
-{{--                                                                        confirmButtonColor: '#3085d6',--}}
-{{--                                                                        cancelButtonColor: '#d33',--}}
-{{--                                                                        confirmButtonText: 'Proceed',--}}
-{{--                                                                        cancelButtonText: 'Cancel'--}}
-{{--                                                                    }).then((result) => {--}}
-{{--                                                                        if (result.isConfirmed) {--}}
-
-{{--                                                                            button.style.display = 'none';--}}
-
-
-{{--                                                                            Swal.fire(--}}
-{{--                                                                                'Purchased!',--}}
-{{--                                                                                'Your item has been added.',--}}
-{{--                                                                                'success'--}}
-{{--                                                                            );--}}
-{{--                                                                        }--}}
-{{--                                                                    });--}}
-{{--                                                                }--}}
-{{--                                                            </script>--}}
-{{--                                                        </form>--}}
-
-
-
-                                                        <form action="order-usano" method="POST" onsubmit="return confirmPurchase(event, this)">
-                                                            @csrf
-
-                                                            <input hidden name="service" value="{{ $key }}">
-                                                            <input hidden name="price" value="{{ $cost }}">
-                                                            <input hidden name="price2" value="{{ $cost }}">
-                                                            <input hidden name="price3" value="{{ $cost }}">
-                                                            <input hidden name="price4" value="{{ $cost }}">
-                                                            <input hidden name="cost" value="{{ $innerValue->cost }}">
-                                                            <input hidden name="name" value="{{ $innerValue->name }}">
-
-                                                            <button class="myButton" style="border: 0px; color:#041a6c; background: transparent" type="submit">
-                                                                <i class="fa fa-shopping-bag"></i>
-                                                            </button>
-                                                        </form>
-                                                        <script>
-                                                            function confirmPurchase(event, form) {
-                                                                event.preventDefault();
-
-                                                                Swal.fire({
-                                                                    title: 'Are you sure?',
-                                                                    text: "Do you want to purchase this number?",
-                                                                    icon: 'question',
-                                                                    showCancelButton: true,
-                                                                    confirmButtonColor: '#3085d6',
-                                                                    cancelButtonColor: '#d33',
-                                                                    confirmButtonText: 'Proceed',
-                                                                    cancelButtonText: 'Cancel'
-                                                                }).then((result) => {
-                                                                    if (result.isConfirmed) {
-                                                                        form.submit();
-                                                                    }
-                                                                });
-
-                                                                return false;
-                                                            }
-                                                        </script>
-
-                                                    @endif
-
-                                                @else
-
-                                                    <a class=""
-                                                       href="/login">
-                                                        <i class="fa fa-lock text-dark"></i>
-                                                    </a>
-                                                @endauth
-
-
-                                                <script>
-                                                    function hideButton(link) {
-                                                        // Hide the clicked link
-                                                        link.style.display = 'none';
-
-                                                        setTimeout(function () {
-                                                            link.style.display = 'inline'; // or 'block' depending on your layout
-                                                        }, 5000); // 5 seconds
-                                                    }
-                                                </script>
-
-
-                                            </div>
-
-
-                                            <hr style="border-color: #cccccc" class=" my-2">
+                                            @php $cost = $get_rate * $innerValue->cost + $margin; @endphp
+                                            <a href="javascript:void(0);"
+                                               class="list-group-item list-group-item-action service-option"
+                                               data-service="{{ $innerValue->name }}"
+                                               data-key="{{ $key }}"
+                                                data-cost="{{ $cost }}">
+                                                <span style="font-size: 12px">{{ $innerValue->name }}</span>
+                                                <span class="float-end"><strong>N{{ number_format($cost, 2) }}</strong></span>
+                                            </a>
                                         @endforeach
+                                    @endforeach
+                                </div>
+
+                                <!-- Extra fields (hidden by default) -->
+                                <div id="extraFields" class="card p-2 shadow-sm mt-2" style="display: none;">
+                                    <div class="mb-2">
+                                        <label class="my-1">Area codes</label>
+                                        <input type="text" id="areaCode" class="form-control" placeholder="503, 202, 404">
                                     </div>
-                                @endforeach
+                                    <div>
+                                        <label class="my-1">Carriers</label>
+                                        <select id="carrier" class="form-control" placeholder="Enter Carrier">
+                                            <option value=" "> Any Carrier</option>
+                                            <option value="tmo"> T-Mobile</option>
+                                            <option value="vz">Verizon</option>
+                                            <option value="att">AT&T</option>
+
+                                        </select>
+                                    </div>
 
 
+                                    <p style="color:#8e0404;" class="my-3 d-flex justify-content-center">This may attract extra 20% charge</p>
+                                </div>
                             </div>
+
+                            <div class="list-group-item text-center bg-light">
+                                <button id="rentNumberBtn" class="btn btn-primary w-100" disabled>
+                                    <i class="bi bi-telephone"></i> Rent Number
+                                </button>
+                            </div>
+
+                            <script>
+                                const searchInput = document.getElementById("searchInput");
+                                const servicesDropdown = document.getElementById("servicesDropdown");
+                                const extraFields = document.getElementById("extraFields");
+                                const serviceOptions = document.querySelectorAll(".service-option");
+                                const rentButton = document.getElementById("rentNumberBtn");
+
+                                let selectedService = null;
+                                let selectedCost = null;
+                                let selectedKey = null;
+
+
+                                searchInput.addEventListener("focus", () => {
+                                    servicesDropdown.style.display = "block";
+                                });
+
+                                searchInput.addEventListener("keyup", () => {
+                                    const filter = searchInput.value.toLowerCase();
+                                    let visibleCount = 0;
+
+                                    serviceOptions.forEach(option => {
+                                        const text = option.dataset.service.toLowerCase();
+                                        if (text.includes(filter)) {
+                                            option.style.display = "block";
+                                            visibleCount++;
+                                        } else {
+                                            option.style.display = "none";
+                                        }
+                                    });
+
+                                    servicesDropdown.style.display = visibleCount > 0 ? "block" : "none";
+                                });
+
+                                serviceOptions.forEach(option => {
+                                    option.addEventListener("click", function () {
+                                        selectedService = this.dataset.service;
+                                        selectedCost = this.dataset.cost;
+                                        selectedKey = this.dataset.key;
+
+                                        searchInput.value = `${selectedService} - ₦${selectedCost}`;
+                                        servicesDropdown.style.display = "none";
+
+                                        rentButton.disabled = false;
+                                    });
+                                });
+
+                                document.addEventListener("click", (event) => {
+                                    if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && !extraFields.contains(event.target)) {
+                                        servicesDropdown.style.display = "none";
+                                    }
+                                });
+
+                                document.getElementById("toggleSettings").addEventListener("click", function () {
+                                    extraFields.style.display = (extraFields.style.display === "none") ? "block" : "none";
+                                });
+
+
+                                rentButton.addEventListener("click", () => {
+                                    if (!selectedService) return;
+
+                                    const areaCode = document.getElementById("areaCode").value;
+                                    const carrier = document.getElementById("carrier").value;
+
+                                    const payload = {
+                                        key: selectedKey,
+                                        service: selectedService,
+                                        cost: selectedCost,
+                                        areaCode: areaCode || null,
+                                        carrier: carrier || null
+                                    };
+
+                                    console.log("Submitting:", payload);
+
+                                    fetch("/order-usano", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "X-CSRF-TOKEN": "{{ csrf_token() }}" // Laravel CSRF token
+                                        },
+                                        body: JSON.stringify(payload)
+                                    })
+                                        .then(response => response.json())
+                                        .then(res => {
+                                            console.log("Response:", res);
+                                            if (res.status) {
+                                                Swal.fire({
+                                                    title: "Success 🎉",
+                                                    text: res.message || "Your purchase was successful!",
+                                                    icon: "success",
+                                                    timer: 3000,
+                                                    showConfirmButton: false
+                                                });
+                                            } else if (res === 1) {
+                                                window.location.reload();
+                                            } else {
+                                                Swal.fire("Error ❌", res.message || "Purchase failed", "error");
+                                            }
+                                        })
+                                        .catch(() => {
+                                            Swal.fire("Error", "Something went wrong. Try again.", "error");
+                                        });
+                                });
+                            </script>
 
 
                         </div>
                     </div>
                 </div>
+
+
+
+
+
+
+
 
                 @auth
                     <div class="col-md-6">
@@ -385,110 +389,110 @@
                                                         @endif
 
                                                         @if($data->status == 1)
-                                                        <td><p style="font-size: 16px; color: #e00101"
-                                                               id="secondsDisplay{{$data->id}}"></p></td>
-                                                        <script>
-                                                            // Function to fetch initial countdown value from the database
-                                                            async function fetchInitialCountdown{{$data->id}}() {
-                                                                try {
-                                                                    const response = await fetch('{{url('')}}/getInitialCountdown?id={{$data->id}}');
-                                                                    if (!response.ok) {
-                                                                        throw new Error('Network response was not ok');
+                                                            <td><p style="font-size: 16px; color: #e00101"
+                                                                   id="secondsDisplay{{$data->id}}"></p></td>
+                                                            <script>
+                                                                // Function to fetch initial countdown value from the database
+                                                                async function fetchInitialCountdown{{$data->id}}() {
+                                                                    try {
+                                                                        const response = await fetch('{{url('')}}/getInitialCountdown?id={{$data->id}}');
+                                                                        if (!response.ok) {
+                                                                            throw new Error('Network response was not ok');
+                                                                        }
+                                                                        const data = await response.json();
+                                                                        return data.seconds;
+                                                                    } catch (error) {
+                                                                        console.error('Error fetching initial countdown:', error);
+                                                                        return 0;
                                                                     }
-                                                                    const data = await response.json();
-                                                                    return data.seconds;
-                                                                } catch (error) {
-                                                                    console.error('Error fetching initial countdown:', error);
-                                                                    return 0;
                                                                 }
-                                                            }
 
-                                                            // Function to update the displayed countdown
-                                                            function updateDisplay{{$data->id}}(seconds) {
-                                                                document.getElementById('secondsDisplay{{$data->id}}').textContent = seconds;
-                                                            }
+                                                                // Function to update the displayed countdown
+                                                                function updateDisplay{{$data->id}}(seconds) {
+                                                                    document.getElementById('secondsDisplay{{$data->id}}').textContent = seconds;
+                                                                }
 
-                                                            // Function to update the database with current seconds
-                                                            function updateDatabase{{$data->id}}(seconds) {
-                                                                fetch('{{url('')}}/api/updatesec', {
-                                                                    method: 'POST',
-                                                                    headers: {
-                                                                        'Content-Type': 'application/json',
-                                                                    },
+                                                                // Function to update the database with current seconds
+                                                                function updateDatabase{{$data->id}}(seconds) {
+                                                                    fetch('{{url('')}}/api/updatesec', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/json',
+                                                                        },
 
-                                                                    body: JSON.stringify({
-                                                                        id: {{$data->id}},
-                                                                        secs: seconds,
-                                                                    }),
-                                                                })
-                                                                    .then(response => {
-                                                                        if (!response.ok) {
-                                                                            throw new Error('Network response was not ok');
-                                                                        }
-                                                                        console.log('Updated seconds:', seconds);
+                                                                        body: JSON.stringify({
+                                                                            id: {{$data->id}},
+                                                                            secs: seconds,
+                                                                        }),
                                                                     })
-                                                                    .catch(error => {
-                                                                        console.error('Error updating seconds:', error);
-                                                                    });
-                                                            }
+                                                                        .then(response => {
+                                                                            if (!response.ok) {
+                                                                                throw new Error('Network response was not ok');
+                                                                            }
+                                                                            console.log('Updated seconds:', seconds);
+                                                                        })
+                                                                        .catch(error => {
+                                                                            console.error('Error updating seconds:', error);
+                                                                        });
+                                                                }
 
 
-                                                            function updateStatus{{$data->id}}() {
-                                                                fetch('{{url('')}}/api/delete-order', {
-                                                                    method: 'POST',
-                                                                    headers: {
-                                                                        'Content-Type': 'application/json',
-                                                                    },
-                                                                    body: JSON.stringify({
-                                                                        id:{{$data->id}},
-                                                                    }),
-                                                                })
-                                                                    .then(response => {
-                                                                        if (!response.ok) {
-                                                                            throw new Error('Network response was not ok');
-                                                                        }
-
-                                                                        location.reload();
-
-                                                                        console.log(response.json());
+                                                                function updateStatus{{$data->id}}() {
+                                                                    fetch('{{url('')}}/api/delete-order', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/json',
+                                                                        },
+                                                                        body: JSON.stringify({
+                                                                            id:{{$data->id}},
+                                                                        }),
                                                                     })
+                                                                        .then(response => {
+                                                                            if (!response.ok) {
+                                                                                throw new Error('Network response was not ok');
+                                                                            }
 
-                                                                    .catch(error => {
-                                                                        console.error('Error updating status:', error);
-                                                                    });
-                                                            }
+                                                                            location.reload();
 
-                                                            // Countdown timer
-                                                            async function countdownTimer{{$data->id}}() {
-                                                                let seconds = await fetchInitialCountdown{{$data->id}}();
-                                                                // Initial update to start the countdown
-                                                                updateDisplay{{$data->id}}(seconds);
-                                                                updateDatabase{{$data->id}}(seconds);
+                                                                            console.log(response.json());
+                                                                        })
 
-                                                                const interval = setInterval(function () {
-                                                                    seconds--;
+                                                                        .catch(error => {
+                                                                            console.error('Error updating status:', error);
+                                                                        });
+                                                                }
 
-                                                                    // Update displayed seconds
+                                                                // Countdown timer
+                                                                async function countdownTimer{{$data->id}}() {
+                                                                    let seconds = await fetchInitialCountdown{{$data->id}}();
+                                                                    // Initial update to start the countdown
                                                                     updateDisplay{{$data->id}}(seconds);
+                                                                    updateDatabase{{$data->id}}(seconds);
 
-                                                                    // Update database every 5 seconds
-                                                                    if (seconds % 5 === 0) {
-                                                                        updateDatabase{{$data->id}}(seconds);
-                                                                    }
+                                                                    const interval = setInterval(function () {
+                                                                        seconds--;
 
-                                                                    // When countdown reaches zero, update status, stop interval and update display
-                                                                    if (seconds <= 0) {
-                                                                        clearInterval(interval);
-                                                                        updateStatus{{$data->id}}();
-                                                                        updateDisplay{{$data->id}}(0);
-                                                                    }
-                                                                }, 1000); // Timer ticks every second
-                                                            }
+                                                                        // Update displayed seconds
+                                                                        updateDisplay{{$data->id}}(seconds);
 
-                                                            document.addEventListener('DOMContentLoaded', function () {
-                                                                countdownTimer{{$data->id}}();
-                                                            });
-                                                        </script>
+                                                                        // Update database every 5 seconds
+                                                                        if (seconds % 5 === 0) {
+                                                                            updateDatabase{{$data->id}}(seconds);
+                                                                        }
+
+                                                                        // When countdown reaches zero, update status, stop interval and update display
+                                                                        if (seconds <= 0) {
+                                                                            clearInterval(interval);
+                                                                            updateStatus{{$data->id}}();
+                                                                            updateDisplay{{$data->id}}(0);
+                                                                        }
+                                                                    }, 1000); // Timer ticks every second
+                                                                }
+
+                                                                document.addEventListener('DOMContentLoaded', function () {
+                                                                    countdownTimer{{$data->id}}();
+                                                                });
+                                                            </script>
                                                         @endif
 
                                                         <td style="font-size: 12px;">
@@ -533,9 +537,9 @@
                                                                     }
                                                                 </script>
 
-                                                                    @else
-                                                                        <span style="font-size: 10px;"
-                                                                              class="text-white btn btn-success btn-sm">Completed</span>
+                                                            @else
+                                                                <span style="font-size: 10px;"
+                                                                      class="text-white btn btn-success btn-sm">Completed</span>
                                                             @endif
 
 

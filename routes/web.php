@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TruverifiController;
 use App\Http\Controllers\WorldNumberController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
@@ -95,6 +96,7 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
     Route::get('us',  [HomeController::class,'home']);
 
     Route::any('home',  [HomeController::class,'home']);
+    Route::get('/us2', [HomeController::class, 'usaserver2']);
     Route::any('world',  [WorldNumberController::class,'home']);
     Route::any('check-av',  [WorldNumberController::class,'check_av']);
     Route::post('order_now',  [WorldNumberController::class,'order_now']);
@@ -112,6 +114,16 @@ Route::group(['middleware' => ['auth', 'user', 'session.timeout']], function () 
     Route::any('generate-token',  [HomeController::class,'generate_token']);
 
 
+
+
+    Route::get('/account', [TruverifiController::class, 'account']);
+    Route::post('/transfer', [TruverifiController::class, 'transfer']);
+    Route::get('/line', [TruverifiController::class, 'line']);
+    Route::post('/sms/{id}/claim', [TruverifiController::class, 'claimSms']);
+    Route::post('/checkService', [TruverifiController::class, 'checkService']);
+    Route::get('/priceList', [TruverifiController::class, 'priceList']);
+    Route::post('/changeService', [TruverifiController::class, 'changeService']);
+    Route::post('/extend', [TruverifiController::class, 'extendLine']);
 
 
 

@@ -61,7 +61,6 @@ class HomeController extends Controller
     {
         $data['services'] = get_services();
 
-
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::where('user_id', Auth::id())->paginate('10');
@@ -86,6 +85,32 @@ class HomeController extends Controller
 
 
         return view('home', $data);
+    }
+
+    public function usaserver2(request $request)
+    {
+
+
+        $result = get_services_usa_server_2(); // Or dynamically pass ZIP
+
+        $data['services'] = $result['availableServices'] ?? [];
+        $data['zips']     = $result['availableZips'] ?? [];
+
+
+
+        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
+        $data['margin'] = Setting::where('id', 1)->first()->margin;
+        $data['rate'] =   $data['margin'] + $data['get_rate'];
+
+        $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
+        $data['order'] = 0;
+        $verification = Verification::where('user_id', Auth::id())->get();
+        $data['pend'] = 0;
+        $data['product'] = null;
+        $data['orders'] = Verification::where('user_id', Auth::id())->get();
+
+
+        return view('usaserver2', $data);
     }
 
 
@@ -128,6 +153,7 @@ class HomeController extends Controller
     {
 
 
+
         $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
         if(!$wallet_check){
             Auth::logout();
@@ -137,56 +163,59 @@ class HomeController extends Controller
 
 
 
-        if($request->price != $request->price2 && $request->price3 != $request->price4 ){
-
-            return back()->with('error', "something went wrong");
-
-        }
-
-
-        if($request->price < 0 || $request->price == 0){
-            return back()->with('error', "something went wrong");
-        }
-
-        if($request->price < 500 ){
-            return back()->with('error', "something went wrong");
-        }
-
-
         if (Auth::user()->wallet < 0) {
-            return back()->with('error', "Insufficient Funds");
+
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
+
         }
 
         if (Auth::user()->wallet < $request->price) {
-            return back()->with('error', "Insufficient Funds");
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
         }
 
         if (Auth::user()->wallet < $request->price) {
-            return back()->with('error', "Insufficient Funds");
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
         }
 
-        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-        $data['margin'] = Setting::where('id', 1)->first()->margin;
+        $data2['get_rate'] = Setting::where('id', 1)->first()->rate;
+        $data2['margin'] = Setting::where('id', 1)->first()->margin;
 
 
-        $service = $request->service;
+        $service = $request->key;
 
         $gcost = get_d_price($service);
 
-        $costs = ($data['get_rate'] * $gcost) + $data['margin'];
+        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
         if (Auth::user()->wallet < $costs) {
-            return back()->with('error', "Insufficient Funds");
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+            return $data;
         }
 
 
-        $service = $request->service;
-        $price = $request->price;
+        $service = $request->key;
+        $price = $request->cost;
         $cost = $request->cost;
-        $service_name = $request->name;
+        $service_name = $request->service;
+        $area_code = $request->areaCode;
+        $carrier = $request->carrier;
 
-        $order = create_order($service, $price, $cost, $service_name, $costs);
+
+        $order = create_order($service, $price, $cost, $service_name, $gcost,  $area_code, $carrier);
         if ($order == 8) {
-            return back()->with('error', "Insufficient Funds");
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
         }
 
         if ($order == 7) {
@@ -195,11 +224,18 @@ class HomeController extends Controller
         }
 
         if ($order == 8) {
-            return back()->with('error', "Insufficient Funds");
+
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
         }
 
         if ($order == 8) {
-            return back()->with('error', "Insufficient Funds");
+            $data['status'] = false;
+            $data['message'] =  "Insufficient Funds";
+
+            return $data;
         }
 
 
@@ -215,12 +251,23 @@ class HomeController extends Controller
         }
 
         if ($order == 0) {
-            return redirect('home')->with('error', 'Number Currently out of stock, Please check back later');
+
+            $data['status'] = false;
+            $data['message'] =  "Number Currently out of stock, Please check back later";
+            return $data;
+        }
+
+        if ($order == 56) {
+
+            $data['status'] = false;
+            $data['message'] =  "No number found";
+            return $data;
         }
 
 
         if ($order == 1) {
-            return redirect('orders');
+
+            return 1;
         }
     }
 
@@ -854,7 +901,8 @@ class HomeController extends Controller
 
         $sms = Verification::where('phone', $request->num)->first()->sms ?? null;
         $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
-        check_sms($order_id);
+
+        $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
 
 
         $originalString = 'waiting for sms';
@@ -871,6 +919,8 @@ class HomeController extends Controller
                 'message' => $sms
             ]);
         }
+
+
     }
 
 
@@ -1122,7 +1172,6 @@ class HomeController extends Controller
         if ($order->status == 1 && $order->type == 1) {
 
 
-
             $order = Verification::where('id', $request->id)->first() ?? null;
 
             if ($order == null) {
@@ -1184,6 +1233,101 @@ class HomeController extends Controller
                     send_notification2($message);
                     return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
                 }
+
+
+            }
+
+        }
+
+
+        if ($order->status == 1 && $order->type == 4) {
+
+
+
+            $order = Verification::where('id', $request->id)->first() ?? null;
+
+            if ($order == null) {
+                return redirect('home')->with('error', 'Order not found');
+            }
+
+            if ($order->status == 2) {
+                Verification::where('id', $request->id)->delete();
+                return back()->with('message', "Order has been successfully deleted");
+            }
+
+            if ($order->status == 1) {
+
+                $phone = $order->phone;
+
+                $APIKEY = env('TRUVER_API_KEY');
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://app.truverifi.com/api/line?phoneNumber=$phone",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'GET',
+                    CURLOPT_HTTPHEADER => array(
+                        "X-API-Key: $APIKEY",
+                        'Accept: application/json'
+                    ),
+                ));
+
+                $var = curl_exec($curl);
+                curl_close($curl);
+                $result = $var ?? null;
+                $data = json_decode($var, true);
+                $status = $data['error'] ?? null;
+
+
+                if($status === "NO_LINE_ASSIGNED" ){
+
+
+                    sleep(5);
+
+                    $amount = number_format($order->cost, 2);
+
+                    Verification::where('id', $request->id)->delete();
+                    User::where('id', Auth::id())->increment('wallet', $order->cost);
+
+                    WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
+
+                    $get_balance = User::where('id', Auth::id())->first()->wallet;
+                    $balance = $get_balance + $order->cost;
+
+                    $trx = new Transaction();
+                    $trx->ref_id = "Order Cancel ".$request->id;
+                    $trx->user_id = Auth::id();
+                    $trx->status = 2;
+                    $trx->amount = $order->cost;
+                    $trx->balance = $balance;
+                    $trx->old_balance = $get_balance;
+                    $trx->type = 3;
+                    $trx->save();
+
+
+
+                    $email = User::where('id', $order->user_id)->first()->email ?? null;
+                    $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
+                    $bb = number_format($balance, 2);
+
+
+
+                    $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+                    send_notification($message);
+                    send_notification2($message);
+                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
+
+                }
+
+
+
+                return back()->with('message', "Order has been canceled");
+
 
 
             }

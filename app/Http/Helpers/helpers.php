@@ -146,7 +146,6 @@ function session_resolve($session_id, $ref)
 }
 
 
-
 function get_services_api()
 {
     $APIKEY = env('KEY');
@@ -238,8 +237,11 @@ function get_services()
 
 }
 
-function create_order($service, $price, $cost, $service_name, $costs)
+function create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier)
 {
+
+    $APIKEY = env('KEY');
+
 
     if (Auth::user()->wallet < $price) {
         return 8;
@@ -260,11 +262,25 @@ function create_order($service, $price, $cost, $service_name, $costs)
     $formattedTime = $futureTime->format('Y-m-d H:i:s');
 
 
-    $APIKEY = env('KEY');
+    if($area_code != null && $carrier != null){
+
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$gcost&areas=$area_code&carriers=$carrier";
+
+        $finalCost = $cost + ($cost * 0.20);
+        if (Auth::user()->wallet < $finalCost) {
+            return 8;
+        }
+
+
+
+    }else{
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$gcost";
+    }
+
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost",
+        CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -277,6 +293,15 @@ function create_order($service, $price, $cost, $service_name, $costs)
     $var = curl_exec($curl);
     curl_close($curl);
     $result = $var ?? null;
+
+
+
+    if (strstr($result, "NO_NUMBERS") !== false) {
+
+
+        return 56;
+
+    }
 
     if (strstr($result, "ACCESS_NUMBER") !== false) {
 
@@ -293,6 +318,52 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
+
+        if($area_code != null && $carrier != null){
+
+
+
+            $finalCost = $cost + ($cost * 0.20);
+
+
+            $ver = new Verification();
+            $ver->user_id = Auth::id();
+            $ver->phone = $phone;
+            $ver->order_id = $id;
+            $ver->country = "US";
+            $ver->service = $service_name;
+            $ver->cost = $finalCost;
+            $ver->api_cost = $gcost;
+            $ver->status = 1;
+            $ver->expires_in = 300;
+            $ver->type = 1;
+            $ver->save();
+
+
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            $balance = $get_balance - $finalCost;
+
+            User::where('id', Auth::id())->decrement('wallet', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
+
+
+            $trx = new Transaction();
+            $trx->ref_id = "Verification-$id";
+            $trx->user_id = Auth::id();
+            $trx->status = 2;
+            $trx->amount = $finalCost;
+            $trx->balance = $balance;
+            $trx->old_balance = $get_balance;
+            $trx->type = 1;
+            $trx->save();
+
+            return 1;
+
+        }
+
+
         $ver = new Verification();
         $ver->user_id = Auth::id();
         $ver->phone = $phone;
@@ -300,7 +371,7 @@ function create_order($service, $price, $cost, $service_name, $costs)
         $ver->country = "US";
         $ver->service = $service_name;
         $ver->cost = $price;
-        $ver->api_cost = $cost;
+        $ver->api_cost = $gcost;
         $ver->status = 1;
         $ver->expires_in = 300;
         $ver->type = 1;
@@ -309,32 +380,31 @@ function create_order($service, $price, $cost, $service_name, $costs)
 
         $get_balance = User::where('id', Auth::id())->first()->wallet;
 
-        if ($get_balance < $costs) {
+        if ($get_balance < $cost) {
             return response([
                 'status' => false,
                 'message' => 'Insufficient balance'
             ], 400);
         }
 
-        $get_balance = User::where('id', Auth::id())->first()->wallet;
-        $balance = $get_balance - $costs;
 
-        User::where('id', Auth::id())->decrement('wallet', $costs);
-        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $costs);
-        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $costs);
+        $get_balance = User::where('id', Auth::id())->first()->wallet;
+        $balance = $get_balance - $cost;
+
+        User::where('id', Auth::id())->decrement('wallet', $cost);
+        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $cost);
+        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $cost);
 
 
         $trx = new Transaction();
         $trx->ref_id = "Verification-$id";
         $trx->user_id = Auth::id();
         $trx->status = 2;
-        $trx->amount = $costs;
+        $trx->amount = $cost;
         $trx->balance = $balance;
         $trx->old_balance = $get_balance;
         $trx->type = 1;
         $trx->save();
-
-
 
 
         return 1;
@@ -378,6 +448,15 @@ function cancel_order($orderID)
 
 
 }
+
+function check_true_sms($num)
+{
+
+
+
+
+}
+
 
 function check_sms($orderID)
 {
@@ -449,7 +528,6 @@ function check_sms($orderID)
                 $order = Verification::where('order_id', $orderID)->first() ?? null;
                 $user_id = Verification::where('order_id', $orderID)->first()->user_id ?? null;
                 //User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
-
 
 
             } catch (\Exception $e) {
@@ -544,10 +622,9 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 {
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
 
-    if(!$wallet_check){
+    if (!$wallet_check) {
         return 8;
     }
-
 
 
     $key = env('WKEY');
@@ -589,7 +666,7 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
         if ($success == 1) {
 
-            Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
+                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
             $currentTime = Carbon::now();
             $futureTime = $currentTime->addMinutes(15);
             $formattedTime = $futureTime->format('Y-m-d H:i:s');
@@ -636,8 +713,6 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             $trx->old_balance = $get_balance;
             $trx->type = 1;
             $trx->save();
-
-
 
 
             $cost2 = number_format($calculatrdcost, 2);
@@ -853,6 +928,7 @@ function get_d_price($service)
     $var = json_decode($var);
 
 
+
     foreach ($var as $key => $value) {
 
         $service2['data'] = $value;
@@ -860,6 +936,7 @@ function get_d_price($service)
     }
 
     $result = $service2["data"]->$service->cost;
+
     return $result;
 
 }
@@ -903,4 +980,45 @@ function send_verification_email($email)
     }
 
 
+}
+
+
+function get_services_usa_server_2(array $services = [], $zip = null)
+{
+    $url = "https://app.truverifi.com/api/checkService";
+
+    $payload = [];
+
+    if (!empty($services)) {
+        $payload['services'] = [];
+    }
+
+    if (!is_null($zip)) {
+        $payload['zip'] = $zip;
+    }
+
+    $response = Http::withHeaders([
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+        'X-API-Key' => env('TRUVER_API_KEY'),
+    ])->post($url, $payload);
+
+
+    if ($response->failed()) {
+        return [
+            'success' => false,
+            'error' => $response->json('error') ?? $response->body(),
+        ];
+    }
+
+    $data = $response->json();
+
+
+    return [
+        'success' => true,
+        'available' => $data['available'] ?? false,
+        'availableServices' => $data['availableServices'] ?? [],
+        'availableZips' => $data['availableZips'] ?? [],
+        'creditsCost' => $data['creditsCost'] ?? null,
+    ];
 }
