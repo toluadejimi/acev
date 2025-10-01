@@ -1050,7 +1050,7 @@ class HomeController extends Controller
         Log::info($message);
 
         $activationId = $request->activationId;
-        $code = $request->sms;
+        $code = $request->code;
 
         $verification = Verification::where('order_id', $activationId)->first();
 
