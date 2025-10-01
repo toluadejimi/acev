@@ -3,10 +3,8 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\TruverifiController;
 use App\Http\Controllers\WorldNumberController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ItemController;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 
@@ -118,18 +116,6 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
 
 
-    Route::get('/account', [TruverifiController::class, 'account']);
-    Route::post('/transfer', [TruverifiController::class, 'transfer']);
-    Route::get('/line', [TruverifiController::class, 'line']);
-    Route::post('/sms/{id}/claim', [TruverifiController::class, 'claimSms']);
-    Route::post('/checkService', [TruverifiController::class, 'checkService']);
-    Route::get('/priceList', [TruverifiController::class, 'priceList']);
-    Route::post('/changeService', [TruverifiController::class, 'changeService']);
-    Route::post('/extend', [TruverifiController::class, 'extendLine']);
-
-
-
-
 
 
     Route::any('receive-sms',  [HomeController::class,'receive_sms']);
@@ -137,6 +123,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
 
     Route::any('delete-order',  [HomeController::class,'delete_order']);
+    Route::any('delete-w-order',  [HomeController::class,'delete_w_order']);
     Route::any('delete-w-order',  [HomeController::class,'delete_w_order']);
     Route::any('admin-cancle-sms',  [HomeController::class,'admin_cancle_sms']);
 
@@ -296,7 +283,6 @@ Route::post('edit-new-product',  [ProductController::class,'edit_front_product']
 //Route::get('view-all',  [ProductController::class,'view_all_product']);
 
 
-Route::post('/telegram', 'TelegramBotController@handle');
 
 
 

@@ -615,10 +615,7 @@
             }
         });
 
-        // Example AJAX request
-        $.get('/api/user', function(response) {
-            console.log(response);
-        });
+
 
 
     </script>
