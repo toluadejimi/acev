@@ -17,8 +17,18 @@ class Verification extends Model
 
 
     protected $fillable = [
+        'user_id',
+        'phone',
         'order_id',
+        'country',
+        'service',
+        'expires_in',
+        'cost',
+        'api_cost',
         'status',
+        'type',
     ];
+
+
 
 }
