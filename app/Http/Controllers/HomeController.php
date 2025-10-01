@@ -1041,7 +1041,6 @@ class HomeController extends Controller
     {
         $message = json_encode($request->all());
         Log::info($message);
-        Log::info($message);
 
         $activationId = $request->activationId;
         $code = $request->sms;
