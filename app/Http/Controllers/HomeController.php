@@ -1054,9 +1054,8 @@ class HomeController extends Controller
 
         $verification = Verification::where('order_id', $activationId)->first();
 
-        if ($verification && !empty($code)) {
+        if ($verification) {
             $verification->update(['status' => 2]);
-
             $sms = new VerificationSms();
             $sms->verification_id = $verification->id;
             $sms->sms = $code;
