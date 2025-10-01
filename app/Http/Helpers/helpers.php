@@ -616,8 +616,25 @@ function get_world_services()
 }
 
 
-function create_world_order($country, $service, $price, $calculatrdcost)
+function create_world_order($country, $service, $price, $calculatrd)
 {
+
+
+    $data['get_rate'] = Setting::where('id', 1)->first()->rate;
+    $data['margin'] = Setting::where('id', 1)->first()->margin;
+    $gcost = pool_cost($service, $country);
+    $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
+
+
+    if (Auth::user()->wallet < $calculatrdcost) {
+
+        return 99;
+
+    }
+
+
+
+
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
 
     if (!$wallet_check) {
@@ -664,10 +681,13 @@ function create_world_order($country, $service, $price, $calculatrdcost)
 
         if ($success == 1) {
 
-                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
+            Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
             $currentTime = Carbon::now();
             $futureTime = $currentTime->addMinutes(15);
             $formattedTime = $futureTime->format('Y-m-d H:i:s');
+
+
+
 
             $ver = new Verification();
             $ver->user_id = Auth::id();
@@ -684,9 +704,10 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             $ver->type = 2;
 
             $ver->save();
-
-
             $get_balance = User::where('id', Auth::id())->first()->wallet;
+
+
+
 
             if ($get_balance < $calculatrdcost) {
                 return response([
@@ -696,7 +717,6 @@ function create_world_order($country, $service, $price, $calculatrdcost)
             }
 
             $balance = $get_balance - $calculatrdcost;
-
             User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
 
             WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);

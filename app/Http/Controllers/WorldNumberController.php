@@ -84,7 +84,6 @@ class WorldNumberController extends Controller
         $product = 1;
 
 
-
         if($get_s_price < 4){
             $price = $get_s_price * 1.3;
         }else{
@@ -190,6 +189,8 @@ class WorldNumberController extends Controller
 
 
 
+
+
         if($request->price < 0 || $request->price == 0){
             return redirect('world')->with('error', "something went wrong");
         }
@@ -220,8 +221,6 @@ class WorldNumberController extends Controller
 
 
         $gcost = pool_cost($service, $country);
-
-
         $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
 
 
@@ -241,16 +240,19 @@ class WorldNumberController extends Controller
         }
 
 
-        if (Auth::user()->wallet < $calculatrdcost) {
-            return redirect('world')->with('error', "Insufficient Funds");
-        }
-
-
+//        if (Auth::user()->wallet < $calculatrdcost) {
+//
+//            return redirect('world')->with('error', "Insufficient Funds");
+//        }
 
 
 
 
         $order = create_world_order($country, $service, $price, $calculatrdcost);
+
+        if ($order == 99) {
+            return redirect('world')->with('error', "Insufficient Funds");
+        }
 
 
         if ($order == 5) {
