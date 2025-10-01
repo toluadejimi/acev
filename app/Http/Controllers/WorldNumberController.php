@@ -240,10 +240,10 @@ class WorldNumberController extends Controller
         }
 
 
-//        if (Auth::user()->wallet < $calculatrdcost) {
-//
-//            return redirect('world')->with('error', "Insufficient Funds");
-//        }
+        if (Auth::user()->wallet < $calculatrdcost) {
+
+            return redirect('world')->with('error', "Insufficient Funds");
+        }
 
 
 
