@@ -14,4 +14,11 @@ class Verification extends Model
     {
         return $this->belongsTo('App\Models\User');
     }
+
+
+    protected $fillable = [
+        'order_id',
+        'status',
+    ];
+
 }
