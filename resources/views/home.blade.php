@@ -51,13 +51,9 @@
                                     <div class="btn-group" role="group" aria-label="Third group">
                                         <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
                                            href="/us" class="btn  w-200 mt-1">
-                                            🇺🇸 USA SV1
+                                            🇺🇸 USA Verifications
                                         </a>
 
-                                        <a style="font-size: 12px; background: rgb(132,23,94); color: white"
-                                           href="/us2" class="btn  w-200 mt-1">
-                                            🇺🇸 USA SV2
-                                        </a>
 
                                         <a style="font-size: 12px; box-shadow: deeppink" href="/world"
                                            class="btn btn-dark w-200 mt-1">
