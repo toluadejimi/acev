@@ -10,6 +10,8 @@ use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
@@ -231,200 +233,102 @@ class ApiController extends Controller
         }
 
 
+
         if ($request->action == "rent-world-number") {
-
-
-            $user = User::where('api_key', $request->api_key)->first() ?? null;
-
-
-            $wallet_check = WalletCheck::where('user_id', $user->id)->first();
-            if (!$wallet_check) {
-
-                $ck = WalletCheck::where('user_id', $user->id)->first();
-                if (!$ck) {
-                    $wal = new WalletCheck();
-                    $wal->user_id = $user->id;
-                    $wal->total_funded = $user->wallet;
-                    $wal->wallet_amount = $user->wallet;
-                    $wal->save();
-                }
-
+            $user = User::where('api_key', $request->api_key)->first();
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => "Invalid API Key"], 401);
             }
 
-
-            $key = env('WKEY');
-            $databody = array(
-                "key" => $key,
-                "country" => $request->country,
-                "service" => $request->service,
-                "pool" => '',
+            $wallet_check = WalletCheck::firstOrCreate(
+                ['user_id' => $user->id],
+                ['total_funded' => $user->wallet, 'wallet_amount' => $user->wallet]
             );
 
-            $body = json_encode($databody);
-
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://api.smspool.net/request/price',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => $databody,
-                CURLOPT_HTTPHEADER => array(
-                    'Authorization: Bearer {{apikey}}'
-                ),
-            ));
-
-            $var2 = curl_exec($curl);
-            curl_close($curl);
-            $var2 = json_decode($var2);
-
-            $get_s_price = $var->price ?? null;
-            $high_price = $var->high_price ?? null;
-            $rate = $var->success_rate ?? null;
-
-
-            if ($high_price == null) {
-                $price = $get_s_price;
-            } elseif ($high_price > 4) {
-                $price = $high_price ?? 1.3;
-            } else {
-                $price = $high_price;
-            }
-
-            $get_rate = Setting::where('id', 1)->first()->rate;
-            $margin = Setting::where('id', 1)->first()->margin;
-            $ngnprice = ($price * $get_rate) + $margin;
-
-            if ($user->wallet < $ngnprice) {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET",
-                ], 422);
-
-            }
-
-
             $key = env('WKEY');
-            $curl = curl_init();
+            $databody = ["key" => $key, "country" => $request->country, "service" => $request->service];
+            $response = Http::asForm()->post('https://api.smspool.net/request/price', $databody);
 
-            $databody = [
-                "country" => $request->country,
-                "service" => $request->service,
-                'key' => $key,
-            ];
+            if (!$response->ok()) {
+                return response()->json(['status' => false, 'message' => 'API Error'], 500);
+            }
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => 'https://api.smspool.net/purchase/sms',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => $databody,
-            ]);
+            $priceData = $response->json();
+            $get_s_price = $priceData['price'] ?? null;
+            $high_price  = $priceData['high_price'] ?? null;
+            $rate        = $priceData['success_rate'] ?? null;
 
-            $response = curl_exec($curl);
-            curl_close($curl);
+            $price = $high_price && $high_price > 4 ? $high_price : ($get_s_price ?? 1.3);
+            $settings = Setting::find(1);
+            $ngnprice = ($price * $settings->rate) + $settings->margin;
 
-
-            $json_start = strpos($response, '{');
-            if ($json_start !== false) {
-                $json_string = substr($response, $json_start);
-                $var = json_decode($json_string, true);
-                $success = $var['success'] ?? null;
-
-
-                if ($success == 0) {
-
-                    return response()->json([
-
-                        'status' => false,
-                        'message' => "Number Currently out of stock, Please check back later",
-
-                    ]);
-
-                }
-
-                if ($success == 1) {
-
-                        Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
-                    $currentTime = Carbon::now();
-                    $futureTime = $currentTime->addMinutes(15);
-                    $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-                    $ver = new Verification();
-                    $ver->user_id = $user->id;
-                    $ver->phone = $var['cc'] . $var['phonenumber'];
-                    $ver->order_id = $var['order_id'];
-                    $ver->country = $var['country'];
-                    $ver->service = $var['service'];
-                    $ver->expires_in = $var['expires_in'] / 10 - 20;
-                    $ver->cost = $ngnprice;
-                    $ver->created_at = $formattedTime;
-                    $ver->expires_in = 300;
-                    $ver->api_cost = $var['cost'];
-                    $ver->status = 1;
-                    $ver->type = 2;
-                    $ver->save();
-
-
-                    $get_balance = User::where('id', $user->id)->first()->wallet;
-                    if ($get_balance < $ngnprice) {
-                        return response([
-                            'status' => false,
-                            'message' => 'Insufficient balance'
-                        ], 400);
+            try {
+                $result = DB::transaction(function () use ($user, $ngnprice, $request, $key) {
+                    $user->refresh();
+                    if ($user->wallet < $ngnprice) {
+                        throw new \Exception("INSUFFICIENT FUNDS, FUND YOUR WALLET");
                     }
 
-                    $balance = $get_balance - $ngnprice;
+                    // Call purchase API
+                    $purchase = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
+                        'country' => $request->country,
+                        'service' => $request->service,
+                        'key'     => $key,
+                    ]);
 
-                    User::where('id', Auth::id())->decrement('wallet', $ngnprice);
+                    if (!$purchase->ok()) {
+                        throw new \Exception("API Purchase Failed");
+                    }
 
-                    WalletCheck::where('user_id', Auth::id())->increment('total_bought', $ngnprice);
-                    WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $ngnprice);
+                    $var = $purchase->json();
+                    if (($var['success'] ?? 0) != 1) {
+                        throw new \Exception("Number Currently out of stock, Please check back later");
+                    }
 
-                    $trx = new Transaction();
-                    $trx->ref_id = "APIVerification " . $var['order_id'];
-                    $trx->user_id = $user->id;
-                    $trx->status = 2;
-                    $trx->amount = $ngnprice;
-                    $trx->balance = $balance;
-                    $trx->old_balance = $get_balance;
-                    $trx->type = 1;
-                    $trx->save();
+                    $old_balance = $user->wallet;
+                    $user->decrement('wallet', $ngnprice);
+                    $balance = $old_balance - $ngnprice;
 
+                    $ver = Verification::create([
+                        'user_id'    => $user->id,
+                        'phone'      => $var['cc'] . $var['phonenumber'],
+                        'order_id'   => $var['order_id'],
+                        'country'    => $var['country'],
+                        'service'    => $var['service'],
+                        'expires_in' => 300,
+                        'cost'       => $ngnprice,
+                        'api_cost'   => $var['cost'],
+                        'status'     => 1,
+                        'type'       => 2,
+                    ]);
 
-                    $cost2 = number_format($ngnprice, 2);
-                    $cal = $user->wallet - $ngnprice;
-                    $bal = number_format($cal, 2);
+                    WalletCheck::where('user_id', $user->id)->increment('total_bought', $ngnprice);
+                    WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $ngnprice);
 
+                    Transaction::create([
+                        'ref_id'      => "APIVerification " . $var['order_id'],
+                        'user_id'     => $user->id,
+                        'status'      => 2,
+                        'amount'      => $ngnprice,
+                        'balance'     => $balance,
+                        'old_balance' => $old_balance,
+                        'type'        => 1,
+                    ]);
 
-                    return response()->json([
-                        'status' => true,
+                    return [
+                        'status'   => true,
                         'order_id' => $ver->id,
-                        'phone_no' => $var['cc'] . $var['phonenumber'],
-                        'country' => $var['country'],
-                        'service' => $var['service'],
-                        'expires' => $var['expires_in']
+                        'phone_no' => $ver->phone,
+                        'country'  => $ver->country,
+                        'service'  => $ver->service,
+                        'expires'  => $ver->expires_in,
+                    ];
+                });
 
-                    ], 200);
-
-                }
-
+                return response()->json($result, 200);
+            } catch (\Exception $e) {
+                return response()->json(['status' => false, 'message' => $e->getMessage()], 422);
             }
-
-            return response()->json([
-                'status' => false,
-                'message' => $var->errors->message,
-            ], 422);
-
         }
 
 
