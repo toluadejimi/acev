@@ -127,11 +127,17 @@ class HomeController extends Controller
     public function updatesec(request $request)
     {
 
-        $ver = Verification::where('id', $request->id)->first()->status;
+        $ver = Verification::where('id', $request->id)->first();
 
-        if ($ver == 1) {
-            $secs = Verification::where('id', $request->id)->update(['expires_in' => $request->secs]);
+        if($ver){
+
+            if($ver->status === 1){
+                $secs = Verification::where('id', $request->id)->update(['expires_in' => $request->secs]);
+
+            }
         }
+
+
 
     }
 
@@ -1509,6 +1515,14 @@ class HomeController extends Controller
 
 
     }
+
+    public
+    function user(request $request)
+    {
+
+
+    }
+
 
     public
     function verify_username(request $request)
