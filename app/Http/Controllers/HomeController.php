@@ -11,6 +11,7 @@ use App\Models\SoldLog;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\VerificationSms;
 use App\Models\WalletCheck;
 use App\Models\WebhookResponse;
 use Illuminate\Http\Request;
@@ -1050,12 +1051,11 @@ class HomeController extends Controller
         if ($verification && !empty($code)) {
             $verification->update(['status' => 2]);
 
-            DB::table('verification_sms')->insert([
-                'verification_id' => $verification->id,
-                'sms'             => $code,
-                'created_at'      => now(),
-                'updated_at'      => now(),
-            ]);
+            $sms = new VerificationSms();
+            $sms->verification_id = $verification->id;
+            $sms->sms = $code;
+            $sms->save();
+
         }
     }
 
