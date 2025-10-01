@@ -902,6 +902,8 @@ class HomeController extends Controller
         $sms = Verification::where('phone', $request->num)->first()->sms ?? null;
         $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
 
+        check_sms($order_id);
+
         $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
 
 

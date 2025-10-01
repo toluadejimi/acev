@@ -508,8 +508,8 @@ function check_sms($orderID)
     if (strstr($result, "STATUS_OK") !== false) {
 
 
-        $status = Verification::where('order_id', $orderID)->first()->status ?? null;
-        if ($status != 2) {
+        $status = Verification::where('order_id', $orderID)->first() ?? null;
+        if ($status) {
             $parts = explode(":", $result);
             $text = $parts[0];
             $sms = $parts[1];
