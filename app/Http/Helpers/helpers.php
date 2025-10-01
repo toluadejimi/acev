@@ -520,7 +520,7 @@ function check_sms($orderID)
             Verification::where('order_id', $orderID)->update([
                 'status' => 2,
                 'sms' => $sms,
-                'full_sms' => $sms,
+                'full_sms' => $text,
             ]);
 
             try {
