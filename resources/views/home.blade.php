@@ -51,7 +51,7 @@
                                     <div class="btn-group" role="group" aria-label="Third group">
                                         <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
                                            href="/us" class="btn  w-200 mt-1">
-                                            🇺🇸 USA Verifications
+                                            🇺🇸 USA NUMBERS
                                         </a>
 
 
