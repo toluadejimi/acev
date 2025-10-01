@@ -591,7 +591,6 @@ function get_world_services()
     $key = env('WKEY');
 
     $services = Cache::remember('smspool_services', 3600, function () use ($key) {
-        Log::info('Requesting services from SMS Pool API', ['key' => $key]);
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -601,7 +600,6 @@ function get_world_services()
                 'key' => $key,
             ]);
 
-        Log::info('Response received from SMS Pool API', ['response' => $response->body()]);
 
         if ($response->successful()) {
             return $response->json() ?? null;
