@@ -42,6 +42,7 @@ Route::any('getInitialCountdown',  [HomeController::class,'getInitialCountdown']
 
 
 
+Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
 
 //auth
