@@ -269,7 +269,6 @@ class ApiController extends Controller
                         throw new \Exception("INSUFFICIENT FUNDS, FUND YOUR WALLET");
                     }
 
-                    // Call purchase API
                     $purchase = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
                         'country' => $request->country,
                         'service' => $request->service,
@@ -281,6 +280,11 @@ class ApiController extends Controller
                     }
 
                     $var = $purchase->json();
+
+
+
+                    \Log::info('SMSPOOL purchase response:', $var);
+
                     if (($var['success'] ?? 0) != 1) {
                         throw new \Exception("Number Currently out of stock, Please check back later");
                     }
@@ -291,13 +295,13 @@ class ApiController extends Controller
 
                     $ver = Verification::create([
                         'user_id'    => $user->id,
-                        'phone'      => $var['cc'] . $var['phonenumber'],
-                        'order_id'   => $var['order_id'],
-                        'country'    => $var['country'],
-                        'service'    => $var['service'],
-                        'expires_in' => 300,
+                        'phone'      => ($var['cc'] ?? '') . ($var['phonenumber'] ?? ($var['number'] ?? '')),
+                        'order_id'   => $var['order_id'] ?? null,
+                        'country'    => $var['country'] ?? $request->country,
+                        'service'    => $var['service'] ?? $request->service,
+                        'expires_in' => $var['expires_in'] ?? 300,
                         'cost'       => $ngnprice,
-                        'api_cost'   => $var['cost'],
+                        'api_cost'   => $var['cost'] ?? 0,
                         'status'     => 1,
                         'type'       => 2,
                     ]);
@@ -330,6 +334,7 @@ class ApiController extends Controller
                 return response()->json(['status' => false, 'message' => $e->getMessage()], 422);
             }
         }
+
 
 
     }

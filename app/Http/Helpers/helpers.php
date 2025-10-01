@@ -567,7 +567,6 @@ function get_world_countries()
                 'key' => $key,
             ]);
 
-        Log::info('Response received from SMS Pool API', ['response' => $response->body()]);
 
         if ($response->successful()) {
             return $response->json() ?? null;
