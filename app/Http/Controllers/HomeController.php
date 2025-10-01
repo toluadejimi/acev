@@ -1040,8 +1040,8 @@ class HomeController extends Controller
     public function diasy_webhook(Request $request)
     {
         $message = json_encode($request->all());
-        send_notification($message);
-        send_notification2($message);
+        Log::info($message);
+        Log::info($message);
 
         $activationId = $request->activationId;
         $code = $request->sms;
