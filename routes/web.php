@@ -7,6 +7,7 @@ use App\Http\Controllers\TruverifiController;
 use App\Http\Controllers\WorldNumberController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
+use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 
 /*
@@ -42,7 +43,7 @@ Route::any('getInitialCountdown',  [HomeController::class,'getInitialCountdown']
 
 
 
-Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+Route::get('logs', [LogViewerController::class, 'index']);
 
 
 //auth
