@@ -15,6 +15,7 @@ use App\Models\WalletCheck;
 use App\Models\WebhookResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -1036,42 +1037,27 @@ class HomeController extends Controller
     }
 
 
-    public
-    function diasy_webhook(request $request)
+    public function diasy_webhook(Request $request)
     {
-
-
         $message = json_encode($request->all());
         send_notification($message);
         send_notification2($message);
 
-
         $activationId = $request->activationId;
-        $messageId = $request->messageId;
-        $service = $request->service;
-        $text = $request->text;
         $code = $request->sms;
-        $country = $request->country;
-        $receivedAt = $request->receivedAt;
 
-        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
+        $verification = Verification::where('order_id', $activationId)->first();
 
+        if ($verification && !empty($code)) {
+            $verification->update(['status' => 2]);
 
-        try{
-
-            $order = Verification::where('order_id', $activationId)->first() ?? null;
-            $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
-            User::where('id', $user_id)->decrement('hold_wallet', $order->cost);
-
-        }catch (\Exception $e) {
-            $message = $e->getMessage();
-            send_notification($message);
-            send_notification2($message);
+            DB::table('verification_sms')->insert([
+                'verification_id' => $verification->id,
+                'sms'             => $code,
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
         }
-
-
-
-
     }
 
 
