@@ -1548,12 +1548,9 @@ class HomeController extends Controller
     public function unban_users(request $request)
     {
 
-        $total_bought = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
-        $total_funded = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
-        $wallet = User::where('id', $request->id)->first()->wallet;
 
 
-        User::where('id', $request->id)->update(['status' => 0]);
+        User::where('id', $request->id)->update(['status' => 2]);
 
 
 

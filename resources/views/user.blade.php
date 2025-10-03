@@ -89,7 +89,7 @@
                                @if($trx->status == 2)
                                     <a href="ban-user?id={{$trx->id}}" class="btn btn-danger btn-sm">Ban</a>
                                 @else
-                                    <a href="unban-user?id={{$trx->id}}" class="btn btn-warning btn-sm">Unban</a>
+                                    <a href="unban-users?id={{$trx->id}}" class="btn btn-warning btn-sm">Unban</a>
                                 @endif
 
                                    <a href="view-verifications?user_id={{$trx->id}}" class="btn btn-success btn-sm">Verification</a>

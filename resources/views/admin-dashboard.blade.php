@@ -167,7 +167,7 @@
                     @foreach($verification as $trx)
                         <tr>
                             <td>{{$trx->id}}</td>
-                            <td>{{$trx->user->username}}</td>
+                            <a href="view-user?id={{$trx->user->id}}"><td>{{$trx->user->username}}</td></a>
                             <td>{{$trx->phone}}</td>
                             <td>{{$trx->country}}</td>
                             <td>{{$trx->service}}</td>

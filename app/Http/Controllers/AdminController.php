@@ -279,7 +279,9 @@ class AdminController extends Controller
     }
 
 
-    public
+
+
+        public
     function remove_user(request $request)
     {
 
@@ -521,6 +523,12 @@ class AdminController extends Controller
 
     }
 
+
+    public function view_users(Request $request)
+    {
+        $users = User::where('id', $request->id)->paginate(10);
+        return view('user', compact( 'users'));
+    }
 
     public
     function search_user(request $request)
