@@ -142,6 +142,67 @@
                 </div>
             </div>
         </section>
+
+
+        <section class="transactions-section">
+
+            <div class="table-container" style="max-height:400px; overflow-y:auto;">
+                <h6>Recent Verification</h6>
+                <table class="transactions-table">
+                    <thead>
+                    <tr>
+                        <th>Trx ID</th>
+                        <th>Username</th>
+                        <th>Phone</th>
+                        <th>Country</th>
+                        <th>Service</th>
+                        <th>Provider</th>
+                        <th>SMS</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th> Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($verification as $trx)
+                        <tr>
+                            <td>{{$trx->id}}</td>
+                            <td>{{$trx->user->username}}</td>
+                            <td>{{$trx->phone}}</td>
+                            <td>{{$trx->country}}</td>
+                            <td>{{$trx->service}}</td>
+                            <td>@if($trx->type == 1)
+                                    <span style="color: #014473" class="badge badge-success">DIASY SMS</span>
+                                @elseif($trx->type == 2)
+                                    <span style="color: #014473" class="badge badge-success">SMS POOL</span>
+                                @endif
+                            </td>
+
+                            <td>{{$trx->sms}}</td>
+                            <td>₦{{number_format($trx->cost, 2)}}</td>
+
+                            <td>@if($trx->status == 2)
+                                    <span style="color: #014473" class="badge badge-success">Completed</span>
+                                @else
+                                    <span style="color: #fd690d" class="badge badge-danger">Pending</span>
+
+                                @endif
+                            </td>
+
+
+                            <td>{{ $trx->created_at->format('d M, Y H:i A') }}</td>
+
+
+
+                        </tr>
+                    @endforeach
+                    </tbody>
+
+                    {{$verification->links()}}
+                </table>
+            </div>
+        </section>
+
     </main>
 
 @endsection
