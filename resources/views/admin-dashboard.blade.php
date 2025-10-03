@@ -146,9 +146,9 @@
 
         <section class="transactions-section">
 
-            <div class="table-container" style="max-height:400px; overflow-y:auto;">
+            <div class="table-container">
                 <h6>Recent Verification</h6>
-                <table class="transactions-table">
+                <table class="transactions-table responsive">
                     <thead>
                     <tr>
                         <th>Trx ID</th>
