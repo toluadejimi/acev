@@ -366,7 +366,27 @@ class AdminController extends Controller
 
 
     public
-    function view_user(request $request)
+    function view_verification(request $request)
+    {
+
+        $role = User::where('id', Auth::id())->first()->role_id ?? null;
+
+        if ($role != 5) {
+
+            Auth::logout();
+            return redirect('/admin')->with('error', "You do not have permission");
+
+        }
+
+
+        $data['user'] = User::where('id', $request->user_id)->first();
+        $data['verification'] = Verification::latest()->where('user_id', $request->user_id)->paginate(50);
+
+
+        return view('user-verification', $data);
+
+    }public
+    function view_transaction(request $request)
     {
 
         $role = User::where('id', Auth::id())->first()->role_id ?? null;
@@ -380,12 +400,8 @@ class AdminController extends Controller
 
 
         $data['user'] = User::where('id', $request->id)->first();
-        $data['transaction'] = Transaction::latest()->where('user_id', $request->id)->paginate(50);
-        $data['verification'] = verification::latest()->where('user_id', $request->id)->paginate(50);
+        $data['transaction'] = Transaction::latest()->where('user_id', $request->user_id)->paginate(50);
 
-        $data['total_funded'] = Transaction::where('user_id', $request->id)->where('status', 2)->sum('amount');
-        $data['total_bought'] = verification::where('user_id', $request->id)->where('status', 2)->sum('cost');
-        $data['total_balance'] = $data['total_funded'] - $data['total_bought'];
 
         return view('view-user', $data);
 
@@ -510,15 +526,17 @@ class AdminController extends Controller
     function search_user(request $request)
     {
 
-        $get_id = User::where('email', $request->email)->first()->id ?? null;
+        $get_user = User::where(function ($query) use ($request) {
+            $query->where('email', $request->search)
+                ->orWhere('username', $request->search);
+        })->first();
 
-        if ($get_id == null) {
-            return back()->with('error', 'No user Found');
+        if (!$get_user) {
+            return back()->with('error', 'No user found');
         }
 
-        $user = User::where('id', $get_id)->count();
-        $users = User::where('id', $get_id)->paginate(10);
-
+        $user = User::where('id', $get_user->id)->count();
+        $users = User::where('id', $get_user->id)->paginate(10);
 
         return view('user', compact('user', 'users'));
 

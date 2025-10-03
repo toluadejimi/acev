@@ -43,8 +43,8 @@
                             <form action="search-user" method="get">
                                 @csrf
                                 <label>Search for user</label>
-                                <input name="data" class="form-control my-3" required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Search </button>
+                                <input name="search" class="form-control my-3" placeholder="Email / Username" required>
+                                <button class="form-control btn btn-sm btn-primary" type="submit"> Search User </button>
                             </form>
                         </div>
                     </div>
@@ -91,6 +91,11 @@
                                 @else
                                     <a href="unban-user" class="btn btn-warning btn-sm">Unban</a>
                                 @endif
+
+                                   <a href="view-verifications?user_id={{$trx->id}}" class="btn btn-success btn-sm">Verification</a>
+                                   <a href="view-trx?user_id={{$trx->id}}" class="btn btn-primary btn-sm">Transactions</a>
+
+
                             </td>
 
                         </tr>

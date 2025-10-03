@@ -207,6 +207,7 @@ Route::any('confirm-pay',  [HomeController::class,'confirm_pay']);
 
 
 Route::get('search-user',  [AdminController::class,'search_user']);
+Route::get('view-verifications',  [AdminController::class,'view_verification']);
 Route::any('search-username',  [AdminController::class,'search_username']);
 
 Route::any('about-us',  [HomeController::class,'about_us']);
