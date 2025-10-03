@@ -87,7 +87,7 @@
 
                             <td>
                                @if($trx->status == 2)
-                                    <a href="ban-user" class="btn btn-danger btn-sm">Ban</a>
+                                    <a href="ban-user?id={{$trx->id}}" class="btn btn-danger btn-sm">Ban</a>
                                 @else
                                     <a href="unban-user" class="btn btn-warning btn-sm">Unban</a>
                                 @endif
