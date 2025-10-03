@@ -402,7 +402,7 @@ class AdminController extends Controller
 
 
         $data['user'] = User::where('id', $request->user_id)->first();
-        $data['trasnaction'] = Transaction::latest()->where('user_id', $request->user_id)->paginate(50);
+        $data['trasnaction'] = Transaction::latest()->where('user_id', $request->user_id)->paginate(100);
 
 
         return view('user-trx', $data);

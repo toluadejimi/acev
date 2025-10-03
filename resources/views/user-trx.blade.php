@@ -26,7 +26,7 @@
 
         <section class="transactions-section">
 
-            <div class="table-container" style="max-height:400px; overflow-y:auto;">
+            <div class="table-container">
                 <h6>All Transaction</h6>
                 <table class="transactions-table">
                     <thead>
