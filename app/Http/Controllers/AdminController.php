@@ -399,11 +399,11 @@ class AdminController extends Controller
         }
 
 
-        $data['user'] = User::where('id', $request->id)->first();
-        $data['transaction'] = Transaction::latest()->where('user_id', $request->user_id)->paginate(50);
+        $data['user'] = User::where('id', $request->user_id)->first();
+        $data['trasnaction'] = Transaction::latest()->where('user_id', $request->user_id)->paginate(50);
 
 
-        return view('view-user', $data);
+        return view('user-trx', $data);
 
     }
 
