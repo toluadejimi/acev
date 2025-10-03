@@ -1095,6 +1095,7 @@ class HomeController extends Controller
         try {
             $order = Verification::where('id', $request->id)->lockForUpdate()->first();
 
+
             if (!$order) {
                 DB::rollBack();
                 return back()->with('error', "Order not found");
@@ -1120,8 +1121,6 @@ class HomeController extends Controller
             // mark as cancelled BEFORE refund
             $order->status = 99; // custom status for cancelled
             $order->save();
-
-
 
 
             // refund user only once
@@ -1150,6 +1149,8 @@ class HomeController extends Controller
             $trx->old_balance = $user->wallet - $order->cost;
             $trx->type = 3;
             $trx->save();
+
+            $order->delete();
 
             DB::commit();
 
