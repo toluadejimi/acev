@@ -135,7 +135,7 @@
                     <i class="fas fa-chart-bar"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-label">30-Day Revenue</div>
+                    <div class="stat-label">Today Revenue</div>
                     <div class="stat-value">₦{{number_format($total_in_d, 2)}}</div>
                     <div class="stat-description">Last 30 days</div>
                     <div class="stat-status monthly">Monthly</div>
