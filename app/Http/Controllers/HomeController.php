@@ -1088,246 +1088,78 @@ class HomeController extends Controller
         return view('policy');
     }
 
-
-    public
-    function delete_order(request $request)
+    public function delete_order(Request $request)
     {
+        DB::beginTransaction();
 
-        $order = Verification::where('id', $request->id)->first() ?? null;
+        try {
+            $order = Verification::where('id', $request->id)->lockForUpdate()->first();
 
-        if($order == null){
+            if (!$order) {
+                DB::rollBack();
+                return back()->with('error', "Order not found");
+            }
 
-            return back()->with('error', "Order not found");
+            if ($order->status != 1) {
+                DB::rollBack();
+                return back()->with('error', "Order already processed or canceled");
+            }
 
+            // external cancel call depending on type...
+            $can_order = $order->type == 2
+                ? cancel_world_order($order->order_id)
+                : ($order->type == 1
+                    ? cancel_order($order->order_id)
+                    : null);
+
+            if ($can_order !== 1) {
+                DB::rollBack();
+                return back()->with('error', "Order cannot be canceled at this time");
+            }
+
+            // mark as cancelled BEFORE refund
+            $order->status = 99; // custom status for cancelled
+            $order->save();
+
+
+
+
+            // refund user only once
+            $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+            $user->increment('wallet', $order->cost);
+
+            WalletCheck::where('user_id', $order->user_id)
+                ->increment('wallet_amount', $order->cost);
+
+
+            $balance = User::where('id', $order->user_id)->first()->wallet;
+            $email = User::where('id', $order->user_id)->first()->email;
+            $amount = $order->cost;
+
+            $bb = number_format($balance, 2);
+            $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+            send_notification($message);
+            send_notification2($message);
+
+            $trx = new Transaction();
+            $trx->ref_id = "Order Cancel " . $order->id;
+            $trx->user_id = $order->user_id;
+            $trx->status = 2;
+            $trx->amount = $order->cost;
+            $trx->balance = $user->wallet;
+            $trx->old_balance = $user->wallet - $order->cost;
+            $trx->type = 3;
+            $trx->save();
+
+            DB::commit();
+
+            return back()->with('message', "Order canceled, NGN{$order->cost} refunded");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', "Error: " . $e->getMessage());
         }
-
-        if ($order->status == 1 && $order->type == 2) {
-
-            $orderID = $order->order_id;
-            $can_order = cancel_world_order($orderID);
-
-
-            if ($can_order == 0) {
-                return back()->with('error', "Please wait and try again later");
-            }
-
-
-
-
-            if ($can_order == 1) {
-
-                sleep(5);
-
-                $amount = number_format($order->cost, 2);
-                Verification::where('id', $request->id)->delete();
-
-                User::where('id', Auth::id())->increment('wallet', $order->cost);
-                WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
-
-                $get_balance = User::where('id', Auth::id())->first()->wallet;
-                $balance = $get_balance + $order->cost;
-
-
-                $trx = new Transaction();
-                $trx->ref_id = "Order Cancel ".$request->id;
-                $trx->user_id = Auth::id();
-                $trx->status = 2;
-                $trx->amount = $order->cost;
-                $trx->balance = $balance;
-                $trx->old_balance = $get_balance;
-                $trx->type = 3;
-                $trx->save();
-
-
-                $email = User::where('id', $order->user_id)->first()->email ?? null;
-                $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
-
-
-
-
-                $bb = number_format($balance, 2);
-                $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
-                send_notification($message);
-                send_notification2($message);
-
-                return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
-            }
-
-
-            if ($can_order == 3) {
-                $amount = number_format($order->cost, 2);
-                Verification::where('id', $request->id)->delete();
-                return back()->with('message', "Order has been canceled");
-            }
-        }
-
-        if ($order->status == 1 && $order->type == 1) {
-
-
-            $order = Verification::where('id', $request->id)->first() ?? null;
-
-            if ($order == null) {
-                return redirect('home')->with('error', 'Order not found');
-            }
-
-            if ($order->status == 2) {
-                Verification::where('id', $request->id)->delete();
-                return back()->with('message', "Order has been successfully deleted");
-            }
-
-            if ($order->status == 1) {
-
-                $orderID = $order->order_id;
-                $corder = cancel_order($orderID);
-
-
-
-                if ($corder == 0) {
-                    return back()->with('error', "Please wait and try again later");
-                }
-
-
-
-                if ($corder == 1) {
-
-                    sleep(5);
-
-                    $amount = number_format($order->cost, 2);
-
-                    Verification::where('id', $request->id)->delete();
-                    User::where('id', Auth::id())->increment('wallet', $order->cost);
-
-                    WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
-
-                    $get_balance = User::where('id', Auth::id())->first()->wallet;
-                    $balance = $get_balance + $order->cost;
-
-                    $trx = new Transaction();
-                    $trx->ref_id = "Order Cancel ".$request->id;
-                    $trx->user_id = Auth::id();
-                    $trx->status = 2;
-                    $trx->amount = $order->cost;
-                    $trx->balance = $balance;
-                    $trx->old_balance = $get_balance;
-                    $trx->type = 3;
-                    $trx->save();
-
-
-
-                    $email = User::where('id', $order->user_id)->first()->email ?? null;
-                    $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
-                    $bb = number_format($balance, 2);
-
-
-
-                    $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
-                    send_notification($message);
-                    send_notification2($message);
-                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
-                }
-
-
-            }
-
-        }
-
-
-        if ($order->status == 1 && $order->type == 4) {
-
-
-
-            $order = Verification::where('id', $request->id)->first() ?? null;
-
-            if ($order == null) {
-                return redirect('home')->with('error', 'Order not found');
-            }
-
-            if ($order->status == 2) {
-                Verification::where('id', $request->id)->delete();
-                return back()->with('message', "Order has been successfully deleted");
-            }
-
-            if ($order->status == 1) {
-
-                $phone = $order->phone;
-
-                $APIKEY = env('TRUVER_API_KEY');
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://app.truverifi.com/api/line?phoneNumber=$phone",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => array(
-                        "X-API-Key: $APIKEY",
-                        'Accept: application/json'
-                    ),
-                ));
-
-                $var = curl_exec($curl);
-                curl_close($curl);
-                $result = $var ?? null;
-                $data = json_decode($var, true);
-                $status = $data['error'] ?? null;
-
-
-                if($status === "NO_LINE_ASSIGNED" ){
-
-
-                    sleep(5);
-
-                    $amount = number_format($order->cost, 2);
-
-                    Verification::where('id', $request->id)->delete();
-                    User::where('id', Auth::id())->increment('wallet', $order->cost);
-
-                    WalletCheck::where('user_id', Auth::id())->increment('wallet_amount', $order->cost);
-
-                    $get_balance = User::where('id', Auth::id())->first()->wallet;
-                    $balance = $get_balance + $order->cost;
-
-                    $trx = new Transaction();
-                    $trx->ref_id = "Order Cancel ".$request->id;
-                    $trx->user_id = Auth::id();
-                    $trx->status = 2;
-                    $trx->amount = $order->cost;
-                    $trx->balance = $balance;
-                    $trx->old_balance = $get_balance;
-                    $trx->type = 3;
-                    $trx->save();
-
-
-
-                    $email = User::where('id', $order->user_id)->first()->email ?? null;
-                    $balance = User::where('id', $order->user_id)->first()->wallet ?? null;
-                    $bb = number_format($balance, 2);
-
-
-
-                    $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
-                    send_notification($message);
-                    send_notification2($message);
-                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
-
-                }
-
-
-
-                return back()->with('message', "Order has been canceled");
-
-
-
-            }
-
-        }
-
-
     }
+
 
 
 //    public function delete_w_order(request $request)
