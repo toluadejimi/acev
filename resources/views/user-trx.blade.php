@@ -6,7 +6,7 @@
         <header class="header">
             <div class="header-left">
                 <div class="admin-badge">ADMIN</div>
-                <div class="admin-role">{{$user->username}}</div>
+                <div class="admin-role">{{$user->username ?? "user"}}</div>
             </div>
         </header>
 
@@ -17,7 +17,7 @@
                 <span>Users</span>
             </div>
             <div class="welcome-message">
-                <h1>{{$user->username}}</h1>
+                <h1>{{$user->username ?? "user"}}</h1>
                 <p>User Data</p>
             </div>
         </section>
