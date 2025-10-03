@@ -118,17 +118,20 @@ class AdminController extends Controller
         }
 
 
-        $data['user'] = User::all()->count();
+        $data['user'] = User::where('status', 2)->count();
         $data['total_in'] = Transaction::where('type', 2)->where('status', 2)->sum('amount');
         $data['transaction'] = Transaction::latest()->paginate(10);
-        $data['total_in_d'] = Transaction::where(['type' => 2, 'status' => 2])->whereday('created_at', Carbon::today())->sum('amount');
+        $data['total_in_d'] = Transaction::where(['type' => 2, 'status' => 2])->where('created_at', Carbon::today())->sum('amount');
         $data['total_out'] = Verification::where('status', 2)->sum('cost');
         $data['total_verified_message'] = Verification::where('status', 2)->count();
-        $data['user_wallet'] = User::where('role_id', 2)->sum('wallet');
+        $data['manual_payment'] = ManualPayment::where('status', 0)->count();
+        $data['manual_payment'] = ManualPayment::where('status', 0)->count();
+        $data['user_total'] = User::where('status', 2)->sum('wallet');
         $data['usdtongn'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->paginate(50);
-        $data['user_total'] = User::sum('wallet');
+        $data['today_order'] = Verification::where('created_at', Carbon::today())->where('status', 2)->count();
+        $data['new_user_today'] = User::where('created_at', Carbon::today())->where('status', 2)->count();
 
 
 
