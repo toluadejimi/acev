@@ -148,7 +148,7 @@
 
             <div class="table-container">
                 <h6>Recent Verification</h6>
-                <table class="transactions-table responsive">
+                <table class="transactions-table">
                     <thead>
                     <tr>
                         <th>Trx ID</th>
