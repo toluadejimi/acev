@@ -224,36 +224,10 @@
                                             }
 
 
-                                            else if (res === 1){
-
-                                                window.rel .then(response => response.json())
-                                                    .then(res => {
-                                                        if (res.status) {
-                                                            Swal.fire({
-                                                                title: "Success 🎉",
-                                                                text: res.message || "Your purchase was successful!",
-                                                                icon: "success",
-                                                                timer: 3000,
-                                                                showConfirmButton: false
-                                                            });
-                                                        }
-
-                                                        else if (res.status === 1){
-                                                            window.location.reload();
-                                                        }
-                                                        else {
-                                                            Swal.fire("Error ❌", res.message || "Purchase failed", "error");
-                                                        }
-                                                    })
-                                                    .catch(() => {
-                                                        Swal.fire("Error", "Something went wrong. Try again.", "error");
-                                                    })
-                                                    .finally(() => {
-                                                        rentButton.disabled = false; // 🔓 Re-enable after response
-                                                        rentButton.innerHTML = '<i class="bi bi-telephone"></i> Rent Number';
-                                                    });oadButton
-
+                                            else if (res.status === 1) {
+                                                window.location.reload();
                                             }
+
                                             else {
                                                 Swal.fire("Error ❌", res.message || "Purchase failed", "error");
                                             }
