@@ -31,9 +31,46 @@ class AdminController extends Controller
 
     public function price_setting_view(request $request)
     {
-        return view('admin-price-setting');
+        $data['set1'] = Setting::where('id', 1)->first();
+        $data['set2'] = Setting::where('id', 2)->first();
+        $data['set3'] = Setting::where('id', 3)->first();
+        return view('admin-price-setting', $data);
 
     }
+
+
+    public function set_rate_1(request $request)
+    {
+        Setting::where('id', 1)->update(['rate' => $request->rate]);
+
+        return back()->with('message', 'Rate Updated successfully');
+
+    }
+
+    public function set_rate_2(request $request)
+    {
+        Setting::where('id', 2)->update(['rate' => $request->rate]);
+
+        return back()->with('message', 'Rate Updated successfully');
+
+    }
+    public function set_margin_1(request $request)
+    {
+        Setting::where('id', 1)->update(['margin' => $request->margin]);
+
+        return back()->with('message', 'Rate Updated successfully');
+
+    }
+
+    public function set_margin_2(request $request)
+    {
+        Setting::where('id', 2)->update(['margin' => $request->margin]);
+
+        return back()->with('message', 'Margin Updated successfully');
+
+    }
+
+
 
 
     public function transactions(request $request)
