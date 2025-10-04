@@ -189,8 +189,6 @@ class WorldNumberController extends Controller
 
 
 
-
-
         if($request->price < 0 || $request->price == 0){
             return redirect('world')->with('error', "something went wrong");
         }
@@ -281,7 +279,7 @@ class WorldNumberController extends Controller
 
         if ($order == 3) {
 
-            return redirect('orders');
+            return redirect('us');
 
 
         }
