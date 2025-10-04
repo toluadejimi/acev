@@ -1098,13 +1098,13 @@ class HomeController extends Controller
         return view('policy');
     }
 
+
     public function delete_order(Request $request)
     {
         DB::beginTransaction();
 
         try {
             $order = Verification::where('id', $request->id)->lockForUpdate()->first();
-
 
             if (!$order) {
                 DB::rollBack();
@@ -1122,43 +1122,41 @@ class HomeController extends Controller
                     ? cancel_order($order->order_id)
                     : null);
 
+            if ($can_order == 5) {
+                DB::rollBack();
+                return back()->with('error', "Sms found");
+            }
+
             if ($can_order !== 1) {
                 DB::rollBack();
                 return back()->with('error', "Order cannot be canceled at this time");
             }
 
-            if ($can_order == 5) {
-                return back()->with('error', "Sms found");
-            }
-
             $order->status = 99;
             $order->save();
 
-
             $user = User::where('id', $order->user_id)->lockForUpdate()->first();
-            $user->increment('wallet', $order->cost);
+
+            $old_balance = $user->wallet;                     // ✅ capture old balance
+            $user->increment('wallet', $order->cost);         // refund
+            $new_balance = $old_balance + $order->cost;       // ✅ calculate new balance
 
             WalletCheck::where('user_id', $order->user_id)
                 ->increment('wallet_amount', $order->cost);
 
-
-            $balance = User::where('id', $order->user_id)->first()->wallet;
-            $email = User::where('id', $order->user_id)->first()->email;
-            $amount = $order->cost;
-
-            $bb = number_format($balance, 2);
-            $message = $email . "| just canceled | $order->service | type is $order->type | $amount is refunded | Balance is  $bb";
+            $bb = number_format($new_balance, 2);
+            $message = $user->email . " | just canceled | $order->service | type is $order->type | NGN{$order->cost} refunded | Balance is $bb";
             send_notification($message);
             send_notification2($message);
 
             $trx = new Transaction();
-            $trx->ref_id = "Order Cancel " . $order->id;
-            $trx->user_id = $order->user_id;
-            $trx->status = 2;
-            $trx->amount = $order->cost;
-            $trx->balance = $user->wallet;
-            $trx->old_balance = $user->wallet - $order->cost;
-            $trx->type = 3;
+            $trx->ref_id      = "Order Cancel " . $order->id;
+            $trx->user_id     = $order->user_id;
+            $trx->status      = 2;
+            $trx->amount      = $order->cost;
+            $trx->balance     = $new_balance;    // ✅ new balance
+            $trx->old_balance = $old_balance;    // ✅ old balance
+            $trx->type        = 3;               // refund
             $trx->save();
 
             $order->delete();
