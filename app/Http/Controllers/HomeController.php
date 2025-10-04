@@ -275,7 +275,7 @@ class HomeController extends Controller
 
         if ($order == 1) {
 
-            return 1;
+            return redirect('us');
         }
     }
 
