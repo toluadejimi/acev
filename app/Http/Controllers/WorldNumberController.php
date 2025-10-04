@@ -278,10 +278,7 @@ class WorldNumberController extends Controller
         }
 
         if ($order == 3) {
-
             return redirect('us');
-
-
         }
     }
 

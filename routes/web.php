@@ -105,7 +105,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::post('order_now',  [WorldNumberController::class,'order_now']);
     Route::any('get-smscodeworld',  [WorldNumberController::class,'get_smscode']);
 
-    Route::any('orders',  [HomeController::class,'orders']);
+    //Route::any('orders',  [HomeController::class,'orders']);
 
 
     Route::any('ban-users',  [HomeController::class,'ban_users']);
