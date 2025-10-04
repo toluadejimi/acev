@@ -23,7 +23,7 @@ Route::any('user',  [HomeController::class,'user']);
 
 
 
-Route::any('e_fund',  [HomeController::class,'e _fund']);
+Route::any('e_fund',  [HomeController::class,'e_fund']);
 Route::any('e_check',  [HomeController::class,'e_check']);
 Route::any('verify',  [HomeController::class,'verify_username']);
 Route::any('user',  [HomeController::class,'user']);
