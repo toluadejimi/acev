@@ -644,7 +644,7 @@ class HomeController extends Controller
         Transaction::where('user_id', $id)->delete();
         Verification::where('user_id', $id)->delete();
 
-        return redirect('user')->with('success', 'User deleted successfully!');
+        return redirect('users')->with('success', 'User deleted successfully!');
     }
 
 
