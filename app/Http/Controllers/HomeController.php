@@ -198,6 +198,7 @@ class HomeController extends Controller
         $data2['margin'] = Setting::where('id', 1)->first()->margin;
 
 
+
         $service = $request->key;
 
         $gcost = get_d_price($service);
