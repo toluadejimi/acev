@@ -1106,7 +1106,6 @@ class HomeController extends Controller
                 return back()->with('error', "Order already processed or canceled");
             }
 
-            // external cancel call depending on type...
             $can_order = $order->type == 2
                 ? cancel_world_order($order->order_id)
                 : ($order->type == 1
@@ -1118,12 +1117,14 @@ class HomeController extends Controller
                 return back()->with('error', "Order cannot be canceled at this time");
             }
 
-            // mark as cancelled BEFORE refund
-            $order->status = 99; // custom status for cancelled
+            if ($can_order == 5) {
+                return back()->with('error', "Sms found");
+            }
+
+            $order->status = 99;
             $order->save();
 
 
-            // refund user only once
             $user = User::where('id', $order->user_id)->lockForUpdate()->first();
             $user->increment('wallet', $order->cost);
 

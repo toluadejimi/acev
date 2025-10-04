@@ -422,29 +422,43 @@ function cancel_order($orderID)
 {
 
 
-    $APIKEY = env('KEY');
-    $curl = curl_init();
 
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=setStatus&id=$orderID&status=8",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-    ));
+    $check_order = check_sms($orderID);
+    if($check_order == 3){
+        return 5;
+    }else{
 
-    $var = curl_exec($curl);
-    curl_close($curl);
-    $result = $var ?? null;
+        $APIKEY = env('KEY');
+        $curl = curl_init();
 
-    if (strstr($result, "ACCESS_CANCEL") !== false) {
-        return 1;
-    } else {
-        return 0;
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=setStatus&id=$orderID&status=8",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ));
+
+        $var = curl_exec($curl);
+        curl_close($curl);
+        $result = $var ?? null;
+
+        if (strstr($result, "ACCESS_CANCEL") !== false) {
+            return 1;
+        } else {
+            return 0;
+        }
+
+
+
     }
+
+
+
+
 
 
 }
@@ -763,6 +777,14 @@ function create_world_order($country, $service, $price, $calculatrd)
 function cancel_world_order($orderID)
 {
 
+
+
+    $ck_world = check_world_sms($orderID);
+    if($ck_world == 3){
+        return 5;
+    }
+
+
     $key = env('WKEY');
     $curl = curl_init();
 
@@ -866,7 +888,6 @@ function check_world_sms($orderID)
     }
 
 
-    dd($var);
 }
 
 
