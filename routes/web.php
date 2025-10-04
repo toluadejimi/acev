@@ -189,6 +189,8 @@ Route::get('admin',  [AdminController::class,'index']);
 
 Route::get('banned-user',  [AdminController::class,'ban_user']);
 Route::get('transactions',  [AdminController::class,'transactions']);
+Route::get('price-setting',  [AdminController::class,'price_setting_view']);
+
 
 
 

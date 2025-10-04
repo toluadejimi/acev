@@ -15,10 +15,13 @@
                         Manage Users
                 </a>
 
-                <button class="header-btn">
-                    <i class="fas fa-eye"></i>
-                    Review Deposits
-                </button>
+
+                <a href="price-setting"  class="header-btn">
+                    <i class="fas fa-money-bill"></i>
+                    Price Setting
+                </a>
+
+
             </div>
         </header>
 

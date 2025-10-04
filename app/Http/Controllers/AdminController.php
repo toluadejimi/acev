@@ -29,6 +29,13 @@ class AdminController extends Controller
     }
 
 
+    public function price_setting_view(request $request)
+    {
+        return view('admin-price-setting');
+
+    }
+
+
     public function transactions(request $request)
     {
 

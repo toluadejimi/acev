@@ -189,6 +189,9 @@
                                 rentButton.addEventListener("click", () => {
                                     if (!selectedService) return;
 
+                                    rentButton.disabled = true;
+                                    rentButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+
                                     const areaCode = document.getElementById("areaCode").value;
                                     const carrier = document.getElementById("carrier").value;
 
@@ -200,19 +203,16 @@
                                         carrier: carrier || null
                                     };
 
-                                    console.log("Submitting:", payload);
-
                                     fetch("/order-usano", {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/json",
-                                            "X-CSRF-TOKEN": "{{ csrf_token() }}" // Laravel CSRF token
+                                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
                                         },
                                         body: JSON.stringify(payload)
                                     })
                                         .then(response => response.json())
                                         .then(res => {
-                                            console.log("Response:", res);
                                             if (res.status) {
                                                 Swal.fire({
                                                     title: "Success 🎉",
@@ -221,14 +221,16 @@
                                                     timer: 3000,
                                                     showConfirmButton: false
                                                 });
-                                            } else if (res === 1) {
-                                                window.location.reload();
                                             } else {
                                                 Swal.fire("Error ❌", res.message || "Purchase failed", "error");
                                             }
                                         })
                                         .catch(() => {
                                             Swal.fire("Error", "Something went wrong. Try again.", "error");
+                                        })
+                                        .finally(() => {
+                                            rentButton.disabled = false; // 🔓 Re-enable after response
+                                            rentButton.innerHTML = '<i class="bi bi-telephone"></i> Rent Number';
                                         });
                                 });
                             </script>
