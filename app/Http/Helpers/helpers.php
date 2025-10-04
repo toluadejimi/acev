@@ -319,8 +319,14 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
 
+
+
         if($area_code != null && $carrier != null){
 
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            if ($get_balance < $cost) {
+                return 8;
+            }
 
 
             $finalCost = $cost + ($cost * 0.20);
@@ -378,14 +384,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         $ver->save();
 
 
-        $get_balance = User::where('id', Auth::id())->first()->wallet;
 
-        if ($get_balance < $cost) {
-            return response([
-                'status' => false,
-                'message' => 'Insufficient balance'
-            ], 400);
-        }
 
 
         $get_balance = User::where('id', Auth::id())->first()->wallet;
