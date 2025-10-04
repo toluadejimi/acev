@@ -274,8 +274,11 @@ class HomeController extends Controller
 
 
         if ($order == 1) {
-            return redirect('us');
-        }
+            return response()->json([
+                'status' => true,
+                'reload' => true,
+                'message' => "Successful"
+            ]);        }
     }
 
 

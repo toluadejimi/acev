@@ -213,7 +213,13 @@
                                     })
                                         .then(response => response.json())
                                         .then(res => {
-                                            if (res.status) {
+
+                                            if (res.status && res.reload) {
+                                                window.location.reload();
+                                            }
+
+
+                                            if (res.status === true) {
                                                 Swal.fire({
                                                     title: "Success 🎉",
                                                     text: res.message || "Your purchase was successful!",
@@ -222,23 +228,13 @@
                                                     showConfirmButton: false
                                                 });
                                             }
-
-
                                             else if (res.status === 1) {
                                                 window.location.reload();
                                             }
-
                                             else {
                                                 Swal.fire("Error ❌", res.message || "Purchase failed", "error");
                                             }
                                         })
-                                        .catch(() => {
-                                            Swal.fire("Error", "Something went wrong. Try again.", "error");
-                                        })
-                                        .finally(() => {
-                                            rentButton.disabled = false; // 🔓 Re-enable after response
-                                            rentButton.innerHTML = '<i class="bi bi-telephone"></i> Rent Number';
-                                        });
                                 });
                             </script>
 
