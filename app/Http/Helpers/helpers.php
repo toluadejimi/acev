@@ -947,37 +947,32 @@ function get_d_price($service)
 {
     $APIKEY = env('KEY');
     $curl = curl_init();
-    curl_setopt_array($curl, array(
+    curl_setopt_array($curl, [
         CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPrices&service=$service",
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json',
-            'Accept: application/json',
-        ),
-    ));
+        CURLOPT_TIMEOUT => 10,
+    ]);
 
-    $var = curl_exec($curl);
+    $response = curl_exec($curl);
     curl_close($curl);
-    $var = json_decode($var);
 
+    $data = json_decode($response, true);
 
-
-    foreach ($var as $key => $value) {
-
-        $service2['data'] = $value;
-
+    if (!is_array($data) || empty($data)) {
+        return null;
     }
 
-    $result = $service2["data"]->$service->cost;
+    foreach ($data as $serviceCode => $countries) {
+        if (is_array($countries)) {
+            foreach ($countries as $countryCode => $details) {
+                if (isset($details['cost'])) {
+                    return $details['cost'];
+                }
+            }
+        }
+    }
 
-    return $result;
-
+    return null;
 }
 
 
