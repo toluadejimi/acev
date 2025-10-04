@@ -95,6 +95,9 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
     Route::get('us',  [HomeController::class,'home']);
 
+    Route::delete('/delete-user/{id}', [HomeController::class, 'destroy_user'])->name('delete-user');
+
+
     Route::any('home',  [HomeController::class,'home']);
     Route::get('/us2', [HomeController::class, 'usaserver2']);
     Route::any('world',  [WorldNumberController::class,'home']);

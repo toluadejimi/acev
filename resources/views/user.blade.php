@@ -95,6 +95,16 @@
                                    <a href="view-verifications?user_id={{$trx->id}}" class="btn btn-success btn-sm">Verification</a>
                                    <a href="view-trx?user_id={{$trx->id}}" class="btn btn-primary btn-sm">Transactions</a>
 
+                                   <form action="{{ route('delete-user', $trx->id) }}" method="POST" style="display:inline;">
+                                       @csrf
+                                       @method('DELETE')
+                                       <button type="submit" class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Are you sure you want to delete this user?');">
+                                           Delete
+                                       </button>
+                                   </form>
+
+
 
                             </td>
 

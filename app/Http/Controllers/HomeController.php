@@ -636,6 +636,16 @@ class HomeController extends Controller
 
 
 
+    public function destroy_user($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        Transaction::where('user_id', $id)->delete();
+        Verification::where('user_id', $id)->delete();
+
+        return back()->with('success', 'User deleted successfully!');
+    }
 
 
     public function destroy(Request $request)
