@@ -332,6 +332,10 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         $result = $var ?? null;
 
 
+        Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $cost_new");
+
+
+
         if (strstr($result, "ACCESS_NUMBER") !== false) {
 
 
