@@ -23,7 +23,7 @@ Route::any('user',  [HomeController::class,'user']);
 
 
 
-Route::any('e_fund',  [HomeController::class,'e_fund']);
+Route::any('e_fund',  [HomeController::class,'e _fund']);
 Route::any('e_check',  [HomeController::class,'e_check']);
 Route::any('verify',  [HomeController::class,'verify_username']);
 Route::any('user',  [HomeController::class,'user']);
@@ -42,8 +42,8 @@ Route::any('get-usa-sms',  [ApiController::class,'get_usa_sms']);
 
 Route::any('usa-services',  [ApiController::class,'get_usa_services']);
 Route::any('rent-usa-number',  [ApiController::class,'rent_usa_number']);
-Route::any('cancel-usa-number',  [ApiController::class,'cancel_usa_number']);
-Route::any('cancel-world-number',  [ApiController::class,'cancel_world_number']);
+Route::any('cancel-usa-sms',  [ApiController::class,'cancel_usa_number']);
+Route::any('cancel-world-sms',  [ApiController::class,'cancel_world_number']);
 
 
 

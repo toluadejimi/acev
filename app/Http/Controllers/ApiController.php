@@ -343,12 +343,12 @@ class ApiController extends Controller
     {
 
 
-        if ($request->action === "cancel-usa-sms")
+        if ($request->action === "cancel-world-sms")
 
 
             $order = Verification::where('id', $request->order_id)->first() ?? null;
-        $orderID = $order->order_id;
-        $can_order = cancel_world_order($orderID);
+            $orderID = $order->order_id;
+            $can_order = cancel_world_order($orderID);
 
 
         if ($can_order == 0) {
@@ -356,6 +356,15 @@ class ApiController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => "Please wait and try again later"
+            ]);
+
+        }
+
+        if ($can_order == 5) {
+
+            return response()->json([
+                'status' => false,
+                'message' => "SMS Found already"
             ]);
 
         }
@@ -376,7 +385,7 @@ class ApiController extends Controller
 
 
             $trx = new Transaction();
-            $trx->ref_id = "Order Cancel " . $request->id;
+            $trx->ref_id = "Order API Cancel " . $request->id;
             $trx->user_id = $order->user_id;
             $trx->status = 2;
             $trx->amount = $order->cost;
@@ -438,6 +447,15 @@ class ApiController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => "Please wait and try again later"
+                ]);
+
+            }
+
+            if ($corder == 5) {
+
+                return response()->json([
+                    'status' => false,
+                    'message' => "SMS Found already"
                 ]);
 
             }
