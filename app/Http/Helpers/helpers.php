@@ -295,7 +295,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     $result = $var ?? null;
 
 
-    Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $gcost");
+   // Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $gcost");
 
     if(strstr($result, "MAX_PRICE_EXCEEDED") !== false){
 
@@ -332,7 +332,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         $result = $var ?? null;
 
 
-        Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $cost_new");
+        //Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $cost_new");
 
 
 
