@@ -238,7 +238,7 @@
                                                             });
                                                         }
 
-                                                        else if (res === 1){
+                                                        else if (res.status === 1){
                                                             window.location.reload();
                                                         }
                                                         else {
