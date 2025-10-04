@@ -1267,97 +1267,66 @@ class HomeController extends Controller
     }
 
 
-    public
-    function e_fund(request $request)
+
+    public function e_fund(Request $request)
     {
-
-
-        $ipb = env('IPA');
-        $ipa = env('IPB');
         $ip = $request->ip();
-        //$fund = $request->fund;
 
-        if($ip != "209.74.80.245"){
-
-                return response()->json([
-                    'status' => false,
-                    'message' =>  "Wrong IP | $ip"
-                ]);
-
+        if ($ip != "209.74.80.245") {
+            return response()->json([
+                'status' => false,
+                'message' =>  "Wrong IP | $ip"
+            ]);
         }
 
-            $get_user = User::where('email', $request->email)->first() ?? null;
-            if ($get_user == null) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No one user found, please check email and try again',
-                ]);
-            }
-
-            $ip = $request->ip();
-            $url = $request->url();
-            $message = $request->email . "| just just funded wallet on ace verify | $ip | $request->order_id | NGN" . $request->amount;
-            send_notification($message);
-            send_notification2($message);
-
-
-            User::where('email', $request->email)->increment('wallet', $request->amount) ?? null;
-            $amount = number_format($request->amount, 2);
-
-            $get_depo = Transaction::where('ref_id', $request->order_id)->first() ?? null;
-            if ($get_depo == null) {
-
-                $get_balance = User::where('email', $request->email)->first()->wallet;
-                $balance = $get_balance + $request->amount;
-
-
-                $trx = new Transaction();
-                $trx->ref_id = $request->order_id;
-                $trx->user_id = $get_user->id;
-                $trx->status = 2;
-                $trx->amount = $request->amount;
-                $trx->balance = $balance;
-                $trx->old_balance = $get_balance;
-                $trx->type = 2;
-                $trx->save();
-
-                WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
-                WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
-
-                $message = $trx->id . "| $request->order_id |saved";
-                send_notification($message);
-
-            } else {
-
-
-                WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
-                WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
-
-                $get_balance = User::where('email', $request->email)->first()->wallet;
-                $balance = $get_balance + $request->amount;
-
-                Transaction::where('ref_id', $request->order_id)->update(['status' => 2, 'balance' => $balance, 'old_balance' => $get_balance]);
-
-
-
-
-            }
-
-
-            $message = json_encode($get_depo);
-            send_notification($message);
-
-
+        $get_user = User::where('email', $request->email)->first();
+        if (!$get_user) {
             return response()->json([
-                'status' => true,
-                'message' => "NGN $amount has been successfully added to your wallet",
+                'status' => false,
+                'message' => 'No user found, please check email and try again',
+            ]);
+        }
+
+        $old_balance = $get_user->wallet;
+        $new_balance = $old_balance + $request->amount;
+
+        $get_user->increment('wallet', $request->amount);
+
+        $amount = number_format($request->amount, 2);
+
+        $get_depo = Transaction::where('ref_id', $request->order_id)->first();
+
+        if (!$get_depo) {
+            $trx = new Transaction();
+            $trx->ref_id      = $request->order_id;
+            $trx->user_id     = $get_user->id;
+            $trx->status      = 2;
+            $trx->amount      = $request->amount;
+            $trx->balance     = $new_balance;
+            $trx->old_balance = $old_balance;
+            $trx->type        = 2;
+            $trx->save();
+
+            WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
+            WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
+
+        } else {
+            Transaction::where('ref_id', $request->order_id)->update([
+                'status'      => 2,
+                'balance'     => $new_balance,
+                'old_balance' => $old_balance,
             ]);
 
+            WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
+            WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
+        }
 
-
-
-
+        return response()->json([
+            'status' => true,
+            'message' => "NGN $amount has been successfully added to your wallet",
+        ]);
     }
+
 
     public
     function user(request $request)
