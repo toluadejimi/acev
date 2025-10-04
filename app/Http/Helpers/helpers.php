@@ -295,6 +295,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     $result = $var ?? null;
 
 
+    Log::info("Diasy Response ====>>>". json_encode($result));
 
     if (strstr($result, "NO_NUMBERS") !== false) {
 
