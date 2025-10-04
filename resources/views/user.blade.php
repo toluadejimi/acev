@@ -130,6 +130,54 @@
 
 
 
+                                   <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#fundsModal-{{ $trx->id }}">
+                                       Add/Remove Funds
+                                   </a>
+
+                                   <!-- Modal -->
+                                   <div class="modal fade" id="fundsModal-{{ $trx->id }}" tabindex="-1" aria-labelledby="fundsModalLabel-{{ $trx->id }}" aria-hidden="true">
+                                       <div class="modal-dialog">
+                                           <div class="modal-content">
+
+                                               <div class="modal-header">
+                                                   <h5 class="modal-title" id="fundsModalLabel-{{ $trx->id }}"> Manage Funds for {{ $trx->username }} | Balance {{number_format($trx->wallet, 2)}}</h5>
+                                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                               </div>
+
+                                               <form action="{{ route('user.funds.update', $trx->id) }}" method="POST">
+                                                   @csrf
+                                                   <div class="modal-body">
+                                                       <!-- Action Type -->
+                                                       <div class="mb-3">
+                                                           <label for="actionType" class="form-label">Action</label>
+                                                           <select name="action" id="actionType" class="form-select" required>
+                                                               <option value="add">Add Funds</option>
+                                                               <option value="remove">Remove Funds</option>
+                                                           </select>
+                                                       </div>
+
+                                                       <!-- Amount -->
+                                                       <div class="mb-3">
+                                                           <label for="amount" class="form-label">Amount</label>
+                                                           <input type="number" name="amount" id="amount" class="form-control" min="1" required>
+                                                       </div>
+
+                                                       <!-- Optional Note -->
+                                                       <div class="mb-3">
+                                                           <label for="note" class="form-label">Note (optional)</label>
+                                                           <textarea name="note" id="note" class="form-control"></textarea>
+                                                       </div>
+                                                   </div>
+
+                                                   <div class="modal-footer">
+                                                       <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                       <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                                   </div>
+                                               </form>
+                                           </div>
+                                       </div>
+                                   </div>
+
                             </td>
 
                         </tr>

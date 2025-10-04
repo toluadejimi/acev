@@ -132,6 +132,8 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
 
 
+    Route::post('/user/{id}/funds', [HomeController::class, 'updateFunds'])->name('user.funds.update');
+
 
     Route::post('order-usano',  [HomeController::class,'order_now']);
 
