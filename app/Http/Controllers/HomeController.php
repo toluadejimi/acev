@@ -274,10 +274,10 @@ class HomeController extends Controller
 
 
         if ($order == 1) {
-
-            $data['status']  = 1;
-            $data['message'] =  "Successful";
-            return $data;
+            return response()->json([
+                'status' => 1,
+                'message' => "Successful"
+            ]);
         }
     }
 
