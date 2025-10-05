@@ -75,10 +75,6 @@ class HomeController extends Controller
     {
 
         $data['services'] = get_services();
-
-
-        Log::info(json_encode($data['services'] ));
-
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
