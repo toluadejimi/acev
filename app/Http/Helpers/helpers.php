@@ -330,7 +330,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
             }
 
 
-            $finalCost = $cost + ($cost * 0.20);
+            $finalCost = $price + ($cost * 0.20);
 
 
             $ver = new Verification();
