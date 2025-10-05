@@ -389,18 +389,18 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
 
         $get_balance = User::where('id', Auth::id())->first()->wallet;
-        $balance = $get_balance - $cost;
+        $balance = $get_balance - $price;
 
-        User::where('id', Auth::id())->decrement('wallet', $cost);
-        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $cost);
-        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $cost);
+        User::where('id', Auth::id())->decrement('wallet', $price);
+        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $price);
+        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $price);
 
 
         $trx = new Transaction();
         $trx->ref_id = "Verification-$id";
         $trx->user_id = Auth::id();
         $trx->status = 2;
-        $trx->amount = $cost;
+        $trx->amount = $price;
         $trx->balance = $balance;
         $trx->old_balance = $get_balance;
         $trx->type = 1;
@@ -411,7 +411,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     }
 
-    Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $gcost");
+    Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $cost");
 
 
     if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
