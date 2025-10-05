@@ -71,37 +71,34 @@
 
                             <p class="d-flex justify-content-center">You are on 🇺🇸 USA Numbers only Panel</p>
 
+
                             <div class="p-2 col-lg-12 position-relative">
                                 <!-- Search input + settings -->
                                 <div class="d-flex align-items-center">
-                                    <input type="text" id="searchInput" class="form-control"
-                                           placeholder="Search for a service...">
-
-                                    <!-- Settings icon -->
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search for a service...">
                                     <button class="btn btn-outline-secondary ms-2" id="toggleSettings" type="button">
                                         <i class="bi bi-gear"></i>
                                     </button>
                                 </div>
 
                                 <!-- Dropdown (services) -->
-                                <div id="servicesDropdown" class="list-group mt-2 position-absolute w-100  bg-white shadow-sm"
+                                <div id="servicesDropdown" class="list-group mt-2 position-absolute w-100 bg-white shadow-sm"
                                      style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
-                                    @foreach ($services as $key => $value)
-                                        @foreach ($value as $innerKey => $innerValue)
-                                            @php $cost = $get_rate * $innerValue->cost + $margin; @endphp
-                                            <a href="javascript:void(0);"
-                                               class="list-group-item list-group-item-action service-option"
-                                               data-service="{{ $innerValue->name }}"
-                                               data-key="{{ $key }}"
-                                                data-cost="{{ $cost }}">
-                                                <span style="font-size: 12px">{{ $innerValue->name }}</span>
-                                                <span class="float-end"><strong>N{{ number_format($cost, 2) }}</strong></span>
-                                            </a>
-                                        @endforeach
+                                    @foreach ($allServices as $service)
+                                        @php $cost = $get_rate * $service->cost + $margin; @endphp
+                                        <a href="javascript:void(0);"
+                                           class="list-group-item list-group-item-action service-option"
+                                            data-service="{{ $service->name }}"
+                                            data-provider="{{ $service->provider }}"
+                                            data-cost="{{ $service->cost }}"
+                                            data-price="{{ number_format($cost, 2, '.', '') }}">
+                                            <span style="font-size: 12px">{{ $service->name }}</span>
+                                            <span class="float-end"><strong>N{{ number_format($cost, 2) }}</strong></span>
+                                        </a>
                                     @endforeach
                                 </div>
 
-                                <!-- Extra fields (hidden by default) -->
+                                <!-- Extra fields -->
                                 <div id="extraFields" class="card p-2 shadow-sm mt-2" style="display: none;">
                                     <div class="mb-2">
                                         <label class="my-1">Area codes</label>
@@ -110,15 +107,12 @@
                                     <div>
                                         <label class="my-1">Carriers</label>
                                         <select id="carrier" class="form-control" placeholder="Enter Carrier">
-                                            <option value=" "> Any Carrier</option>
-                                            <option value="tmo"> T-Mobile</option>
+                                            <option value="">Any Carrier</option>
+                                            <option value="tmo">T-Mobile</option>
                                             <option value="vz">Verizon</option>
                                             <option value="att">AT&T</option>
-
                                         </select>
                                     </div>
-
-
                                     <p style="color:#8e0404;" class="my-3 d-flex justify-content-center">This may attract extra 20% charge</p>
                                 </div>
                             </div>
@@ -133,23 +127,24 @@
                                 const searchInput = document.getElementById("searchInput");
                                 const servicesDropdown = document.getElementById("servicesDropdown");
                                 const extraFields = document.getElementById("extraFields");
-                                const serviceOptions = document.querySelectorAll(".service-option");
                                 const rentButton = document.getElementById("rentNumberBtn");
 
                                 let selectedService = null;
                                 let selectedCost = null;
-                                let selectedKey = null;
+                                let selectedPrice = null;
+                                let selectedProvider = null;
 
-
+                                // Show dropdown on focus
                                 searchInput.addEventListener("focus", () => {
                                     servicesDropdown.style.display = "block";
                                 });
 
+                                // Filter services dynamically
                                 searchInput.addEventListener("keyup", () => {
                                     const filter = searchInput.value.toLowerCase();
                                     let visibleCount = 0;
 
-                                    serviceOptions.forEach(option => {
+                                    document.querySelectorAll("#servicesDropdown .service-option").forEach(option => {
                                         const text = option.dataset.service.toLowerCase();
                                         if (text.includes(filter)) {
                                             option.style.display = "block";
@@ -162,45 +157,51 @@
                                     servicesDropdown.style.display = visibleCount > 0 ? "block" : "none";
                                 });
 
-                                serviceOptions.forEach(option => {
-                                    option.addEventListener("click", function () {
-                                        selectedService = this.dataset.service;
-                                        selectedCost = this.dataset.cost;
-                                        selectedKey = this.dataset.key;
+                                // Event delegation for service selection
+                                servicesDropdown.addEventListener("click", function(e) {
+                                    const option = e.target.closest(".service-option");
+                                    if (!option) return;
 
-                                        searchInput.value = `${selectedService} - ₦${selectedCost}`;
-                                        servicesDropdown.style.display = "none";
+                                    selectedService = option.dataset.service;
+                                    selectedCost = option.dataset.cost;
+                                    selectedProvider = option.dataset.provider;
+                                    selectedPrice = option.dataset.price;
 
-                                        rentButton.disabled = false;
-                                    });
+                                    searchInput.value = `${selectedService}`;
+                                    servicesDropdown.style.display = "none";
+
+                                    rentButton.disabled = false;
                                 });
 
+                                // Hide dropdown if click outside
                                 document.addEventListener("click", (event) => {
                                     if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && !extraFields.contains(event.target)) {
                                         servicesDropdown.style.display = "none";
                                     }
                                 });
 
-                                document.getElementById("toggleSettings").addEventListener("click", function () {
-                                    extraFields.style.display = (extraFields.style.display === "none") ? "block" : "none";
+                                // Toggle extra fields
+                                document.getElementById("toggleSettings").addEventListener("click", () => {
+                                    extraFields.style.display = extraFields.style.display === "none" ? "block" : "none";
                                 });
 
-
+                                // Rent number button
                                 rentButton.addEventListener("click", () => {
                                     if (!selectedService) return;
 
                                     rentButton.disabled = true;
                                     rentButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
 
-                                    const areaCode = document.getElementById("areaCode").value;
-                                    const carrier = document.getElementById("carrier").value;
+                                    const areaCode = document.getElementById("areaCode").value || null;
+                                    const carrier = document.getElementById("carrier").value || null;
 
                                     const payload = {
-                                        key: selectedKey,
+                                        provider: selectedProvider,
                                         service: selectedService,
                                         cost: selectedCost,
-                                        areaCode: areaCode || null,
-                                        carrier: carrier || null
+                                        price: selectedPrice,
+                                        areaCode: areaCode,
+                                        carrier: carrier
                                     };
 
                                     fetch("/order-usano", {
@@ -213,13 +214,12 @@
                                     })
                                         .then(response => response.json())
                                         .then(res => {
+                                            rentButton.disabled = false;
+                                            rentButton.innerHTML = '<i class="bi bi-telephone"></i> Rent Number';
 
                                             if (res.status && res.reload) {
                                                 window.location.reload();
-                                            }
-
-
-                                            if (res.status === true) {
+                                            } else if (res.status === true) {
                                                 Swal.fire({
                                                     title: "Success 🎉",
                                                     text: res.message || "Your purchase was successful!",
@@ -227,16 +227,13 @@
                                                     timer: 3000,
                                                     showConfirmButton: false
                                                 });
-                                            }
-                                            else if (res.status === 1) {
-                                                window.location.reload();
-                                            }
-                                            else {
+                                            } else {
                                                 Swal.fire("Error ❌", res.message || "Purchase failed", "error");
                                             }
-                                        })
+                                        });
                                 });
                             </script>
+
 
 
                         </div>

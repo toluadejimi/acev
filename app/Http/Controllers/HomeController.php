@@ -74,7 +74,17 @@ class HomeController extends Controller
     public function home(request $request)
     {
 
-        $data['services'] = get_services();
+        $services = get_services();
+
+        $allServices = [];
+        foreach ($services as $provider => $items) {
+            foreach ($items as $id => $service) {
+                $allServices[] = (object) array_merge((array) $service, ['provider' => $provider]);
+            }
+        }
+
+        $data['allServices'] = $allServices;
+
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
@@ -97,7 +107,6 @@ class HomeController extends Controller
 
         $data['services'] = $result['availableServices'] ?? [];
         $data['zips']     = $result['availableZips'] ?? [];
-
 
 
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
@@ -211,15 +220,15 @@ class HomeController extends Controller
         }
 
 
-        $service = $request->key;
-        $price = $request->cost;
+        $service = $request->provider;
+        $price = $request->price;
         $cost = $request->cost;
         $service_name = $request->service;
         $area_code = $request->areaCode;
         $carrier = $request->carrier;
 
 
-        $order = create_order($service, $request->cost, $cost, $service_name, $gcost,  $area_code, $carrier);
+        $order = create_order($service, $price, $cost, $service_name, $gcost,  $area_code, $carrier);
 
         if ($order == 8) {
             $data['status'] = false;

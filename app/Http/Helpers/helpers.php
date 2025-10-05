@@ -240,6 +240,7 @@ function get_services()
 function create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier)
 {
 
+
     $APIKEY = env('KEY');
 
 
@@ -264,7 +265,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     if($area_code != null && $carrier != null){
 
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$gcost&areas=$area_code&carriers=$carrier";
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&areas=$area_code&carriers=$carrier";
 
         $finalCost = $cost + ($cost * 0.20);
         if (Auth::user()->wallet < $finalCost) {
@@ -274,7 +275,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
 
     }else{
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$gcost";
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost";
     }
 
     $curl = curl_init();
