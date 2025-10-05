@@ -295,7 +295,6 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     curl_close($curl);
     $result = $var ?? null;
 
-
     if (strstr($result, "NO_NUMBERS") !== false) {
 
         return 56;
