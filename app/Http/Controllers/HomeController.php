@@ -236,6 +236,12 @@ class HomeController extends Controller
             return $data;
         }
 
+        if ($order == 54) {
+            $data['status'] = false;
+            $data['message'] =  "Price has been updated, Please re-order number";
+            return $data;
+        }
+
         if ($order == 7) {
             Auth::logout();
             return redirect('login')->with('error', "Please Contact admin");

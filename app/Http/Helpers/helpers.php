@@ -301,6 +301,15 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     }
 
+    if (strstr($result, "MAX_PRICE_EXCEEDED") !== false) {
+
+        return 54;
+
+    }
+
+
+
+
     if (strstr($result, "ACCESS_NUMBER") !== false) {
 
 
