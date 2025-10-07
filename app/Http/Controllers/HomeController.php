@@ -71,6 +71,19 @@ class HomeController extends Controller
     }
 
 
+    public function check_more_sms(Request $request)
+    {
+
+        $get_id = Verification::where('phone', $request->num)->first()->id;
+        $codes = VerificationSms::where('verification_id', $get_id)->get();
+        return response()->json($codes);
+
+
+
+
+    }
+
+
     public function home(request $request)
     {
 
@@ -938,7 +951,11 @@ class HomeController extends Controller
         $sms = Verification::where('phone', $request->num)->first()->sms ?? null;
         $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
 
-        check_sms($order_id);
+
+
+        $ck_order = check_sms($order_id);
+
+
 
         $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
 
@@ -1155,9 +1172,9 @@ class HomeController extends Controller
 
             $user = User::where('id', $order->user_id)->lockForUpdate()->first();
 
-            $old_balance = $user->wallet;                     // ✅ capture old balance
-            $user->increment('wallet', $order->cost);         // refund
-            $new_balance = $old_balance + $order->cost;       // ✅ calculate new balance
+            $old_balance = $user->wallet;
+            $user->increment('wallet', $order->cost);
+            $new_balance = $old_balance + $order->cost;
 
             WalletCheck::where('user_id', $order->user_id)
                 ->increment('wallet_amount', $order->cost);

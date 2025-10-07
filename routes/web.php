@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UnlimitedPortalController;
 use App\Http\Controllers\WorldNumberController;
 use Illuminate\Support\Facades\Route;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
@@ -37,6 +38,10 @@ Route::get('/clear2', function() {
 });
 
 Route::any('getInitialCountdown',  [HomeController::class,'getInitialCountdown']);
+
+
+
+
 
 
 
@@ -93,12 +98,27 @@ Route::any('get-smscode',  [HomeController::class,'get_smscode']);
 
 Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
+
+
+    Route::controller(UnlimitedPortalController::class)->group(function () {
+
+        Route::post('order-usa2',  'order_now');
+        Route::post('delete-order-usa2',  'delete_order');
+        Route::get('get-smscode-usa2',  'check_sms_usa2');
+
+        Route::get('/usa2', 'server_2_index');
+    });
+
+
+
     Route::get('us',  [HomeController::class,'home']);
 
     Route::delete('/delete-user/{id}', [HomeController::class, 'destroy_user'])->name('delete-user');
 
 
+
     Route::any('home',  [HomeController::class,'home']);
+    Route::any('check-more-sms',  [HomeController::class,'check_more_sms']);
     Route::get('/us2', [HomeController::class, 'usaserver2']);
     Route::any('world',  [WorldNumberController::class,'home']);
     Route::any('check-av',  [WorldNumberController::class,'check_av']);
