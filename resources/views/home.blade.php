@@ -247,6 +247,7 @@
 
 
 
+
                 @auth
                     <div class="col-md-6">
                         <div class="card">
@@ -264,308 +265,337 @@
                                     <div>
 
 
-                                        <div class="table-responsive ">
-                                            <table class="table">
-                                                <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Service</th>
-                                                    <th>Phone No</th>
-                                                    <th>Code</th>
-                                                    <th>Time Remain</th>
-                                                    <th>Price</th>
-                                                    <th>Status</th>
-                                                    <th>Date</th>
+                                        <div class="card shadow-sm border-0">
+                                            <div
+                                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0 text-white">Verification Requests</h6>
+                                            </div>
 
-
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-
-
-                                                @forelse($verification as $data)
+                                            <div class="table-responsive">
+                                                <table class="table  table-striped align-middle mb-0"
+                                                       id="verificationTable">
+                                                    <thead class="table-light">
                                                     <tr>
-                                                        <td style="font-size: 12px;">{{ $data->id }}</td>
-                                                        <td style="font-size: 12px;">{{ $data->service }}</td>
-                                                        <td style="font-size: 12px; color: green">{{ $data->phone }}
-                                                        </td>
+                                                        <th>ID</th>
+                                                        <th>Service</th>
+                                                        <th>Phone No</th>
+                                                        <th>Code</th>
+                                                        <th>Time Left</th>
+                                                        <th>Price</th>
+                                                        <th>Status</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @forelse($verification as $data)
+                                                        <tr>
+                                                            <td>{{ $data->id }}</td>
+                                                            <td>{{ $data->service }}</td>
+                                                            <td class="text-success fw-semibold">{{ $data->phone }}</td>
 
-                                                        @if($data->sms != null)
-                                                            <td style="font-size: 12px;">{{ $data->sms }}
-                                                            </td>
-                                                        @else
-                                                            <style>
-                                                                /* HTML: <div class="loader"></div> */
-                                                                .loader {
-                                                                    width: 50px;
-                                                                    aspect-ratio: 1;
-                                                                    display: grid;
-                                                                    animation: l14 4s infinite;
-                                                                }
-
-                                                                .loader::before,
-                                                                .loader::after {
-                                                                    content: "";
-                                                                    grid-area: 1/1;
-                                                                    border: 8px solid;
-                                                                    border-radius: 50%;
-                                                                    border-color: red red #0000 #0000;
-                                                                    mix-blend-mode: darken;
-                                                                    animation: l14 1s infinite linear;
-                                                                }
-
-                                                                .loader::after {
-                                                                    border-color: #0000 #0000 blue blue;
-                                                                    animation-direction: reverse;
-                                                                }
-
-                                                                @keyframes l14 {
-                                                                    100% {
-                                                                        transform: rotate(1turn)
-                                                                    }
-                                                                }
-                                                            </style>
-
-                                                            <style>#l1 {
-                                                                    width: 15px;
-                                                                    aspect-ratio: 1;
-                                                                    border-radius: 50%;
-                                                                    border: 1px solid;
-                                                                    border-color: #000 #0000;
-                                                                    animation: l1 1s infinite;
-                                                                }
-
-                                                                @keyframes l1 {
-                                                                    to {
-                                                                        transform: rotate(.5turn)
-                                                                    }
-                                                                }
-                                                            </style>
 
                                                             <td>
-                                                                <div id="l1" class="justify-content-start">
-                                                                </div>
-                                                                <div>
-                                                                    <input style=" " class="border-0"
-                                                                           id="response-input{{$data->id}}">
-                                                                </div>
+                                                                @if($data->sms)
+                                                                    <div
+                                                                        class="d-flex align-items-center justify-content-between">
+                                                                            <span id="data-sm{{ $data->id }}"
+                                                                                  class="sms-code"
+                                                                                  style="cursor: pointer;"
+                                                                                  title="Click to copy">
+                                                                                {{ $data->sms }}
+                                                                            </span>
 
+                                                                        <button
+                                                                            class="btn btn-sm btn-outline-primary ms-3"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#extraSmsModal{{ $data->id }}">
+                                                                            <i class="bi bi-chat-dots"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <div
+                                                                            class="spinner-border text-danger spinner-border-sm"
+                                                                            role="status"></div>
+                                                                        <input
+                                                                            class="form-control form-control-sm border-0"
+                                                                            id="response-input{{ $data->id }}" readonly>
+                                                                    </div>
+
+                                                                    <script>
+                                                                        const endpoint{{ $data->id }} = '{{ $data->type === 3 ? url('get-smscode-usa2?num='.$data->phone) : url('get-smscode?num='.$data->phone) }}';
+
+                                                                        function updateSMS{{ $data->id }}() {
+                                                                            fetch(endpoint{{ $data->id }})
+                                                                                .then(res => res.json())
+                                                                                .then(data => document.getElementById('response-input{{ $data->id }}').value = data.message)
+                                                                                .catch(err => console.error(err));
+                                                                        }
+
+                                                                        updateSMS{{ $data->id }}();
+                                                                        setInterval(updateSMS{{ $data->id }}, 5000);
+                                                                    </script>
+                                                                @endif
+
+                                                                <!-- Modal -->
+                                                                <div class="modal fade"
+                                                                     id="extraSmsModal{{ $data->id }}" tabindex="-1"
+                                                                     aria-hidden="true">
+                                                                    <div
+                                                                        class="modal-dialog modal-dialog-centered modal-lg">
+                                                                        <div
+                                                                            class="modal-content glassy-modal p-3 position-relative">
+                                                                            <button type="button"
+                                                                                    class="btn-close position-absolute end-0 top-0 m-3"
+                                                                                    data-bs-dismiss="modal"></button>
+
+                                                                            <div class="modal-header border-0">
+                                                                                <h5 class="modal-title fw-semibold text-white">
+                                                                                    <i class="bi bi-chat-square-text me-2"></i>
+                                                                                    Extra SMS Codes
+                                                                                </h5>
+                                                                            </div>
+
+                                                                            <div class="modal-body text-white">
+                                                                                <div
+                                                                                    class="d-flex justify-content-between align-items-center mb-3">
+                                                                                    <small
+                                                                                        class="text-light opacity-75">Phone: {{ $data->phone }}</small>
+                                                                                    <button
+                                                                                        class="btn btn-sm btn-outline-light"
+                                                                                        id="refreshSmsBtn{{ $data->id }}">
+                                                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                                                        Refresh
+                                                                                    </button>
+                                                                                </div>
+
+                                                                                <div id="extraSmsList{{ $data->id }}"
+                                                                                     class="list-group small border-0 rounded-3 glassy-list shadow-sm"
+                                                                                     style="max-height: 300px; overflow-y: auto;">
+                                                                                    <div
+                                                                                        class="text-center py-3 text-light opacity-75"
+                                                                                        id="smsLoading{{ $data->id }}">
+                                                                                        Loading...
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
                                                                 <script>
-                                                                    makeRequest{{$data->id}}();
-                                                                    setInterval(makeRequest{{$data->id}}, 5000);
 
-                                                                    function makeRequest{{$data->id}}() {
-                                                                        fetch('{{ url('') }}/get-smscode?num={{ $data->phone }}')
-                                                                            .then(response => {
-                                                                                if (!response.ok) {
-                                                                                    throw new Error(`HTTP error! Status: ${response.status}`);
-                                                                                }
-                                                                                return response.json();
-                                                                            })
-                                                                            .then(data => {
-
-                                                                                console.log(data.message);
-                                                                                displayResponse{{$data->id}}(data.message);
-
-                                                                            })
-                                                                            .catch(error => {
-                                                                                console.error('Error:', error);
-                                                                                displayResponse{{$data->id}}({
-                                                                                    error: 'An error occurred while fetching the data.'
-                                                                                });
+                                                                    document.querySelectorAll('.sms-code').forEach(el => {
+                                                                        el.addEventListener('click', () => {
+                                                                            const sms = el.textContent.trim();
+                                                                            navigator.clipboard.writeText(sms).then(() => {
+                                                                                el.innerHTML = sms + ' <i class="bi bi-check2 text-success"></i>';
+                                                                                setTimeout(() => {
+                                                                                    el.innerHTML = sms;
+                                                                                }, 1200);
+                                                                            }).catch(err => {
+                                                                                console.error('Copy failed:', err);
                                                                             });
-                                                                    }
-
-                                                                    function displayResponse{{$data->id}}(data) {
-                                                                        const responseInput = document.getElementById('response-input{{$data->id}}');
-                                                                        responseInput.value = data;
-                                                                    }
-
-                                                                </script>
-                                                            </td>
-                                                        @endif
-
-                                                        @if($data->status == 1)
-                                                            <td><p style="font-size: 16px; color: #e00101"
-                                                                   id="secondsDisplay{{$data->id}}"></p></td>
-                                                            <script>
-                                                                // Function to fetch initial countdown value from the database
-                                                                async function fetchInitialCountdown{{$data->id}}() {
-                                                                    try {
-                                                                        const response = await fetch('{{url('')}}/getInitialCountdown?id={{$data->id}}');
-                                                                        if (!response.ok) {
-                                                                            throw new Error('Network response was not ok');
-                                                                        }
-                                                                        const data = await response.json();
-                                                                        return data.seconds;
-                                                                    } catch (error) {
-                                                                        console.error('Error fetching initial countdown:', error);
-                                                                        return 0;
-                                                                    }
-                                                                }
-
-                                                                // Function to update the displayed countdown
-                                                                function updateDisplay{{$data->id}}(seconds) {
-                                                                    document.getElementById('secondsDisplay{{$data->id}}').textContent = seconds;
-                                                                }
-
-                                                                // Function to update the database with current seconds
-                                                                function updateDatabase{{$data->id}}(seconds) {
-                                                                    fetch('{{url('')}}/api/updatesec', {
-                                                                        method: 'POST',
-                                                                        headers: {
-                                                                            'Content-Type': 'application/json',
-                                                                        },
-
-                                                                        body: JSON.stringify({
-                                                                            id: {{$data->id}},
-                                                                            secs: seconds,
-                                                                        }),
-                                                                    })
-                                                                        .then(response => {
-                                                                            if (!response.ok) {
-                                                                                throw new Error('Network response was not ok');
-                                                                            }
-                                                                            console.log('Updated seconds:', seconds);
-                                                                        })
-                                                                        .catch(error => {
-                                                                            console.error('Error updating seconds:', error);
                                                                         });
-                                                                }
-
-
-                                                                function updateStatus{{$data->id}}() {
-                                                                    fetch('{{url('')}}/api/delete-order', {
-                                                                        method: 'POST',
-                                                                        headers: {
-                                                                            'Content-Type': 'application/json',
-                                                                        },
-                                                                        body: JSON.stringify({
-                                                                            id:{{$data->id}},
-                                                                        }),
-                                                                    })
-                                                                        .then(response => {
-                                                                            if (!response.ok) {
-                                                                                throw new Error('Network response was not ok');
-                                                                            }
-
-                                                                            location.reload();
-
-                                                                            console.log(response.json());
-                                                                        })
-
-                                                                        .catch(error => {
-                                                                            console.error('Error updating status:', error);
-                                                                        });
-                                                                }
-
-                                                                // Countdown timer
-                                                                async function countdownTimer{{$data->id}}() {
-                                                                    let seconds = await fetchInitialCountdown{{$data->id}}();
-                                                                    // Initial update to start the countdown
-                                                                    updateDisplay{{$data->id}}(seconds);
-                                                                    updateDatabase{{$data->id}}(seconds);
-
-                                                                    const interval = setInterval(function () {
-                                                                        seconds--;
-
-                                                                        // Update displayed seconds
-                                                                        updateDisplay{{$data->id}}(seconds);
-
-                                                                        // Update database every 5 seconds
-                                                                        if (seconds % 5 === 0) {
-                                                                            updateDatabase{{$data->id}}(seconds);
-                                                                        }
-
-                                                                        // When countdown reaches zero, update status, stop interval and update display
-                                                                        if (seconds <= 0) {
-                                                                            clearInterval(interval);
-                                                                            updateStatus{{$data->id}}();
-                                                                            updateDisplay{{$data->id}}(0);
-                                                                        }
-                                                                    }, 1000); // Timer ticks every second
-                                                                }
-
-                                                                document.addEventListener('DOMContentLoaded', function () {
-                                                                    countdownTimer{{$data->id}}();
-                                                                });
-                                                            </script>
-                                                        @endif
-
-                                                        <td style="font-size: 12px;">
-                                                            ₦{{ number_format($data->cost, 2) }}</td>
-                                                        <td>
-                                                            @if ($data->status == 1)
-                                                                <span
-                                                                    style="background: orange; border:0px; font-size: 10px"
-                                                                    class="btn btn-warning btn-sm">Pending</span>
-
-                                                                <form method="POST" action="delete-order?id={{ $data->id }}&delete=1"
-                                                                      style="display: inline;"
-                                                                      onsubmit="return confirmDelete(event, this);">
-                                                                    @csrf
-                                                                    <button type="submit"
-                                                                            style="background: rgb(168, 0, 14); border:0px; font-size: 10px"
-                                                                            class="btn btn-warning btn-sm hideButton">
-                                                                        Delete
-                                                                    </button>
-                                                                </form>
-
-                                                                <script>
-                                                                    function confirmDelete(event, form) {
-                                                                        event.preventDefault();
-
-                                                                        Swal.fire({
-                                                                            title: 'Are you sure?',
-                                                                            text: "Do you want to cancel this order?",
-                                                                            icon: 'question',
-                                                                            showCancelButton: true,
-                                                                            confirmButtonColor: '#3085d6',
-                                                                            cancelButtonColor: '#d33',
-                                                                            confirmButtonText: 'Proceed',
-                                                                            cancelButtonText: 'Cancel'
-                                                                        }).then((result) => {
-                                                                            if (result.isConfirmed) {
-                                                                                form.submit();
-                                                                            }
-                                                                        });
-
-                                                                        return false;
-                                                                    }
-                                                                </script>
-
-                                                            @else
-                                                                <span style="font-size: 10px;"
-                                                                      class="text-white btn btn-success btn-sm">Completed</span>
-                                                            @endif
-
-
-
-                                                            <script>
-                                                                const buttons = document.querySelectorAll('.hideButton');
-                                                                buttons.forEach(button => {
-                                                                    button.addEventListener('click', function() {
-                                                                        this.style.display = 'none';
                                                                     });
-                                                                });
-                                                            </script>
 
-                                                        </td>
-                                                        <td id="datetime{{$data->id}}"
-                                                            style="font-size: 12px;">{{ $data->created_at }}</td>
-                                                    </tr>
+                                                                    const modalTrigger{{ $data->id }} = document.querySelector('[data-bs-target="#extraSmsModal{{ $data->id }}"]');
 
-                                                @empty
-
-                                                    <h6>No verification found</h6>
-                                                @endforelse
-
-                                                </tbody>
+                                                                    modalTrigger{{ $data->id }}.addEventListener('click', () => {
+                                                                        const smsList = document.getElementById('extraSmsList{{ $data->id }}');
+                                                                        const loading = document.getElementById('smsLoading{{ $data->id }}');
+                                                                        smsList.innerHTML = '';
+                                                                        loading.textContent = 'Fetching extra codes...';
 
 
-                                            </table>
+                                                                        fetch(`{{ url('check-more-sms') }}?num={{ $data->phone }}`)
+                                                                            .then(res => res.json())
+                                                                            .then(data => {
+                                                                                smsList.innerHTML = '';
+
+                                                                                // ✅ Handle both array and object response
+                                                                                const messages = Array.isArray(data) ? data : data.codes || [];
+
+                                                                                if (messages.length > 0) {
+                                                                                    messages.forEach((msg, index) => {
+                                                                                        const code = msg.sms ?? msg; // support either object or string
+                                                                                        smsList.innerHTML += `
+                                                                                        <div class="list-group-item bg-transparent border-bottom d-flex justify-content-between align-items-center text-white clickable-code" data-code="${code}">
+                                                                                            <span>${code}</span>
+                                                                                            <span class="badge bg-success bg-opacity-75">#${index + 1}</span>
+                                                                                        </div>`;
+                                                                                    });
+
+                                                                                    smsList.querySelectorAll('.clickable-code').forEach(el => {
+                                                                                        el.addEventListener('click', () => {
+                                                                                            const code = el.getAttribute('data-code');
+                                                                                            fetch(`{{ url('check-more-sms') }}?num={{ $data->phone }}&code=${code}`)
+                                                                                                .then(r => r.json())
+                                                                                        });
+                                                                                    });
+                                                                                } else {
+                                                                                    smsList.innerHTML = '<div class="text-center py-3 text-light opacity-75">No extra codes found</div>';
+                                                                                }
+                                                                            })
+                                                                    });
+
+                                                                    document.getElementById('refreshSmsBtn{{ $data->id }}').addEventListener('click', () => {
+                                                                        const btn = document.getElementById('refreshSmsBtn{{ $data->id }}');
+                                                                        btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Reloading...';
+                                                                        setTimeout(() => location.reload(), 700);
+                                                                    });
+                                                                </script>
+
+                                                                <style>
+
+                                                                    .spin {
+                                                                        display: inline-block;
+                                                                        animation: spin 0.8s linear infinite;
+                                                                    }
+
+                                                                    @keyframes spin {
+                                                                        100% {
+                                                                            transform: rotate(360deg);
+                                                                        }
+                                                                    }
+
+                                                                    /* Glassmorphism Modal */
+                                                                    .glassy-modal {
+                                                                        background: rgba(20, 20, 40, 0.6);
+                                                                        backdrop-filter: blur(18px);
+                                                                        border-radius: 20px;
+                                                                        border: 1px solid rgba(255, 255, 255, 0.1);
+                                                                        color: #fff;
+                                                                        animation: fadeInUp 0.4s ease;
+                                                                    }
+
+                                                                    /* Glassy List */
+                                                                    .glassy-list .list-group-item {
+                                                                        transition: background 0.3s, transform 0.2s;
+                                                                    }
+
+                                                                    .glassy-list .list-group-item:hover {
+                                                                        background: rgba(255, 255, 255, 0.1);
+                                                                        transform: scale(1.02);
+                                                                        cursor: pointer;
+                                                                    }
+
+                                                                    /* Animation */
+                                                                    @keyframes fadeInUp {
+                                                                        from {
+                                                                            opacity: 0;
+                                                                            transform: translateY(15px);
+                                                                        }
+                                                                        to {
+                                                                            opacity: 1;
+                                                                            transform: translateY(0);
+                                                                        }
+                                                                    }
+                                                                </style>
+                                                            </td>
+
+
+                                                            {{-- COUNTDOWN TIMER --}}
+                                                            <td>
+                                                                @if($data->status == 1)
+                                                                    <p class="text-danger fw-bold mb-0"
+                                                                       id="secondsDisplay{{$data->id}}"></p>
+
+                                                                    <script>
+                                                                        async function fetchSeconds{{$data->id}}() {
+                                                                            const res = await fetch('{{url('getInitialCountdown')}}?id={{$data->id}}');
+                                                                            const data = await res.json();
+                                                                            return data.seconds || 0;
+                                                                        }
+
+                                                                        async function startCountdown{{$data->id}}() {
+                                                                            let secs = await fetchSeconds{{$data->id}}();
+                                                                            const display = document.getElementById('secondsDisplay{{$data->id}}');
+                                                                            display.textContent = secs;
+                                                                            const timer = setInterval(() => {
+                                                                                secs--;
+                                                                                display.textContent = secs;
+                                                                                if (secs <= 0) {
+                                                                                    clearInterval(timer);
+                                                                                    fetch('{{url('api/delete-order')}}', {
+                                                                                        method: 'POST',
+                                                                                        headers: {'Content-Type': 'application/json'},
+                                                                                        body: JSON.stringify({id: {{$data->id}}})
+                                                                                    }).then(() => location.reload());
+                                                                                }
+                                                                            }, 1000);
+                                                                        }
+
+                                                                        document.addEventListener('DOMContentLoaded', startCountdown{{$data->id}});
+                                                                    </script>
+                                                                @endif
+                                                            </td>
+
+                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
+
+                                                            {{-- STATUS + ACTIONS --}}
+                                                            <td>
+                                                                @if ($data->status == 1)
+                                                                    <span
+                                                                        class="badge bg-warning text-dark">Pending</span>
+                                                                    <form method="POST"
+                                                                          action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                                                          class="d-inline-block"
+                                                                          onsubmit="return confirmDelete(event, this);">
+                                                                        @csrf
+                                                                        <button type="submit"
+                                                                                class="btn btn-sm btn-danger ms-1">
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
+                                                                @else
+                                                                    <span class="badge bg-success">Completed</span>
+                                                                @endif
+                                                            </td>
+
+                                                            <td>{{ $data->created_at }}</td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-muted py-3">No
+                                                                verification found
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
+
+                                        {{-- SweetAlert Confirm --}}
+                                        <script>
+                                            function confirmDelete(event, form) {
+                                                event.preventDefault();
+                                                Swal.fire({
+                                                    title: 'Cancel order?',
+                                                    text: 'Are you sure you want to cancel this verification?',
+                                                    icon: 'question',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Yes, delete it',
+                                                    cancelButtonText: 'No, keep it'
+                                                }).then(result => {
+                                                    if (result.isConfirmed) form.submit();
+                                                });
+                                                return false;
+                                            }
+                                        </script>
+
+                                        {{-- Live Search --}}
+                                        <script>
+                                            document.getElementById("searchInput").addEventListener("keyup", function () {
+                                                const filter = this.value.toLowerCase();
+                                                document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
+                                                    const text = row.textContent.toLowerCase();
+                                                    row.style.display = text.includes(filter) ? "" : "none";
+                                                });
+                                            });
+                                        </script>
+
                                     </div>
 
 
