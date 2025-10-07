@@ -107,7 +107,168 @@
                                 <div id="extraFields" class="card p-2 shadow-sm mt-2" style="display: none;">
                                     <div class="mb-2">
                                         <label class="my-1">Area codes</label>
-                                        <input type="text" id="areaCode" class="form-control" placeholder="503, 202, 404">
+                                        <select id="areaCode" class="form-control" style="width: 100%;">
+                                            <option value=" ">Select Code</option>
+                                            <option value="205">Alabama (205)</option>
+                                            <option value="907">Alaska (907)</option>
+                                            <option value="480">Arizona (480)</option>
+                                            <option value="479">Arkansas (479)</option>
+                                            <option value="209">California (209)</option>
+                                            <option value="213">California (213)</option>
+                                            <option value="310">California (310)</option>
+                                            <option value="415">California (415)</option>
+                                            <option value="619">California (619)</option>
+                                            <option value="650">California (650)</option>
+                                            <option value="707">California (707)</option>
+                                            <option value="714">California (714)</option>
+                                            <option value="818">California (818)</option>
+                                            <option value="303">Colorado (303)</option>
+                                            <option value="970">Colorado (970)</option>
+                                            <option value="203">Connecticut (203)</option>
+                                            <option value="302">Delaware (302)</option>
+                                            <option value="305">Florida (305)</option>
+                                            <option value="321">Florida (321)</option>
+                                            <option value="352">Florida (352)</option>
+                                            <option value="407">Florida (407)</option>
+                                            <option value="561">Florida (561)</option>
+                                            <option value="727">Florida (727)</option>
+                                            <option value="813">Florida (813)</option>
+                                            <option value="850">Florida (850)</option>
+                                            <option value="904">Florida (904)</option>
+                                            <option value="229">Georgia (229)</option>
+                                            <option value="404">Georgia (404)</option>
+                                            <option value="470">Georgia (470)</option>
+                                            <option value="478">Georgia (478)</option>
+                                            <option value="678">Georgia (678)</option>
+                                            <option value="912">Georgia (912)</option>
+                                            <option value="808">Hawaii (808)</option>
+                                            <option value="208">Idaho (208)</option>
+                                            <option value="217">Illinois (217)</option>
+                                            <option value="312">Illinois (312)</option>
+                                            <option value="618">Illinois (618)</option>
+                                            <option value="708">Illinois (708)</option>
+                                            <option value="872">Illinois (872)</option>
+                                            <option value="219">Indiana (219)</option>
+                                            <option value="317">Indiana (317)</option>
+                                            <option value="574">Indiana (574)</option>
+                                            <option value="515">Iowa (515)</option>
+                                            <option value="316">Kansas (316)</option>
+                                            <option value="606">Kentucky (606)</option>
+                                            <option value="225">Louisiana (225)</option>
+                                            <option value="207">Maine (207)</option>
+                                            <option value="301">Maryland (301)</option>
+                                            <option value="410">Maryland (410)</option>
+                                            <option value="781">Massachusetts (781)</option>
+                                            <option value="857">Massachusetts (857)</option>
+                                            <option value="231">Michigan (231)</option>
+                                            <option value="248">Michigan (248)</option>
+                                            <option value="313">Michigan (313)</option>
+                                            <option value="517">Michigan (517)</option>
+                                            <option value="616">Michigan (616)</option>
+                                            <option value="734">Michigan (734)</option>
+                                            <option value="810">Michigan (810)</option>
+                                            <option value="952">Minnesota (952)</option>
+                                            <option value="228">Mississippi (228)</option>
+                                            <option value="314">Missouri (314)</option>
+                                            <option value="417">Missouri (417)</option>
+                                            <option value="406">Montana (406)</option>
+                                            <option value="308">Nebraska (308)</option>
+                                            <option value="702">Nevada (702)</option>
+                                            <option value="603">New Hampshire (603)</option>
+                                            <option value="201">New Jersey (201)</option>
+                                            <option value="609">New Jersey (609)</option>
+                                            <option value="732">New Jersey (732)</option>
+                                            <option value="848">New Jersey (848)</option>
+                                            <option value="505">New Mexico (505)</option>
+                                            <option value="212">New York (212)</option>
+                                            <option value="315">New York (315)</option>
+                                            <option value="347">New York (347)</option>
+                                            <option value="516">New York (516)</option>
+                                            <option value="585">New York (585)</option>
+                                            <option value="607">New York (607)</option>
+                                            <option value="646">New York (646)</option>
+                                            <option value="716">New York (716)</option>
+                                            <option value="718">New York (718)</option>
+                                            <option value="845">New York (845)</option>
+                                            <option value="914">New York (914)</option>
+                                            <option value="919">North Carolina (919)</option>
+                                            <option value="701">North Dakota (701)</option>
+                                            <option value="216">Ohio (216)</option>
+                                            <option value="330">Ohio (330)</option>
+                                            <option value="419">Ohio (419)</option>
+                                            <option value="440">Ohio (440)</option>
+                                            <option value="513">Ohio (513)</option>
+                                            <option value="614">Ohio (614)</option>
+                                            <option value="740">Ohio (740)</option>
+                                            <option value="918">Oklahoma (918)</option>
+                                            <option value="503">Oregon (503)</option>
+                                            <option value="215">Pennsylvania (215)</option>
+                                            <option value="267">Pennsylvania (267)</option>
+                                            <option value="412">Pennsylvania (412)</option>
+                                            <option value="570">Pennsylvania (570)</option>
+                                            <option value="717">Pennsylvania (717)</option>
+                                            <option value="787">Puerto Rico (787)</option>
+                                            <option value="401">Rhode Island (401)</option>
+                                            <option value="803">South Carolina (803)</option>
+                                            <option value="605">South Dakota (605)</option>
+                                            <option value="423">Tennessee (423)</option>
+                                            <option value="615">Tennessee (615)</option>
+                                            <option value="731">Tennessee (731)</option>
+                                            <option value="865">Tennessee (865)</option>
+                                            <option value="901">Tennessee (901)</option>
+                                            <option value="214">Texas (214)</option>
+                                            <option value="254">Texas (254)</option>
+                                            <option value="281">Texas (281)</option>
+                                            <option value="325">Texas (325)</option>
+                                            <option value="409">Texas (409)</option>
+                                            <option value="512">Texas (512)</option>
+                                            <option value="713">Texas (713)</option>
+                                            <option value="806">Texas (806)</option>
+                                            <option value="817">Texas (817)</option>
+                                            <option value="830">Texas (830)</option>
+                                            <option value="903">Texas (903)</option>
+                                            <option value="915">Texas (915)</option>
+                                            <option value="936">Texas (936)</option>
+                                            <option value="972">Texas (972)</option>
+                                            <option value="979">Texas (979)</option>
+                                            <option value="435">Utah (435)</option>
+                                            <option value="802">Vermont (802)</option>
+                                            <option value="276">Virginia (276)</option>
+                                            <option value="434">Virginia (434)</option>
+                                            <option value="540">Virginia (540)</option>
+                                            <option value="703">Virginia (703)</option>
+                                            <option value="757">Virginia (757)</option>
+                                            <option value="804">Virginia (804)</option>
+                                            <option value="206">Washington (206)</option>
+                                            <option value="253">Washington (253)</option>
+                                            <option value="360">Washington (360)</option>
+                                            <option value="425">Washington (425)</option>
+                                            <option value="509">Washington (509)</option>
+                                            <option value="304">West Virginia (304)</option>
+                                            <option value="414">Wisconsin (414)</option>
+                                            <option value="608">Wisconsin (608)</option>
+                                            <option value="715">Wisconsin (715)</option>
+                                            <option value="920">Wisconsin (920)</option>
+                                            <option value="307">Wyoming (307)</option>
+                                        </select>
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+                                        <script
+                                            src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+                                        <script>
+                                            // Initialize Select2 on the dropdown
+                                            $(document).ready(function () {
+                                                $('#area_code').select2({
+                                                    placeholder: "Search or select an area code...",
+                                                    allowClear: true
+                                                });
+                                            });
+                                        </script>
+
+
+
+
                                     </div>
                                     <div>
                                         <label class="my-1">Carriers</label>
