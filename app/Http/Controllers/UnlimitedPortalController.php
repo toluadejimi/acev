@@ -34,6 +34,10 @@ class UnlimitedPortalController extends Controller
         $response = Http::asForm()->post($this->baseUrl, $payload);
 
         if ($response->failed()) {
+
+            Log::error("UNLIMITED ERROR =====>".json_encode($response->json()));
+
+
             return response()->json(['error' => 'API request failed', 'details' => $response->body()], 500);
         }
 
