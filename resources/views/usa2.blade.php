@@ -54,7 +54,7 @@
                                             🇺🇸 USA SV1
                                         </a>
 
-                                        <a style="font-size: 12px; background: rgb(191,6,22); color: white"
+                                        <a style="font-size: 12px; background: rgb(230 61 138); color: white"
                                            href="/usa2" class="btn  w-200 mt-1">
                                             🇺🇸 USA SV2
                                         </a>

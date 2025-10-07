@@ -54,7 +54,7 @@
                                             🇺🇸 USA SV1
                                         </a>
 
-                                        <a style="font-size: 12px; background: rgb(191,6,22); color: white"
+                                        <a style="font-size: 12px; background: rgb(230 61 138); color: white"
                                            href="/usa2" class="btn  w-200 mt-1">
                                             🇺🇸 USA SV2
                                         </a>
@@ -123,7 +123,7 @@
                             </div>
 
                             <div class="list-group-item text-center bg-light">
-                                <button id="rentNumberBtn" class="btn btn-primary w-100" disabled>
+                                <button style="background: rgba(23, 69, 132, 1); color: white; border-color: transparent" id="rentNumberBtn" class="btn btn-primary w-100" disabled>
                                     <i class="bi bi-telephone"></i> Rent Number
                                 </button>
                             </div>
@@ -267,7 +267,7 @@
 
                                         <div class="card shadow-sm border-0">
                                             <div
-                                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                style="background: rgba(23, 69, 132, 1); color: white;" class="card-header text-white d-flex justify-content-between align-items-center">
                                                 <h6 class="mb-0 text-white">Verification Requests</h6>
                                             </div>
 
