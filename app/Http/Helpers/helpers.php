@@ -267,7 +267,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
         $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&areas=$area_code&carriers=$carrier";
 
-        $finalCost = $cost + ($cost * 0.20);
+        $finalCost = $price + ($price * 0.20);
         if (Auth::user()->wallet < $finalCost) {
             return 8;
         }
@@ -339,7 +339,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
             }
 
 
-            $finalCost = $price + ($cost * 0.20);
+            $finalCost = $price + ($price * 0.20);
 
 
             $ver = new Verification();
