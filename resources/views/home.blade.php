@@ -74,7 +74,7 @@
                             </div>
 
 
-                            <p class="d-flex justify-content-center">You are on 🇺🇸 USA Numbers only Panel</p>
+                            <p class="d-flex justify-content-center">You are on 🇺🇸 USA Server 1 Numbers only Panel</p>
 
 
                             <div class="p-2 col-lg-12 position-relative">
