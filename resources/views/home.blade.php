@@ -437,7 +437,6 @@
                                                        id="verificationTable">
                                                     <thead class="table-light">
                                                     <tr>
-                                                        <th>ID</th>
                                                         <th>Service</th>
                                                         <th>Phone No</th>
                                                         <th>Code</th>
@@ -450,7 +449,6 @@
                                                     <tbody>
                                                     @forelse($verification as $data)
                                                         <tr>
-                                                            <td>{{ $data->id }}</td>
                                                             <td>{{ $data->service }}</td>
                                                             <td class="text-success fw-semibold">{{ $data->phone }}</td>
 
