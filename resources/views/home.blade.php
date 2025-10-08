@@ -426,7 +426,7 @@
                                     <div>
 
 
-                                        <div class="card shadow-sm border-0">
+                                        <div id="smsTableContainer" class="card shadow-sm border-0">
                                             <div
                                                 style="background: rgba(23, 69, 132, 1); color: white;" class="card-header text-white d-flex justify-content-between align-items-center">
                                                 <h6 class="mb-0 text-white">Verification Requests</h6>
@@ -434,7 +434,7 @@
 
                                             <div class="table-responsive">
                                                 <table class="table  table-striped align-middle mb-0"
-                                                       id="verificationTable">
+                                                       id="basic-table">
                                                     <thead class="table-light">
                                                     <tr>
                                                         <th>Service</th>
@@ -453,208 +453,204 @@
                                                             <td class="text-success fw-semibold">{{ $data->phone }}</td>
 
 
+
                                                             <td>
-                                                                @if($data->sms)
-                                                                    <div
-                                                                        class="d-flex align-items-center justify-content-between">
-                                                                            <span id="data-sm{{ $data->id }}"
-                                                                                  class="sms-code"
-                                                                                  style="cursor: pointer;"
-                                                                                  title="Click to copy">
-                                                                                {{ $data->sms }}
-                                                                            </span>
-
-                                                                        <button
-                                                                            class="btn btn-sm btn-outline-primary ms-3"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#extraSmsModal{{ $data->id }}">
-                                                                            <i class="bi bi-chat-dots"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                @else
-                                                                    <div class="d-flex align-items-center gap-2">
-                                                                        <div
-                                                                            class="spinner-border text-danger spinner-border-sm"
-                                                                            role="status"></div>
-                                                                        <input
-                                                                            class="form-control form-control-sm border-0"
-                                                                            id="response-input{{ $data->id }}" readonly>
+                                                                <div id="smsContainer{{ $data->id }}">
+                                                                    <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
+                                                                        <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
+                                                                        <span class="text-muted small">Waiting for code...</span>
                                                                     </div>
 
-                                                                    <script>
-                                                                        const endpoint{{ $data->id }} = '{{ $data->type === 3 ? url('get-smscode-usa2?num='.$data->phone) : url('get-smscode?num='.$data->phone) }}';
+                                                                    <!-- Main Code -->
+                                                                    <span id="data-sm{{ $data->id }}" class="sms-code text-success fw-semibold d-none" style="cursor:pointer;"
+                                                                          title="Click to copy"></span>
 
-                                                                        function updateSMS{{ $data->id }}() {
-                                                                            fetch(endpoint{{ $data->id }})
-                                                                                .then(res => res.json())
-                                                                                .then(data => document.getElementById('response-input{{ $data->id }}').value = data.message)
-                                                                                .catch(err => console.error(err));
-                                                                        }
-
-                                                                        updateSMS{{ $data->id }}();
-                                                                        setInterval(updateSMS{{ $data->id }}, 5000);
-                                                                    </script>
-                                                                @endif
-
-                                                                <!-- Modal -->
-                                                                <div class="modal fade"
-                                                                     id="extraSmsModal{{ $data->id }}" tabindex="-1"
-                                                                     aria-hidden="true">
-                                                                    <div
-                                                                        class="modal-dialog modal-dialog-centered modal-lg">
-                                                                        <div
-                                                                            class="modal-content glassy-modal p-3 position-relative">
-                                                                            <button type="button"
-                                                                                    class="btn-close position-absolute end-0 top-0 m-3"
-                                                                                    data-bs-dismiss="modal"></button>
-
-                                                                            <div class="modal-header border-0">
-                                                                                <h5 class="modal-title fw-semibold text-white">
-                                                                                    <i class="bi bi-chat-square-text me-2"></i>
-                                                                                    Extra SMS Codes
-                                                                                </h5>
-                                                                            </div>
-
-                                                                            <div class="modal-body text-white">
-                                                                                <div
-                                                                                    class="d-flex justify-content-between align-items-center mb-3">
-                                                                                    <small
-                                                                                        class="text-light opacity-75">Phone: {{ $data->phone }}</small>
-                                                                                    <button
-                                                                                        class="btn btn-sm btn-outline-light"
-                                                                                        id="refreshSmsBtn{{ $data->id }}">
-                                                                                        <i class="bi bi-arrow-clockwise"></i>
-                                                                                        Refresh
-                                                                                    </button>
-                                                                                </div>
-
-                                                                                <div id="extraSmsList{{ $data->id }}"
-                                                                                     class="list-group small border-0 rounded-3 glassy-list shadow-sm"
-                                                                                     style="max-height: 300px; overflow-y: auto;">
-                                                                                    <div
-                                                                                        class="text-center py-3 text-light opacity-75"
-                                                                                        id="smsLoading{{ $data->id }}">
-                                                                                        Loading...
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
+                                                                    <!-- Extra Codes -->
+                                                                    <div id="extraSmsList{{ $data->id }}" class="small text-light mt-1 d-none"></div>
                                                                 </div>
 
                                                                 <script>
+                                                                    document.addEventListener('DOMContentLoaded', () => {
+                                                                        const id = {{ $data->id }};
+                                                                        const phone = `{{ $data->phone }}`;
+                                                                        const type = {{ $data->type }};
+                                                                        const smsSpan = document.getElementById(`data-sm${id}`);
+                                                                        const loader = document.getElementById(`loader${id}`);
+                                                                        const extraList = document.getElementById(`extraSmsList${id}`);
+                                                                        const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
+                                                                        const mainUrl = type === 3
+                                                                            ? `{{ url('get-smscode-usa2?num=') }}${phone}`
+                                                                            : `{{ url('get-smscode?num=') }}${phone}`;
+                                                                        const sound = new Audio('{{ asset('sounds/notify.mp3') }}');
+                                                                        let countdownTimer = null;
+                                                                        let lastCodes = [];
 
-                                                                    document.querySelectorAll('.sms-code').forEach(el => {
-                                                                        el.addEventListener('click', () => {
-                                                                            const sms = el.textContent.trim();
-                                                                            navigator.clipboard.writeText(sms).then(() => {
-                                                                                el.innerHTML = sms + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                setTimeout(() => {
-                                                                                    el.innerHTML = sms;
-                                                                                }, 1200);
-                                                                            }).catch(err => {
-                                                                                console.error('Copy failed:', err);
-                                                                            });
-                                                                        });
-                                                                    });
+                                                                        // Fetch countdown display if available
+                                                                        const countdownDisplay = document.getElementById('secondsDisplay' + id);
 
-                                                                    const modalTrigger{{ $data->id }} = document.querySelector('[data-bs-target="#extraSmsModal{{ $data->id }}"]');
+                                                                        // ---- Countdown Handler ----
+                                                                        async function startCountdown() {
+                                                                            try {
+                                                                                const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
+                                                                                const data = await res.json();
+                                                                                let secs = data.seconds || 0;
+                                                                                countdownDisplay.textContent = secs;
+                                                                                countdownTimer = setInterval(() => {
+                                                                                    secs--;
+                                                                                    countdownDisplay.textContent = secs;
+                                                                                    if (secs <= 0) {
+                                                                                        clearInterval(countdownTimer);
+                                                                                        fetch('{{ url('api/delete-order') }}', {
+                                                                                            method: 'POST',
+                                                                                            headers: {'Content-Type': 'application/json'},
+                                                                                            body: JSON.stringify({id})
+                                                                                        }).then(() => location.reload());
+                                                                                    }
+                                                                                }, 1000);
+                                                                            } catch (e) {
+                                                                                console.error(e);
+                                                                            }
+                                                                        }
 
-                                                                    modalTrigger{{ $data->id }}.addEventListener('click', () => {
-                                                                        const smsList = document.getElementById('extraSmsList{{ $data->id }}');
-                                                                        const loading = document.getElementById('smsLoading{{ $data->id }}');
-                                                                        smsList.innerHTML = '';
-                                                                        loading.textContent = 'Fetching extra codes...';
+                                                                        // Start countdown only if status is pending
+                                                                        @if($data->status == 1)
+                                                                        startCountdown();
+                                                                        @endif
 
+                                                                        // ---- Fetch main code ----
+                                                                        async function fetchMainSMS() {
+                                                                            try {
+                                                                                const res = await fetch(mainUrl);
+                                                                                const data = await res.json();
+                                                                                const msg = data.message?.trim();
 
-                                                                        fetch(`{{ url('check-more-sms') }}?num={{ $data->phone }}`)
-                                                                            .then(res => res.json())
-                                                                            .then(data => {
-                                                                                smsList.innerHTML = '';
+                                                                                if (msg && msg.length > 0) {
+                                                                                    // Stop loader and show main code
+                                                                                    loader.classList.add('d-none');
+                                                                                    smsSpan.classList.remove('d-none');
+                                                                                    smsSpan.textContent = msg;
 
-                                                                                // ✅ Handle both array and object response
-                                                                                const messages = Array.isArray(data) ? data : data.codes || [];
-
-                                                                                if (messages.length > 0) {
-                                                                                    messages.forEach((msg, index) => {
-                                                                                        const code = msg.sms ?? msg; // support either object or string
-                                                                                        smsList.innerHTML += `
-                                                                                        <div class="list-group-item bg-transparent border-bottom d-flex justify-content-between align-items-center text-white clickable-code" data-code="${code}">
-                                                                                            <span>${code}</span>
-                                                                                            <span class="badge bg-success bg-opacity-75">#${index + 1}</span>
-                                                                                        </div>`;
-                                                                                    });
-
-                                                                                    smsList.querySelectorAll('.clickable-code').forEach(el => {
-                                                                                        el.addEventListener('click', () => {
-                                                                                            const code = el.getAttribute('data-code');
-                                                                                            fetch(`{{ url('check-more-sms') }}?num={{ $data->phone }}&code=${code}`)
-                                                                                                .then(r => r.json())
+                                                                                    // Copy on click
+                                                                                    smsSpan.addEventListener('click', () => {
+                                                                                        navigator.clipboard.writeText(msg).then(() => {
+                                                                                            smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
+                                                                                            setTimeout(() => smsSpan.textContent = msg, 1000);
                                                                                         });
                                                                                     });
-                                                                                } else {
-                                                                                    smsList.innerHTML = '<div class="text-center py-3 text-light opacity-75">No extra codes found</div>';
-                                                                                }
-                                                                            })
-                                                                    });
 
-                                                                    document.getElementById('refreshSmsBtn{{ $data->id }}').addEventListener('click', () => {
-                                                                        const btn = document.getElementById('refreshSmsBtn{{ $data->id }}');
-                                                                        btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Reloading...';
-                                                                        setTimeout(() => location.reload(), 700);
+                                                                                    // Stop countdown if running
+                                                                                    if (countdownTimer) clearInterval(countdownTimer);
+                                                                                }
+                                                                            } catch (err) {
+                                                                                console.error(err);
+                                                                            }
+                                                                        }
+
+                                                                        // ---- Fetch extra codes ----
+                                                                        async function fetchExtraCodes() {
+                                                                            try {
+                                                                                const res = await fetch(fetchUrl);
+                                                                                const result = await res.json();
+                                                                                const messages = Array.isArray(result) ? result : result.codes || [];
+
+                                                                                if (messages.length > 0) {
+                                                                                    // Stop loader
+                                                                                    loader.classList.add('d-none');
+                                                                                    extraList.classList.remove('d-none');
+
+                                                                                    // Stop countdown when code available
+                                                                                    if (countdownTimer) clearInterval(countdownTimer);
+
+                                                                                    // Compare for new codes
+                                                                                    if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                                        if (lastCodes.length && messages.length > lastCodes.length) {
+                                                                                            sound.play().catch(() => {});
+                                                                                        }
+
+                                                                                        extraList.innerHTML = '';
+                                                                                        messages.forEach((msg, index) => {
+                                                                                            const code = msg.sms ?? msg;
+                                                                                            const isNew = !lastCodes.some(old => (old.sms ?? old) === code);
+                                                                                            const div = document.createElement('div');
+                                                                                            div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
+                                                                                            div.innerHTML = `
+                                    <span class="text-dark">${code}</span>
+                                    <span class="badge bg-success bg-opacity-75"></span>
+                                `;
+                                                                                            extraList.appendChild(div);
+
+                                                                                            // Copy click
+                                                                                            div.addEventListener('click', () => {
+                                                                                                navigator.clipboard.writeText(code);
+                                                                                            });
+
+                                                                                            // Flash effect
+                                                                                            if (isNew) {
+                                                                                                div.classList.add('flash-green');
+                                                                                                setTimeout(() => div.classList.remove('flash-green'), 2000);
+                                                                                            }
+                                                                                        });
+
+                                                                                        lastCodes = messages;
+                                                                                    }
+                                                                                }
+                                                                            } catch (err) {
+                                                                                console.error('Extra code fetch failed:', err);
+                                                                            }
+                                                                        }
+
+                                                                        // Run both checkers
+                                                                        function updateAll() {
+                                                                            fetchMainSMS();
+                                                                            fetchExtraCodes();
+                                                                        }
+
+                                                                        updateAll();
+                                                                        setInterval(updateAll, 120000); // every 2 minutes
                                                                     });
                                                                 </script>
 
                                                                 <style>
-
-                                                                    .spin {
-                                                                        display: inline-block;
-                                                                        animation: spin 0.8s linear infinite;
+                                                                    .flash-green {
+                                                                        background-color: rgba(0, 255, 0, 0.3);
+                                                                        animation: flashFade 2s ease-out;
                                                                     }
 
-                                                                    @keyframes spin {
-                                                                        100% {
-                                                                            transform: rotate(360deg);
-                                                                        }
-                                                                    }
-
-                                                                    /* Glassmorphism Modal */
-                                                                    .glassy-modal {
-                                                                        background: rgba(20, 20, 40, 0.6);
-                                                                        backdrop-filter: blur(18px);
-                                                                        border-radius: 20px;
-                                                                        border: 1px solid rgba(255, 255, 255, 0.1);
-                                                                        color: #fff;
-                                                                        animation: fadeInUp 0.4s ease;
-                                                                    }
-
-                                                                    /* Glassy List */
-                                                                    .glassy-list .list-group-item {
-                                                                        transition: background 0.3s, transform 0.2s;
-                                                                    }
-
-                                                                    .glassy-list .list-group-item:hover {
-                                                                        background: rgba(255, 255, 255, 0.1);
-                                                                        transform: scale(1.02);
-                                                                        cursor: pointer;
-                                                                    }
-
-                                                                    /* Animation */
-                                                                    @keyframes fadeInUp {
-                                                                        from {
-                                                                            opacity: 0;
-                                                                            transform: translateY(15px);
-                                                                        }
-                                                                        to {
-                                                                            opacity: 1;
-                                                                            transform: translateY(0);
-                                                                        }
+                                                                    @keyframes flashFade {
+                                                                        0% { background-color: rgba(0, 255, 0, 0.4); }
+                                                                        100% { background-color: transparent; }
                                                                     }
                                                                 </style>
                                                             </td>
 
+                                                            <td>
+                                                                @if($data->status == 1)
+                                                                    <p class="text-danger fw-bold mb-0" id="secondsDisplay{{$data->id}}"></p>
+                                                                @endif
+                                                            </td>
 
-                                                            {{-- COUNTDOWN TIMER --}}
+                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
+
+                                                            <td>
+                                                                @if ($data->status == 1)
+                                                                    <span
+                                                                        class="badge bg-warning text-dark">Pending</span>
+                                                                    <form method="POST"
+                                                                          action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                                                          class="d-inline-block"
+                                                                          onsubmit="return confirmDelete(event, this);">
+                                                                        @csrf
+                                                                        <button type="submit"
+                                                                                class="btn btn-sm btn-danger ms-1">
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
+                                                                @else
+                                                                    <span class="badge bg-success">Completed</span>
+                                                                @endif
+                                                            </td>
+
+
                                                             <td>
                                                                 @if($data->status == 1)
                                                                     <p class="text-danger fw-bold mb-0"
@@ -690,27 +686,8 @@
                                                                 @endif
                                                             </td>
 
-                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
 
-                                                            {{-- STATUS + ACTIONS --}}
-                                                            <td>
-                                                                @if ($data->status == 1)
-                                                                    <span
-                                                                        class="badge bg-warning text-dark">Pending</span>
-                                                                    <form method="POST"
-                                                                          action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                                                          class="d-inline-block"
-                                                                          onsubmit="return confirmDelete(event, this);">
-                                                                        @csrf
-                                                                        <button type="submit"
-                                                                                class="btn btn-sm btn-danger ms-1">
-                                                                            Delete
-                                                                        </button>
-                                                                    </form>
-                                                                @else
-                                                                    <span class="badge bg-success">Completed</span>
-                                                                @endif
-                                                            </td>
+
 
                                                             <td>{{ $data->created_at }}</td>
                                                         </tr>
@@ -816,6 +793,13 @@
         });
 
 
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        setInterval(() => {
+            $('#smsTableContainer').load(window.location.href + ' #smsTableContainer > *');
+        }, 12000);
     </script>
 
 @endsection
