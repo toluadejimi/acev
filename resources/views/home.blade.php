@@ -520,7 +520,6 @@
                                                                         startCountdown();
                                                                         @endif
 
-                                                                        // ========== FETCH MAIN SMS ==========
                                                                         async function fetchMainSMS() {
                                                                             console.log(`[CHECK] Checking main SMS for ${phone} ...`);
                                                                             try {
@@ -538,7 +537,7 @@
                                                                                     smsSpan.addEventListener('click', () => {
                                                                                         navigator.clipboard.writeText(msg).then(() => {
                                                                                             smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                            setTimeout(() => smsSpan.textContent = msg, 1000);
+                                                                                            setTimeout(() => smsSpan.textContent = msg, 500);
                                                                                         });
                                                                                     });
 
@@ -577,7 +576,7 @@
                                                                                             div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
                                                                                             div.innerHTML = `
                                     <span class="text-dark">${code}</span>
-                                    <span class="badge bg-success bg-opacity-75">#${index + 1}</span>
+                                    <span class="badge bg-success bg-opacity-75"></span>
                                 `;
                                                                                             extraList.appendChild(div);
 
@@ -606,7 +605,7 @@
                                                                         }
 
                                                                         updateAll();
-                                                                        setInterval(updateAll, 6000);
+                                                                        setInterval(updateAll, 10000);
                                                                     });
                                                                 </script>
 

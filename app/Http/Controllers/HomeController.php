@@ -193,14 +193,6 @@ class HomeController extends Controller
 
 
 
-        if (Auth::user()->wallet < 0) {
-
-            $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
-
-            return $data;
-
-        }
 
         if (Auth::user()->wallet < $request->price) {
             $data['status'] = false;
@@ -208,6 +200,8 @@ class HomeController extends Controller
 
             return $data;
         }
+
+
 
         if (Auth::user()->wallet < $request->price) {
             $data['status'] = false;
@@ -225,12 +219,14 @@ class HomeController extends Controller
 
         $gcost = get_d_price($service);
 
-        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
-        if (Auth::user()->wallet < $costs) {
-            $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
-            return $data;
-        }
+
+
+//        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
+//        if (Auth::user()->wallet < $costs) {
+//            $data['status'] = false;
+//            $data['message'] =  "Insufficient Funds";
+//            return $data;
+//        }
 
 
         $service = $request->provider;
