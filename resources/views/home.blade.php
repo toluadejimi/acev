@@ -799,7 +799,7 @@
     <script>
         setInterval(() => {
             $('#smsTableContainer').load(window.location.href + ' #smsTableContainer > *');
-        }, 12000);
+        }, 120000);
     </script>
 
 @endsection
