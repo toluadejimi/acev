@@ -222,6 +222,8 @@ Route::post('set_margin_2',  [AdminController::class,'set_margin_2']);
 
 
 Route::get('admin-dashboard',  [AdminController::class,'admin_dashboard']);
+Route::get('notify',  [AdminController::class,'notify']);
+Route::post('save-notification',  [AdminController::class,'save_notification']);
 
 
 Route::any('update-rate',  [AdminController::class,'update_rate']);

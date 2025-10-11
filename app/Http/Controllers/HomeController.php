@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AccountDetail;
 use App\Models\Deposit;
 use App\Models\ManualPayment;
+use App\Models\Notification;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
 use App\Models\SoldLog;
@@ -107,6 +108,8 @@ class HomeController extends Controller
         $data['product'] = null;
         $data['orders'] = Verification::where('user_id', Auth::id())->get();
 
+        $data['topMessage'] = "🎊 Welcome to Acesmsverify!!";
+        $data['centerMessage'] = Notification::where('id', 1)->first()->message;
 
 
         return view('home', $data);

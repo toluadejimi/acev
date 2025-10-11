@@ -18,6 +18,25 @@
 
         <div class="container technology-block">
 
+
+            @if(!empty($topMessage))
+                <div id="top-popup" class="popup-banner">
+                    <div class="popup-content">
+                        <span>{{ $topMessage }}</span>
+                        <button class="popup-close" onclick="closeTopPopup()">&times;</button>
+                    </div>
+                </div>
+            @endif
+
+            @if(!empty($centerMessage))
+                <div id="center-popup" class="popup-center">
+                    <div class="popup-box">
+                        <span>{{ $centerMessage }}</span>
+                        <button class="popup-btn" onclick="closeCenterPopup()">OK</button>
+                    </div>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -795,6 +814,54 @@
 
 
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const popup = document.getElementById("page-popup");
+            const closeBtn = document.getElementById("close-popup");
+
+            if (popup) {
+                // Slide down after page load
+                setTimeout(() => popup.classList.add("show"), 300);
+
+                // Auto close after 5 seconds
+                setTimeout(() => popup.classList.remove("show"), 5000);
+
+                // Manual close
+                if (closeBtn) {
+                    closeBtn.addEventListener("click", () => popup.classList.remove("show"));
+                }
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const topPopup = document.getElementById("top-popup");
+            const centerPopup = document.getElementById("center-popup");
+
+            // Show top banner
+            if (topPopup) {
+                setTimeout(() => topPopup.classList.add("show"), 400);
+                setTimeout(() => topPopup.classList.remove("show"), 8000);
+            }
+
+            // Show center popup a few seconds later
+            if (centerPopup) {
+                setTimeout(() => centerPopup.classList.add("show"), 3500);
+            }
+        });
+
+        function closeTopPopup() {
+            document.getElementById("top-popup")?.classList.remove("show");
+        }
+
+        function closeCenterPopup() {
+            document.getElementById("center-popup")?.classList.remove("show");
+        }
+    </script>
+
 
 
 

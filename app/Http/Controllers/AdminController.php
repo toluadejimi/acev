@@ -6,6 +6,7 @@ use App\Models\AccountDetail;
 use App\Models\Item;
 use App\Models\MainItem;
 use App\Models\ManualPayment;
+use App\Models\Notification;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
@@ -150,7 +151,33 @@ class AdminController extends Controller
 
     }
 
-    public function admin_dashboard(request $request)
+    public function notify(request $request)
+    {
+
+        $data['notify'] = Notification::where('id', 1)->first()->message;
+        return view('notify', $data);
+
+
+    }
+
+    public function save_notification(request $request)
+    {
+
+       $update =  Notification::where('id', 1)->update(['message' => $request->message]);
+       if ($update) {
+           return redirect()->back()->with('topMessage', '✅ Data saved successfully!');
+
+//           $data['topMessage'] = "Data Saved successfully";
+//           return view('notify', $data);
+       }
+
+
+
+    }
+
+
+
+public function admin_dashboard(request $request)
     {
 
         $role = User::where('id', Auth::id())->first()->role_id ?? null;
