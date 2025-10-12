@@ -85,7 +85,15 @@ class HomeController extends Controller
     }
 
 
-    public function home(request $request)
+    public function h1(request $request)
+    {
+        $data['topMessage'] = "🎊 Welcome to Acesmsverify!!";
+        $data['centerMessage'] = Notification::where('id', 1)->first()->message;
+
+        return view('h1', $data);
+
+    }
+ public function home(request $request)
     {
 
         $services = get_services();
@@ -342,11 +350,11 @@ class HomeController extends Controller
 
 
         if ($order == null) {
-            return back()->with('error', 'Order not found');
+            return redirect()->back()->with('topMessage', '❌ Order not found!');
         }
 
         if ($order->status == 2) {
-            return back()->with('message', "Order Completed");
+            return redirect()->back()->with('topMessage', '✅ Order Completed!');
         }
 
         if ($order->status == 1 && $order->type == 1) {
@@ -364,7 +372,10 @@ class HomeController extends Controller
                     $message = Auth::user()->email . " just been refunded | $order->cost | by admin";
                     send_notification($message);
                     send_notification2($message);
-                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
+
+
+                        return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
+
                 }
 
 
@@ -372,7 +383,9 @@ class HomeController extends Controller
 
 
             if ($can_order == 0) {
-                return back()->with('error', "Order has been removed");
+
+                return redirect()->back()->with('topMessage', '❌ Order has been removed');
+
             }
 
 
@@ -385,7 +398,8 @@ class HomeController extends Controller
                 send_notification($message);
                 send_notification2($message);
 
-                return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
+                return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
+
             }
 
 
@@ -403,7 +417,8 @@ class HomeController extends Controller
                 send_notification($message);
                 send_notification2($message);
 
-                return redirect()->with('message', "Order has been canceled, NGN$amount has been refunded");
+                return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
+
             }
         }
 
@@ -430,7 +445,9 @@ class HomeController extends Controller
                     send_notification($message);
                     send_notification2($message);
 
-                    return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
+                    return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
+
+
 
 
                 }
@@ -440,7 +457,9 @@ class HomeController extends Controller
 
 
             if ($can_order == 0) {
-                return back()->with('message', "Your order cannot be cancelled yet, please try again later.");
+
+                return redirect()->back()->with('topMessage', "❌ Your order cannot be cancelled yet, please try again later");
+
             }
 
 
@@ -469,7 +488,7 @@ class HomeController extends Controller
                 $message = Auth::user()->email . " just been refunded | $order->cost | by admin";
                 send_notification($message);
                 send_notification2($message);
-                return back()->with('message', "Order has been canceled, NGN$amount has been refunded");
+                return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
             }
         }
     }
@@ -503,12 +522,15 @@ class HomeController extends Controller
         if ($request->type == 1) {
 
             if ($request->amount < 1000) {
-                return back()->with('error', 'You can not fund less than NGN 1000');
+                return redirect()->back()->with('topMessage', "❌ You can not fund less than NGN 1000");
+
             }
 
 
             if ($request->amount > 100000) {
-                return back()->with('error', 'You can not fund more than NGN 100,000');
+
+                return redirect()->back()->with('topMessage', "❌ You can not fund more than NGN 100,000");
+
             }
 
 
@@ -643,9 +665,7 @@ class HomeController extends Controller
             }
 
 
-
-
-            return redirect('us');
+            return redirect('h1');
 
         }
 
@@ -1189,7 +1209,7 @@ class HomeController extends Controller
             $trx->status      = 2;
             $trx->amount      = $order->cost;
             $trx->balance     = $new_balance;    // ✅ new balance
-            $trx->old_balance = $old_balance;    // ✅ old balance
+            $trx->old_balance = $old_balance;    // old balance
             $trx->type        = 3;               // refund
             $trx->save();
 
@@ -1197,7 +1217,7 @@ class HomeController extends Controller
 
             DB::commit();
 
-            return back()->with('message', "Order canceled, NGN{$order->cost} refunded");
+            return back()->with('topMessage', " ✅ Order canceled, NGN{$order->cost} refunded");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', "Error: " . $e->getMessage());

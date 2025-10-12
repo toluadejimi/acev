@@ -2,21 +2,54 @@
 @section('content')
 
     <section id="technologies mt-4 my-5">
-        <div class="container title my-5">
-            <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
-                <div class="col-md-8 col-xl-6">
-                    <h4 class="mb-3 text-danger">{{ Auth::user()->username }}</h4>
-                    <p class="mb-0">
-                        SMS Verifications<br>
-                        Rent a phone for 7 minutes.<br>
-                        Credits are only used if you receive the SMS code.
-                    </p>
-                </div>
-            </div>
-        </div>
+
 
 
         <div class="container technology-block">
+
+            <div class="col-lg-12 col-md-12 mt-4">
+                <div class="card"
+                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                border: none;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between">
+
+                            <!-- Wallet Info -->
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-wallet fa-3x text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-white mb-1" style="font-weight: 600;">
+                                        {{ Auth::user()->username }}
+                                    </h5>
+                                    <h3 class="text-white mb-0" style="font-weight: bold;">
+                                        ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
+                                    </h3>
+                                    <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
+                                </div>
+                            </div>
+
+                            <!-- Fund Button -->
+                            <div class="mt-3 mt-md-0">
+                                <a href="{{ url('fund-wallet') }}"
+                                   class="btn btn-light btn-lg px-4 py-2"
+                                   style="font-weight: bold;
+                              border-radius: 25px;
+                              box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+                              transition: 0.3s;">
+                                    <i class="fas fa-coins me-2 text-primary"></i>
+                                    Fund Wallet
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="row">
                 <div class="col-xl-6 col-md-6 col-sm-12 my-3">
@@ -233,7 +266,66 @@
 
             </div>
 
+
+            <div id="promoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+
+                    <!-- Card 1 -->
+                    <div class="carousel-item active">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="card"
+                                 style="background: linear-gradient(135deg, #2990d8 0%, #022843 100%);
+                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body text-center p-4">
+                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Get Social Media Accounts</h5>
+                                    <p class="text-white-50 mb-2">For all types of social accounts</p>
+                                    <a href="https://acelogstores.com" target="_blank"
+                                       class="btn btn-light btn-lg px-4 py-2"
+                                       style="font-weight: bold; border-radius: 25px;">
+                                        Visit Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+
+                    <div class="carousel-item">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="card"
+                                 style="background: linear-gradient(135deg, #353333 0%, #010f19 100%);
+                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="card-body text-center p-4">
+                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Boost your Engagement</h5>
+                                    <p class="text-white-50 mb-2">with more followers and likes</p>
+                                    <a href="https://aceboosts.com" target="_blank"
+                                       class="btn btn-light btn-lg px-4 py-2"
+                                       style="font-weight: bold; border-radius: 25px;">
+                                        Boost Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <!-- Controls -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+
+
         </div>
+
+
 
 
     </section>

@@ -110,7 +110,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     });
 
 
-
+    Route::get('h1',  [HomeController::class,'h1']);
     Route::get('us',  [HomeController::class,'home']);
 
     Route::delete('/delete-user/{id}', [HomeController::class, 'destroy_user'])->name('delete-user');

@@ -167,9 +167,11 @@ class AdminController extends Controller
        if ($update) {
            return redirect()->back()->with('topMessage', '✅ Data saved successfully!');
 
-//           $data['topMessage'] = "Data Saved successfully";
-//           return view('notify', $data);
        }
+
+
+        return redirect()->back()->with('topMessage', ' ❌ Data not saved!');
+
 
 
 

@@ -63,7 +63,7 @@
 
 
     <style>
-        /* ===== Top Popup Banner ===== */
+
         .popup-banner {
             position: fixed;
             top: -120px;
@@ -71,19 +71,22 @@
             transform: translateX(-50%);
             background: linear-gradient(90deg, #2563eb, #1e40af);
             color: white;
-            padding: 15px 25px;
-            border-radius: 12px;
+            padding: 15px 40px;
+            border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.25);
             z-index: 9999;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: space-between;
             transition: top 0.6s ease;
-            width: fit-content;
-            max-width: 90%;
+            width: 90%;          /* ✅ make it fill most of the screen */
+            max-width: 800px;    /* ✅ optional limit on large screens */
+            box-sizing: border-box;
         }
+
+
         .popup-banner.show { top: 20px; }
 
         .popup-close {
@@ -295,6 +298,15 @@
 
 </header>
 
+@if(session('topMessage'))
+    <div id="top-popup" class="popup-banner">
+        <div class="popup-content">
+            <span>{{ session('topMessage') }}</span>
+        </div>
+    </div>
+@endif
+
+
 
 @yield('content')
 
@@ -348,6 +360,33 @@
 <a style="color: white" href="https://t.me/acesmsverify" class="float" target="_blank">
     <i class="fa fa-comment my-float"></i>
 </a>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const topPopup = document.getElementById("top-popup");
+        const centerPopup = document.getElementById("center-popup");
+
+        // Show top banner
+        if (topPopup) {
+            setTimeout(() => topPopup.classList.add("show"), 400);
+            setTimeout(() => topPopup.classList.remove("show"), 8000);
+        }
+
+        // Show center popup a few seconds later
+        if (centerPopup) {
+            setTimeout(() => centerPopup.classList.add("show"), 3500);
+        }
+    });
+
+    function closeTopPopup() {
+        document.getElementById("top-popup")?.classList.remove("show");
+    }
+
+    function closeCenterPopup() {
+        document.getElementById("center-popup")?.classList.remove("show");
+    }
+</script>
 
 
 </body>

@@ -178,10 +178,6 @@
 
 
 
-    @if(!empty($topMessage))
-
-    @endif
-
     @yield('content')
 
 
