@@ -105,11 +105,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.4s ease, visibility 0.4s ease;
             z-index: 10000;
+            box-sizing: border-box; /* ensures padding doesn’t affect layout */
         }
+
+
         .popup-center.show {
             opacity: 1;
             visibility: visible;
@@ -133,8 +137,19 @@
             line-height: 1.5;
         }
 
+        .telegram-btn {
+            background: #014473;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
         .popup-btn {
-            background: #2563eb;
+            background: #bf0616;
             color: white;
             border: none;
             padding: 10px 25px;

@@ -29,10 +29,15 @@
             @endif
 
             @if(!empty($centerMessage))
-                <div id="center-popup" class="popup-center">
+                <div id="center-popup" class="popup-center my-3">
                     <div class="popup-box">
-                        <span>{{ $centerMessage }}</span>
-                        <button class="popup-btn" onclick="closeCenterPopup()">OK</button>
+                        <h4 class="header my-3">📢 Important Announcement !! </h4>
+                        <hr>
+                        <span class="mb-4">{{ $centerMessage }}</span>
+                        <hr class="mb-3">
+
+                        <a href="" class="telegram-btn mt-4" >Join us on Telegram</a><br><br>
+                        <button class="popup-btn" onclick="closeCenterPopup()">Close</button>
                     </div>
                 </div>
             @endif
