@@ -36,7 +36,7 @@
                         <span class="mb-4">{{ $centerMessage }}</span>
                         <hr class="mb-3">
 
-                        <a href="" class="telegram-btn mt-4" >Join us on Telegram</a><br><br>
+                        <a href="https://t.me/acesmsverify" class="telegram-btn mt-4" >Join us on Telegram</a><br><br>
                         <button class="popup-btn" onclick="closeCenterPopup()">Close</button>
                     </div>
                 </div>
