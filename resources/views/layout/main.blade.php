@@ -193,7 +193,7 @@
 
                     <li class="nav-item px-1">
                         <a class="nav-link"
-                           href="https://acelogstore.com/" > Purchase Logs</a >
+                           href="https://acelogstores.com/" > Purchase Logs</a >
                     </li>
 
 
