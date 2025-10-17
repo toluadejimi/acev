@@ -222,14 +222,6 @@
 
                     @auth
 
-                    <li class="nav-item">
-                        <a
-                            style="background: rgb(142,4,4); color: white"
-                            class="btn btn btn-buy  d-none d-lg-block d-md-none"
-                            target="_blank"
-                            href="log-out"><i class="ti ti-wallet">
-                            </i> Log Out </a>
-                    </li>
 
                     @else
 
@@ -270,6 +262,18 @@
                 </ul>
             </div>
             </div>
+
+
+            @auth
+            <div class="d-lg-none d-sm-block">
+                    <a
+                        style="background: rgb(142,4,4); color: white"
+                        class="btn btn btn-buy  d-none d-lg-block d-md-none"
+                        href="log-out"><i class="ti ti-lock">
+                        </i> Log Out </a>
+
+            </div>
+            @endauth
 
 
 
