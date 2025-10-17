@@ -263,19 +263,6 @@
 
 
 
-            @auth
-            <div class="d-lg-none d-sm-block">
-                <a
-                    style="background: rgba(23, 69, 132, 1); color: white; font-size:10px;"
-                    class="btn btn btn-buy"
-                    target="_blank"
-                    href="fund-wallet"><i class="ti ti-wallet"></i
-                    >{{number_format(Auth::user()->wallet, 2)}}
-                </a>
-
-            </div>
-            @endauth
-
 
 
             <button
