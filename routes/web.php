@@ -215,6 +215,8 @@ Route::post('set_rate_1',  [AdminController::class,'set_rate_1']);
 Route::post('set_rate_2',  [AdminController::class,'set_rate_2']);
 Route::post('set_margin_1',  [AdminController::class,'set_margin_1']);
 Route::post('set_margin_2',  [AdminController::class,'set_margin_2']);
+Route::post('set_margin_3',  [AdminController::class,'set_margin_3']);
+Route::post('set_margin_3',  [AdminController::class,'set_margin_3']);
 
 
 

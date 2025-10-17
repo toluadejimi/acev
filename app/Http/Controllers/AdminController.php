@@ -55,6 +55,22 @@ class AdminController extends Controller
         return back()->with('message', 'Rate Updated successfully');
 
     }
+
+    public function set_rate_3(request $request)
+    {
+        Setting::where('id', 3)->update(['rate' => $request->rate]);
+
+        return back()->with('message', 'Rate Updated successfully');
+
+    }
+    public function set_margin_3(request $request)
+    {
+        Setting::where('id', 3)->update(['margin' => $request->margin]);
+
+        return back()->with('message', 'Rate Updated successfully');
+
+    }
+
     public function set_margin_1(request $request)
     {
         Setting::where('id', 1)->update(['margin' => $request->margin]);
