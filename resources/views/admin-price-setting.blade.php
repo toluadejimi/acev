@@ -121,7 +121,7 @@
 
                             <form action="set_rate_2" method="post">
                                 @csrf
-                                <label>SMS POOL Rate Setting</label>
+                                <label>Unlimited Rate Setting</label>
                                 <input name="rate" class="form-control my-3" value={{$set3->rate}} required>
                                 <button class="form-control btn btn-sm btn-primary" type="submit"> Set Rate </button>
 
@@ -130,7 +130,7 @@
 
                             <form action="set_margin_2" method="post" class="my-3">
                                 @csrf
-                                <label>SMS POOL Margin Setting</label>
+                                <label>Unlimited Margin Setting</label>
                                 <input name="margin" class="form-control my-3" value={{$set3->margin}} required>
                                 <button class="form-control btn btn-sm btn-primary" type="submit"> Set Margin </button>
 
