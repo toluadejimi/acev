@@ -220,15 +220,30 @@
                            href="api-docs" > Api Docs</a >
                     </li>
 
+                    @auth
 
-
-                    <li class="nav-item px-1">
-                        <a class="nav-link text-danger" href="log-out">Log Out</a>
+                    <li class="nav-item">
+                        <a
+                            style="background: rgb(142,4,4); color: white"
+                            class="btn btn btn-buy  d-none d-lg-block d-md-none"
+                            target="_blank"
+                            href="log-out"><i class="ti ti-wallet">
+                            </i> Log Out </a>
                     </li>
 
+                    @else
+
+                        <li class="nav-item">
+                            <a
+                                style="background: rgb(129,3,62); color: white"
+                                class="btn btn btn-buy  d-none d-lg-block d-md-none"
+                                target="_blank"
+                                href="us"><i class="ti ti-user">
+                                </i> Get Started </a>
+                        </li>
 
 
-
+                    @endauth
 
                 </ul>
 
@@ -244,24 +259,31 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-end">
 
                     @auth
-                    <li class="nav-item">
-                        <a
-                            style="background: rgba(23, 69, 132, 1); color: white"
-                            class="btn btn btn-buy  d-none d-lg-block d-md-none"
-                            target="_blank"
-                            href="fund-wallet"><i class="ti ti-wallet"></i
-                            >{{number_format(Auth::user()->wallet, 2)}} </a>
-                    </li>
+                        <li class="nav-item">
+                            <a
+                                style="background: rgb(142,4,4); color: white"
+                                class="btn btn btn-buy  d-none d-lg-block d-md-none"
+                                target="_blank"
+                                href="log-out"><i class="ti ti-lock">
+                                </i> Log Out </a>
+                        </li>
                     @endauth
                 </ul>
             </div>
             </div>
 
 
+            @auth
+            <div class="d-lg-none d-sm-block">
+                    <a
+                        style="background: rgb(142,4,4); color: white"
+                        class="btn btn btn-buy  d-none d-lg-block d-md-none"
+                        target="_blank"
+                        href="log-out"><i class="ti ti-lock">
+                        </i> Log Out </a>
 
-
-
-
+            </div>
+            @endauth
 
 
 
