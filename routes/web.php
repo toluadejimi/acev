@@ -213,9 +213,9 @@ Route::get('price-setting',  [AdminController::class,'price_setting_view']);
 
 Route::post('set_rate_1',  [AdminController::class,'set_rate_1']);
 Route::post('set_rate_2',  [AdminController::class,'set_rate_2']);
+Route::post('set_rate_3',  [AdminController::class,'set_rate_3']);
 Route::post('set_margin_1',  [AdminController::class,'set_margin_1']);
 Route::post('set_margin_2',  [AdminController::class,'set_margin_2']);
-Route::post('set_margin_3',  [AdminController::class,'set_margin_3']);
 Route::post('set_margin_3',  [AdminController::class,'set_margin_3']);
 
 

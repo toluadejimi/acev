@@ -59,8 +59,8 @@ class UnlimitedPortalController extends Controller
 
         $data['allServices'] = $allServices;
 
-        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-        $data['margin'] = Setting::where('id', 1)->first()->margin;
+        $data['get_rate'] = Setting::where('id', 3)->first()->rate;
+        $data['margin'] = Setting::where('id', 3)->first()->margin;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
         $data['order'] = 0;
         $verification = Verification::where('user_id', Auth::id())->get();
@@ -108,8 +108,8 @@ class UnlimitedPortalController extends Controller
             return $data;
         }
 
-        $data2['get_rate'] = Setting::where('id', 1)->first()->rate;
-        $data2['margin'] = Setting::where('id', 1)->first()->margin;
+        $data2['get_rate'] = Setting::where('id', 3)->first()->rate;
+        $data2['margin'] = Setting::where('id', 3)->first()->margin;
 
 
 

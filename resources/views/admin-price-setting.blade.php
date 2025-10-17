@@ -119,7 +119,7 @@
 
                         <div class="card-body">
 
-                            <form action="set_rate_2" method="post">
+                            <form action="set_rate_3" method="post">
                                 @csrf
                                 <label>Unlimited Rate Setting</label>
                                 <input name="rate" class="form-control my-3" value={{$set3->rate}} required>
@@ -128,7 +128,7 @@
                             </form>
 
 
-                            <form action="set_margin_2" method="post" class="my-3">
+                            <form action="set_margin_3" method="post" class="my-3">
                                 @csrf
                                 <label>Unlimited Margin Setting</label>
                                 <input name="margin" class="form-control my-3" value={{$set3->margin}} required>
