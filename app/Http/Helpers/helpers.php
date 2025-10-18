@@ -263,20 +263,39 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     $formattedTime = $futureTime->format('Y-m-d H:i:s');
 
 
-    if($area_code != null && $carrier != null){
+    if ($area_code != null) {
 
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&areas=$area_code&carriers=$carrier";
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&areas=$area_code";
 
         $finalCost = $price + ($price * 0.20);
         if (Auth::user()->wallet < $finalCost) {
             return 8;
         }
 
+    } elseif ($carrier != null) {
+
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&carriers=$carrier";
+
+        $finalCost = $price + ($price * 0.20);
+        if (Auth::user()->wallet < $finalCost) {
+            return 8;
+        }
+
+    } elseif ($carrier != null && $area_code != null) {
 
 
-    }else{
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&carriers=$carrier&areas=$area_code";
+
+        $finalCost = $price + ($price * 0.20);
+        if (Auth::user()->wallet < $finalCost) {
+            return 8;
+        }
+
+    } else {
         $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost";
     }
+
+
 
     $curl = curl_init();
 
@@ -308,8 +327,6 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     }
 
 
-
-
     if (strstr($result, "ACCESS_NUMBER") !== false) {
 
 
@@ -326,12 +343,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
 
-
-
-
-
-
-        if($area_code != null && $carrier != null){
+        if ($area_code != null && $carrier != null) {
 
             $get_balance = User::where('id', Auth::id())->first()->wallet;
             if ($get_balance < $cost) {
@@ -355,6 +367,100 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
             $ver->type = 1;
             $ver->save();
 
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            $balance = $get_balance - $finalCost;
+
+            User::where('id', Auth::id())->decrement('wallet', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
+
+
+            $trx = new Transaction();
+            $trx->ref_id = "Verification-$id";
+            $trx->user_id = Auth::id();
+            $trx->status = 2;
+            $trx->amount = $finalCost;
+            $trx->balance = $balance;
+            $trx->old_balance = $get_balance;
+            $trx->type = 1;
+            $trx->save();
+
+            return 1;
+
+        }
+
+
+        if ($area_code != null ) {
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            if ($get_balance < $cost) {
+                return 8;
+            }
+
+
+            $finalCost = $price + ($price * 0.20);
+
+
+            $ver = new Verification();
+            $ver->user_id = Auth::id();
+            $ver->phone = $phone;
+            $ver->order_id = $id;
+            $ver->country = "US";
+            $ver->service = $service_name;
+            $ver->cost = $finalCost;
+            $ver->api_cost = $gcost;
+            $ver->status = 1;
+            $ver->expires_in = 300;
+            $ver->type = 1;
+            $ver->save();
+
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            $balance = $get_balance - $finalCost;
+
+            User::where('id', Auth::id())->decrement('wallet', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
+            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
+
+
+            $trx = new Transaction();
+            $trx->ref_id = "Verification-$id";
+            $trx->user_id = Auth::id();
+            $trx->status = 2;
+            $trx->amount = $finalCost;
+            $trx->balance = $balance;
+            $trx->old_balance = $get_balance;
+            $trx->type = 1;
+            $trx->save();
+
+            return 1;
+
+        }
+
+        if ($carrier != null ) {
+
+            $get_balance = User::where('id', Auth::id())->first()->wallet;
+            if ($get_balance < $cost) {
+                return 8;
+            }
+
+
+            $finalCost = $price + ($price * 0.20);
+
+
+            $ver = new Verification();
+            $ver->user_id = Auth::id();
+            $ver->phone = $phone;
+            $ver->order_id = $id;
+            $ver->country = "US";
+            $ver->service = $service_name;
+            $ver->cost = $finalCost;
+            $ver->api_cost = $gcost;
+            $ver->status = 1;
+            $ver->expires_in = 300;
+            $ver->type = 1;
+            $ver->save();
 
 
             $get_balance = User::where('id', Auth::id())->first()->wallet;
@@ -394,9 +500,6 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         $ver->save();
 
 
-
-
-
         $get_balance = User::where('id', Auth::id())->first()->wallet;
         $balance = $get_balance - $price;
 
@@ -420,7 +523,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     }
 
-    Log::info("Diasy Response ====>>>". json_encode($result)."Data ===> $cost");
+    Log::info("Diasy Response ====>>>" . json_encode($result) . "Data ===> $cost");
 
 
     if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
@@ -434,13 +537,12 @@ function cancel_order($orderID)
 {
 
 
-
     $check_order = check_sms($orderID);
 
-    if($check_order == 3){
+    if ($check_order == 3) {
         return 5;
 
-    }else{
+    } else {
 
         $APIKEY = env('KEY');
         $curl = curl_init();
@@ -467,20 +569,13 @@ function cancel_order($orderID)
         }
 
 
-
     }
-
-
-
-
 
 
 }
 
 function check_true_sms($num)
 {
-
-
 
 
 }
@@ -660,8 +755,6 @@ function create_world_order($country, $service, $price, $calculatrd)
     }
 
 
-
-
     $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
 
     if (!$wallet_check) {
@@ -708,12 +801,10 @@ function create_world_order($country, $service, $price, $calculatrd)
 
         if ($success == 1) {
 
-            Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
+                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
             $currentTime = Carbon::now();
             $futureTime = $currentTime->addMinutes(15);
             $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-
 
 
             $ver = new Verification();
@@ -732,8 +823,6 @@ function create_world_order($country, $service, $price, $calculatrd)
 
             $ver->save();
             $get_balance = User::where('id', Auth::id())->first()->wallet;
-
-
 
 
             if ($get_balance < $calculatrdcost) {
@@ -792,9 +881,8 @@ function cancel_world_order($orderID)
 {
 
 
-
     $ck_world = check_world_sms($orderID);
-    if($ck_world == 3){
+    if ($ck_world == 3) {
         return 5;
     }
 

@@ -141,8 +141,6 @@ class UnlimitedPortalController extends Controller
         $order = $this->create_order_usa2($service, $price, $cost, $service_name, $gcost, $area_code);
 
 
-
-
         if ($order == 8) {
             $data['status'] = false;
             $data['message'] = "Insufficient Funds";
