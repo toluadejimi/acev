@@ -349,13 +349,16 @@ class WorldNumberController extends Controller
 
         $price = $res->price < 4 ? $res->price * 1.3 : $res->price;
 
-        $setting = Setting::first();
+        $setting =  Setting::find(1);
         $rate = $setting->rate;
         $margin = $setting->margin;
         $count_id = Country::where('country_id', $request->country)->first()->short_name ?? null;
 
         $gcost = pool_cost($request->service, $count_id);
+
+
         $ngnPrice = ($rate * $gcost) + $margin;
+
 
         return response()->json([
             'status' => 'success',
@@ -371,7 +374,6 @@ class WorldNumberController extends Controller
         }
 
         $order = create_world_order($request->country, $request->service, $request->price, $request->price);
-
 
 
         if ($order == 3) {

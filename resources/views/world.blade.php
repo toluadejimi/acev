@@ -470,9 +470,22 @@
                                 price: price
                             },
                             success: function (resp) {
-                                if (resp.status === 'success') {
+                                // Try to parse if response is JSON
+                                try {
+                                    resp = JSON.parse(resp);
+                                } catch (e) {
+                                    // Leave as-is if not JSON
+                                }
+
+                                if (resp === 3 || resp.status === 3 || resp.status === 'success') {
                                     Swal.fire('Success', 'Please wait, page reloading....', 'success')
                                         .then(() => location.reload());
+                                } else if (resp === 99) {
+                                    Swal.fire('Error', 'Insufficient balance', 'error');
+                                } else if (resp === 5) {
+                                    Swal.fire('Error', 'Service unavailable or failed', 'error');
+                                } else if (resp === 8) {
+                                    Swal.fire('Error', 'Wallet not found. Please try again later.', 'error');
                                 } else {
                                     Swal.fire('Error', resp.message || 'Something went wrong', 'error');
                                 }

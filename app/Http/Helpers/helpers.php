@@ -756,7 +756,12 @@ function create_world_order($country, $service, $price = null, $calculated = nul
 
     $gcost = pool_cost($service, $country);
 
-    $calculatedCost = ($rate * $gcost) + $margin;
+
+    if($price !== $calculated){
+        return 98;
+    }
+
+    $calculatedCost = (float) str_replace([','], '', $price);
 
     if ($user->wallet < $calculatedCost) {
         return 99;
@@ -774,7 +779,6 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         'service' => $service,
         'key' => $key,
     ]);
-
 
 
     if ($response->failed()) {
@@ -829,7 +833,6 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         $trx->type = 1;
         $trx->save();
 
-        // Notify admin / log
         $cost2 = number_format($calculatedCost, 2);
         $bal = number_format($newBalance, 2);
         $message = "{$user->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
