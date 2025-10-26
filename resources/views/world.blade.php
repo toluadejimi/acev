@@ -87,7 +87,7 @@
                                     <h3 class="text-center" id="priceDisplay">Loading...</h3>
                                     <button type="button" id="buyNowBtn"
                                             class="btn btn-primary w-100 mt-3"
-                                            style="background: rgba(23,69,132,1); border: none;">Buy Number Now
+                                            style="background: rgb(0,4,9); border: none;">Buy Number Now
                                     </button>
                                 </div>
                             </form>
