@@ -110,6 +110,19 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     });
 
 
+
+    Route::controller(WorldNumberController::class)->group(function () {
+
+        Route::get('/world',  'home');
+        Route::get('/get-world-services/{country}',  'getServices');
+        Route::post('/check-world-availability',  'checkAvailability');
+        Route::post('/order-world-number',  'orderNumber');
+
+
+    });
+
+
+
     Route::get('h1',  [HomeController::class,'h1']);
     Route::get('us',  [HomeController::class,'home']);
 
@@ -120,10 +133,10 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::any('home',  [HomeController::class,'home']);
     Route::any('check-more-sms',  [HomeController::class,'check_more_sms']);
     Route::get('/us2', [HomeController::class, 'usaserver2']);
-    Route::any('world',  [WorldNumberController::class,'home']);
-    Route::any('check-av',  [WorldNumberController::class,'check_av']);
-    Route::post('order_now',  [WorldNumberController::class,'order_now']);
-    Route::any('get-smscodeworld',  [WorldNumberController::class,'get_smscode']);
+//    Route::any('world',  [WorldNumberController::class,'home']);
+//    Route::any('check-av',  [WorldNumberController::class,'check_av']);
+//    Route::post('order_now',  [WorldNumberController::class,'order_now']);
+//    Route::any('get-smscodeworld',  [WorldNumberController::class,'get_smscode']);
 
     //Route::any('orders',  [HomeController::class,'orders']);
 

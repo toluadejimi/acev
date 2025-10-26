@@ -738,143 +738,109 @@ function get_world_services()
 }
 
 
-function create_world_order($country, $service, $price, $calculatrd)
+
+function create_world_order($country, $service, $price = null, $calculated = null)
 {
 
 
-    $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-    $data['margin'] = Setting::where('id', 1)->first()->margin;
+
+    $user = Auth::user();
+    $setting = Setting::find(1);
+
+    if (!$setting) {
+        return response(['status' => false, 'message' => 'Settings not configured'], 400);
+    }
+
+    $rate = $setting->rate;
+    $margin = $setting->margin;
+
     $gcost = pool_cost($service, $country);
-    $calculatrdcost = ($data['get_rate'] * $gcost) + $data['margin'];
 
+    $calculatedCost = ($rate * $gcost) + $margin;
 
-    if (Auth::user()->wallet < $calculatrdcost) {
-
+    if ($user->wallet < $calculatedCost) {
         return 99;
-
     }
 
-
-    $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
-
+    // Ensure wallet check record exists
+    $wallet_check = WalletCheck::where('user_id', $user->id)->first();
     if (!$wallet_check) {
-        return 8;
+        return 8; // No wallet check record
     }
 
-
+    // Prepare API call
     $key = env('WKEY');
-    $curl = curl_init();
 
-    $databody = [
+    $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
         'country' => $country,
         'service' => $service,
         'key' => $key,
-    ];
-
-    curl_setopt_array($curl, [
-        CURLOPT_URL => 'https://api.smspool.net/purchase/sms',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => $databody,
     ]);
 
-    $response = curl_exec($curl);
-    curl_close($curl);
-
-
-    $json_start = strpos($response, '{');
-    if ($json_start !== false) {
-        $json_string = substr($response, $json_start);
-        $var = json_decode($json_string, true);
-        $success = $var['success'] ?? null;
-
-
-        if ($success == 0) {
-            return 5;
-
-        }
-
-        if ($success == 1) {
-
-                Verification::where('phone', $var['cc'] . $var['phonenumber'])->where('status', 2)->delete() ?? null;
-            $currentTime = Carbon::now();
-            $futureTime = $currentTime->addMinutes(15);
-            $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-
-            $ver = new Verification();
-            $ver->user_id = Auth::id();
-            $ver->phone = $var['cc'] . $var['phonenumber'];
-            $ver->order_id = $var['order_id'];
-            $ver->country = $var['country'];
-            $ver->service = $var['service'];
-            $ver->expires_in = $var['expires_in'] / 10 - 20;
-            $ver->cost = $calculatrdcost;
-            $ver->created_at = $formattedTime;
-            $ver->expires_in = 300;
-            $ver->api_cost = $var['cost'];
-            $ver->status = 1;
-            $ver->type = 2;
-
-            $ver->save();
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-
-
-            if ($get_balance < $calculatrdcost) {
-                return response([
-                    'status' => false,
-                    'message' => 'Insufficient balance'
-                ], 400);
-            }
-
-            $balance = $get_balance - $calculatrdcost;
-            User::where('id', Auth::id())->decrement('wallet', $calculatrdcost);
-
-            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $calculatrdcost);
-            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $calculatrdcost);
-
-            $trx = new Transaction();
-            $trx->ref_id = "Verification " . $var['order_id'];
-            $trx->user_id = Auth::id();
-            $trx->status = 2;
-            $trx->amount = $calculatrdcost;
-            $trx->balance = $balance;
-            $trx->old_balance = $get_balance;
-            $trx->type = 1;
-            $trx->save();
-
-
-            $cost2 = number_format($calculatrdcost, 2);
-            $cal = Auth::user()->wallet - $calculatrdcost;
-            $bal = number_format($cal, 2);
-            $message = Auth::user()->email . " just been ordered number on  SMSPOOL NGN $cost2 | NGN $bal ";
-            send_notification($message);
-            send_notification2($message);
-
-            return 3;
-
-
-        }
+    if ($response->failed()) {
+        return 2; // API connection failed
     }
 
+    $data = $response->json();
 
-    $status = $var->type ?? null;
-
-    if ($status == "BALANCE_ERROR") {
-        return 1;
+    if (!isset($data['success'])) {
+        return 2; // Invalid response format
     }
 
-    if ($status == null) {
-        return 2;
-
+    if ($data['success'] == 0) {
+        return 5; // API returned failure
     }
 
+    if ($data['success'] == 1) {
 
+        // Remove old expired verifications for same number
+        Verification::where('phone', $data['cc'] . $data['phonenumber'])
+            ->where('status', 2)
+            ->delete();
+
+        $ver = new Verification();
+        $ver->user_id = $user->id;
+        $ver->phone = $data['cc'] . $data['phonenumber'];
+        $ver->order_id = $data['order_id'];
+        $ver->country = $data['country'];
+        $ver->service = $data['service'];
+        $ver->expires_in = 300; // 5 minutes
+        $ver->cost = $calculatedCost;
+        $ver->api_cost = $data['cost'] ?? 0;
+        $ver->status = 1;
+        $ver->type = 2;
+        $ver->save();
+
+        // Deduct from user wallet
+        $oldBalance = $user->wallet;
+        $newBalance = $oldBalance - $calculatedCost;
+
+        $user->decrement('wallet', $calculatedCost);
+        $wallet_check->increment('total_bought', $calculatedCost);
+        $wallet_check->decrement('wallet_amount', $calculatedCost);
+
+        // Log transaction
+        $trx = new Transaction();
+        $trx->ref_id = "Verification " . $data['order_id'];
+        $trx->user_id = $user->id;
+        $trx->status = 2;
+        $trx->amount = $calculatedCost;
+        $trx->balance = $newBalance;
+        $trx->old_balance = $oldBalance;
+        $trx->type = 1;
+        $trx->save();
+
+        // Notify admin / log
+        $cost2 = number_format($calculatedCost, 2);
+        $bal = number_format($newBalance, 2);
+        $message = "{$user->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
+        send_notification($message);
+        send_notification2($message);
+
+        return 3; // Success
+    }
+
+    return 2; // Fallback (unexpected)
 }
 
 function cancel_world_order($orderID)

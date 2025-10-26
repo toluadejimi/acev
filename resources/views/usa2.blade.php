@@ -465,7 +465,6 @@
                                                         <th>Service</th>
                                                         <th>Phone No</th>
                                                         <th>Code</th>
-                                                        <th>Time Left</th>
                                                         <th>Price</th>
                                                         <th>Status</th>
                                                         <th>Date</th>
@@ -647,41 +646,6 @@
                                                             </td>
 
 
-                                                            {{-- COUNTDOWN TIMER --}}
-                                                            <td>
-                                                                @if($data->status == 1)
-                                                                    <p class="text-danger fw-bold mb-0"
-                                                                       id="secondsDisplay{{$data->id}}"></p>
-
-                                                                    <script>
-                                                                        async function fetchSeconds{{$data->id}}() {
-                                                                            const res = await fetch('{{url('getInitialCountdown')}}?id={{$data->id}}');
-                                                                            const data = await res.json();
-                                                                            return data.seconds || 0;
-                                                                        }
-
-                                                                        async function startCountdown{{$data->id}}() {
-                                                                            let secs = await fetchSeconds{{$data->id}}();
-                                                                            const display = document.getElementById('secondsDisplay{{$data->id}}');
-                                                                            display.textContent = secs;
-                                                                            const timer = setInterval(() => {
-                                                                                secs--;
-                                                                                display.textContent = secs;
-                                                                                if (secs <= 0) {
-                                                                                    clearInterval(timer);
-                                                                                    fetch('{{url('api/delete-order')}}', {
-                                                                                        method: 'POST',
-                                                                                        headers: {'Content-Type': 'application/json'},
-                                                                                        body: JSON.stringify({id: {{$data->id}}})
-                                                                                    }).then(() => location.reload());
-                                                                                }
-                                                                            }, 1000);
-                                                                        }
-
-                                                                        document.addEventListener('DOMContentLoaded', startCountdown{{$data->id}});
-                                                                    </script>
-                                                                @endif
-                                                            </td>
 
                                                             <td>₦{{ number_format($data->cost, 2) }}</td>
 

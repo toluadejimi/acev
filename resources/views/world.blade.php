@@ -2,384 +2,462 @@
 @section('content')
 
     <section id="technologies mt-4 my-5">
-
-
-
         <div class="container technology-block">
 
+            <!-- Wallet Card -->
             <div class="col-lg-12 col-md-12 mt-4">
-                <div class="card"
-                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                border: none;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-                border-radius: 15px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between">
-
-                            <!-- Wallet Info -->
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
-                                    <i class="fas fa-wallet fa-3x text-white"></i>
-                                </div>
-                                <div>
-                                    <h5 class="text-white mb-1" style="font-weight: 600;">
-                                        {{ Auth::user()->username }}
-                                    </h5>
-                                    <h3 class="text-white mb-0" style="font-weight: bold;">
-                                        ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
-                                    </h3>
-                                    <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
-                                </div>
+                <div class="card" style="background: linear-gradient(135deg, #000102 0%, #0c0c0c 100%);
+                border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 15px;">
+                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-wallet fa-3x text-white"></i>
                             </div>
-
-                            <!-- Fund Button -->
-                            <div class="mt-3 mt-md-0">
-                                <a href="{{ url('fund-wallet') }}"
-                                   class="btn btn-light btn-lg px-4 py-2"
-                                   style="font-weight: bold;
-                              border-radius: 25px;
-                              box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-                              transition: 0.3s;">
-                                    <i class="fas fa-coins me-2 text-primary"></i>
-                                    Fund Wallet
-                                </a>
+                            <div>
+                                <h5 class="text-white mb-1" style="font-weight: 600;">
+                                    {{ Auth::user()->username }}
+                                </h5>
+                                <h3 class="text-white mb-0" style="font-weight: bold;">
+                                    ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
+                                </h3>
+                                <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
                             </div>
-
+                        </div>
+                        <div>
+                            <a href="{{ url('fund-wallet') }}" class="btn btn-light btn-lg px-4 py-2"
+                               style="font-weight: bold; border-radius: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.25); transition: 0.3s;">
+                                <i class="fas fa-coins me-2 text-primary"></i> Fund Wallet
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-
-            <div class="row">
+            <!-- Country and Service Selector -->
+            <div class="row mt-4">
                 <div class="col-xl-6 col-md-6 col-sm-12 my-3">
                     <div class="card">
                         <div class="card-body">
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
+                            @if (session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
                             @endif
-                            @if (session()->has('message'))
-                                <div class="alert alert-success">
-                                    {{ session()->get('message') }}
-                                </div>
-                            @endif
-                            @if (session()->has('error'))
-                                <div class="alert alert-danger">
-                                    {{ session()->get('error') }}
-                                </div>
+                            @if (session('message'))
+                                <div class="alert alert-success">{{ session('message') }}</div>
                             @endif
 
 
-                            <div class="d-flex justify-content-center my-3">
+                                <div class="d-flex justify-content-center col-xl-6 col-md-6 col-sm-12 my-3">
 
-                                <div class="btn-group" role="group" aria-label="Third group">
-                                    <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
-                                       href="/us" class="btn  w-200 mt-1">
-                                        🇺🇸 USA NUMBERS
-                                    </a>
+                                                                    <div class="btn-group" role="group" aria-label="Third group">
+                                                                        <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
+                                                                           href="/us" class="btn  w-200 mt-1">
+                                                                            🇺🇸 USA SV1
+                                                                        </a>
 
-                                    <a style="font-size: 12px; box-shadow: deeppink" href="/home"
-                                       class="btn btn-dark w-200 mt-1">
-                                        🌎 ALL COUNTRIES
-
-                                    </a>
-
-
-                                </div>
-
-                            </div>
+                                                                        <a style="font-size: 12px; background: rgb(230 61 138); color: white"
+                                                                           href="/usa2" class="btn  w-200 mt-1">
+                                                                            🇺🇸 USA SV2
+                                                                        </a>
 
 
-                            <form action="check-av" method="POST">
+                                                                    </div>
+
+                                                                </div>
+
+                            <p class="text-center mb-0">🌎 Choose Country & Service</p>
+                            <hr>
+
+                            <form id="worldForm" method="POST">
                                 @csrf
+                                <label class="mt-3 text-muted mb-2">🌎 Select Country</label>
+                                <select id="countrySelect" name="country" class="form-control">
+                                    <option value="">Select Country</option>
+                                    @foreach ($countries as $data)
+                                        <option value="{{ $data['ID'] }}">{{ $data['name'] }}</option>
+                                    @endforeach
+                                </select>
 
-                                <div class="row">
+                                <label class="mt-3 text-muted mb-2">💬 Select Service</label>
+                                <select id="serviceSelect" name="service" class="form-control" disabled>
+                                    <option value="">Select a Country First</option>
+                                </select>
 
-                                    <div class="col-xl-10 col-md-10 col-sm-12 p-3">
-
-                                        <p class="d-flex justify-content-center">You are on all 🌎 countries Panel</p>
-
-
-                                        <p class="mb-3 text-muted d-flex justify-content-center"> Choose country and
-                                            service
-                                        </p>
-
-                                        <hr>
-
-
-                                        <label for="country" class="mb-2  mt-3 text-muted">🌎 Select
-                                            Country</label>
-                                        <div>
-                                            <select style="border-color:rgb(0, 11, 136); padding: 10px" class="w-100"
-                                                    id="dropdownMenu" class="dropdown-content" name="country">
-                                                <option style="background: black" value=""> Select Country</option>
-                                                @foreach ($countries as $data)
-                                                    <option value="{{ $data['ID'] }}">{{ $data['name'] }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-
-                                        <label for="country" class="mt-3 text-muted mb-2">💬 Select
-                                            Services</label>
-                                        <div>
-                                            <select class="form-control w-100" id="select_page2" name="service">
-
-                                                <option value=""> Choose Service</option>
-                                                @foreach ($services as $data)
-                                                    <option value="{{ $data['ID'] }}">{{ $data['name'] }}
-                                                    </option>
-                                                @endforeach
-
-                                            </select>
-                                        </div>
-
-
-                                        <button style="border: 0px; background: rgba(23, 69, 132, 1); color: white;"
-                                                type="submit"
-                                                class="btn btn btn-lg w-100 mt-3 border-0">Check
-                                            availability
-                                        </button>
-
-
-                                    </div>
+                                <div id="priceSection" style="display: none;">
+                                    <h5 class="text-center mt-4">💰 Price:</h5>
+                                    <h3 class="text-center" id="priceDisplay">Loading...</h3>
+                                    <button type="button" id="buyNowBtn"
+                                            class="btn btn-primary w-100 mt-3"
+                                            style="background: rgba(23,69,132,1); border: none;">Buy Number Now</button>
                                 </div>
                             </form>
-
-
                         </div>
-
                     </div>
                 </div>
 
-
+                <!-- Info Display -->
                 <div class="col-xl-6 col-md-6 col-sm-12 p-3">
-
-                    @if ($product != null)
-                        <div class="card mb-3">
-                            <div class="card-body">
-
-                                <div class="row">
-                                    <p class="text-muted text-center">Service Information</p>
-
-                                    <h5 class="text-center my-2">Amount</h5>
-                                    <h6 class="text-center text-muted my-2 mb-4">Price:
-                                        NGN {{ number_format($price, 2) }}</h6>
+                    <div id="infoCard"></div>
+                </div>
 
 
-                                    <h5 class="text-center text-muted my-2">Success rate: <span
-                                            style="font-size: 30px; color: rgba(23, 69, 132, 1);"> @if ($rate < 10)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 20)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 30)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 40)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 50)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 60)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 70)
-                                                {{ $rate }}%
-                                            @elseif ($rate < 80)
-                                                {{ $rate }}%
+                <div class="card shadow-sm border-0">
+                    <div
+                        class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-white">Verification Requests</h6>
+                    </div>
 
-                                            @elseif ($rate < 90)
-                                                {{ $rate }}%
-                                            @elseif ($rate <= 100)
-                                                {{ $rate }}%
-                                            @else
-                                            @endif</span></h5>
-                                    <h6></h6>
+                    <div class="table-responsive">
+                        <table class="table  table-striped align-middle mb-0"
+                               id="verificationTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Service</th>
+                                <th>Phone No</th>
+                                <th>Code</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @forelse($verification as $data)
+                                <tr>
+                                    <td>{{ $data->service }}</td>
+                                    <td class="text-success fw-semibold">{{ $data->phone }}</td>
 
 
-                                    @if (Auth::user()->wallet < $price)
-                                        <a href="fund-wallet" class="btn btn-secondary text-white btn-lg">Fund
-                                            Wallet</a>
-                                    @else
-                                        <form action="order_now" method="POST" onsubmit="return confirmBuyNumberNow(event, this)">
-                                            @csrf
+                                    <td>
+                                        <div id="smsContainer{{ $data->id }}">
+                                            <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
+                                                <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
+                                                <span class="text-muted small">Waiting for code...</span>
+                                            </div>
 
-                                            <input type="text" name="country" hidden value="{{ $count_id ?? null }}">
-                                            <input type="text" name="price" hidden value="{{ $price ?? null }}">
-                                            <input type="text" name="price2" hidden value="{{ $price ?? null }}">
-                                            <input type="text" name="price3" hidden value="{{ $price ?? null }}">
-                                            <input type="text" name="price4" hidden value="{{ $price ?? null }}">
-                                            <input type="text" name="service" hidden value="{{ $serv ?? null }}">
+                                            <!-- Main Code -->
+                                            <span id="data-sm{{ $data->id }}" class="sms-code text-success fw-semibold d-none"
+                                                  style="cursor:pointer;" title="Click to copy"></span>
 
-                                            <button type="submit"
-                                                    style="border: 0px; background: rgba(23, 69, 132, 1); color: white;"
-                                                    class="mb-2 btn btn w-100 btn-lg mt-6">
-                                                Buy Number Now
-                                            </button>
-
-                                            <p class="text-muted text-center my-5">
-                                                At AceSMSVerify, we prioritize quality, ensuring that you receive the highest standard of SMS verifications for all your needs. Our commitment to excellence means we only offer non-VoIP phone numbers, guaranteeing compatibility with any service you require.
-                                            </p>
-                                        </form>
-
-                                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                                            <!-- Extra Codes -->
+                                            <div id="extraSmsList{{ $data->id }}" class="small text-light mt-1 d-none"></div>
+                                        </div>
 
                                         <script>
-                                            function confirmBuyNumberNow(event, form) {
-                                                event.preventDefault();
+                                            document.addEventListener('DOMContentLoaded', () => {
+                                                const id = {{ $data->id }};
+                                                const phone = `{{ $data->phone }}`;
+                                                const type = {{ $data->type }};
+                                                const smsSpan = document.getElementById(`data-sm${id}`);
+                                                const loader = document.getElementById(`loader${id}`);
+                                                const extraList = document.getElementById(`extraSmsList${id}`);
+                                                let countdownTimer = null;
+                                                let lastCodes = [];
 
-                                                Swal.fire({
-                                                    title: 'Confirm Purchase',
-                                                    text: "Are you sure you want to buy this number now?",
-                                                    icon: 'warning',
-                                                    showCancelButton: true,
-                                                    confirmButtonText: 'Yes, Buy it!',
-                                                    cancelButtonText: 'Cancel',
-                                                    confirmButtonColor: '#1f7ded',
-                                                    cancelButtonColor: '#d33',
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        form.querySelector('button[type="submit"]').style.display = 'none';
-                                                        form.submit();
+                                                // URLs
+                                                const mainUrl = type === 3
+                                                    ? `{{ url('get-smscode-usa2') }}?num=${phone}`
+                                                    : `{{ url('get-smscode') }}?num=${phone}`;
+                                                const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
+
+                                                console.log(`[INIT] Watching for SMS on ${phone}, mainUrl: ${mainUrl}`);
+
+                                                // ========== COUNTDOWN HANDLER ==========
+                                                async function startCountdown() {
+                                                    console.log(`[COUNTDOWN] Starting countdown for ID ${id}`);
+                                                    try {
+                                                        const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
+                                                        const data = await res.json();
+                                                        let secs = data.seconds || 0;
+                                                        const countdownDisplay = document.getElementById('secondsDisplay' + id);
+                                                        if (countdownDisplay) countdownDisplay.textContent = secs;
+
+                                                        countdownTimer = setInterval(() => {
+                                                            secs--;
+                                                            if (countdownDisplay) countdownDisplay.textContent = secs;
+                                                            if (secs <= 0) {
+                                                                clearInterval(countdownTimer);
+                                                                console.log(`[COUNTDOWN] Time up for ID ${id}, deleting order...`);
+                                                                fetch('{{ url('api/delete-order') }}', {
+                                                                    method: 'POST',
+                                                                    headers: {'Content-Type': 'application/json'},
+                                                                    body: JSON.stringify({id})
+                                                                }).then(() => location.reload());
+                                                            }
+                                                        }, 1000);
+                                                    } catch (e) {
+                                                        console.error('[COUNTDOWN ERROR]', e);
                                                     }
-                                                });
+                                                }
 
-                                                return false;
-                                            }
+                                                @if($data->status == 1)
+                                                startCountdown();
+                                                @endif
+
+                                                async function fetchMainSMS() {
+                                                    console.log(`[CHECK] Checking main SMS for ${phone} ...`);
+                                                    try {
+                                                        const res = await fetch(mainUrl);
+                                                        const data = await res.json();
+                                                        console.log('[MAIN RESPONSE]', data);
+                                                        const msg = data?.message?.trim();
+
+                                                        if (msg && msg.length > 0) {
+                                                            console.log(`[FOUND] Main code for ${phone}: ${msg}`);
+                                                            loader.classList.add('d-none');
+                                                            smsSpan.classList.remove('d-none');
+                                                            smsSpan.textContent = msg;
+
+                                                            smsSpan.addEventListener('click', () => {
+                                                                navigator.clipboard.writeText(msg).then(() => {
+                                                                    smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
+                                                                    setTimeout(() => smsSpan.textContent = msg, 500);
+                                                                });
+                                                            });
+
+                                                            if (countdownTimer) clearInterval(countdownTimer);
+                                                        } else {
+                                                            console.log(`[NOT FOUND] Still waiting for code for ${phone}`);
+                                                        }
+                                                    } catch (err) {
+                                                        console.error('[MAIN FETCH ERROR]', err);
+                                                    }
+                                                }
+
+                                                // ========== FETCH EXTRA CODES ==========
+                                                async function fetchExtraCodes() {
+                                                    console.log(`[CHECK] Checking extra codes for ${phone} ...`);
+                                                    try {
+                                                        const res = await fetch(fetchUrl);
+                                                        const result = await res.json();
+                                                        console.log('[EXTRA RESPONSE]', result);
+
+                                                        const messages = Array.isArray(result) ? result : result.codes || [];
+
+                                                        if (messages.length > 0) {
+                                                            loader.classList.add('d-none');
+                                                            extraList.classList.remove('d-none');
+
+                                                            if (countdownTimer) clearInterval(countdownTimer);
+
+                                                            if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                extraList.innerHTML = '';
+                                                                messages.forEach((msg, index) => {
+                                                                    const code = msg.sms ?? msg;
+                                                                    const isNew = !lastCodes.some(old => (old.sms ?? old) === code);
+
+                                                                    const div = document.createElement('div');
+                                                                    div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
+                                                                    div.innerHTML = `
+                                    <span class="text-dark">${code}</span>
+                                    <span class="badge bg-success bg-opacity-75"></span>
+                                `;
+                                                                    extraList.appendChild(div);
+
+                                                                    div.addEventListener('click', () => navigator.clipboard.writeText(code));
+
+                                                                    if (isNew) {
+                                                                        div.classList.add('flash-green');
+                                                                        setTimeout(() => div.classList.remove('flash-green'), 2000);
+                                                                    }
+                                                                });
+
+                                                                lastCodes = messages;
+                                                            }
+                                                        } else {
+                                                            console.log(`[NONE] No extra codes yet for ${phone}`);
+                                                        }
+                                                    } catch (err) {
+                                                        console.error('[EXTRA FETCH ERROR]', err);
+                                                    }
+                                                }
+
+                                                // ========== RUN BOTH CHECKERS ==========
+                                                function updateAll() {
+                                                    fetchMainSMS();
+                                                    fetchExtraCodes();
+                                                }
+
+                                                updateAll();
+                                                setInterval(updateAll, 10000);
+                                            });
                                         </script>
-                                    @endif
+
+                                        <style>
+                                            .flash-green {
+                                                background-color: rgba(0, 255, 0, 0.3);
+                                                animation: flashFade 2s ease-out;
+                                            }
+
+                                            @keyframes flashFade {
+                                                0% { background-color: rgba(0, 255, 0, 0.4); }
+                                                100% { background-color: transparent; }
+                                            }
+                                        </style>
+                                    </td>
 
 
-                                </div>
 
+                                    <td>₦{{ number_format($data->cost, 2) }}</td>
 
-                            </div>
+                                    {{-- STATUS + ACTIONS --}}
+                                    <td>
+                                        @if ($data->status == 1)
+                                            <span
+                                                class="badge bg-warning text-dark">Pending</span>
+                                            <form method="POST"
+                                                  action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                                  class="d-inline-block"
+                                                  onsubmit="return confirmDelete(event, this);">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger ms-1">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="badge bg-success">Completed</span>
+                                        @endif
+                                    </td>
 
-                        </div>
-                    @endif
+                                    <td>{{ $data->created_at }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-3">No
+                                        verification found
+                                    </td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
+                {{-- SweetAlert Confirm --}}
+                <script>
+                    function confirmDelete(event, form) {
+                        event.preventDefault();
+                        Swal.fire({
+                            title: 'Cancel order?',
+                            text: 'Are you sure you want to cancel this verification?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, delete it',
+                            cancelButtonText: 'No, keep it'
+                        }).then(result => {
+                            if (result.isConfirmed) form.submit();
+                        });
+                        return false;
+                    }
+                </script>
 
+                {{-- Live Search --}}
+                <script>
+                    document.getElementById("searchInput").addEventListener("keyup", function () {
+                        const filter = this.value.toLowerCase();
+                        document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(filter) ? "" : "none";
+                        });
+                    });
+                </script>
             </div>
-
-
-            <div id="promoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
-                <div class="carousel-inner">
-
-                    <!-- Card 1 -->
-                    <div class="carousel-item active">
-                        <div class="col-lg-12 col-md-12">
-                            <div class="card"
-                                 style="background: linear-gradient(135deg, #2990d8 0%, #022843 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                <div class="card-body text-center p-4">
-                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Get Social Media Accounts</h5>
-                                    <p class="text-white-50 mb-2">For all types of social accounts</p>
-                                    <a href="https://acelogstores.com" target="_blank"
-                                       class="btn btn-light btn-lg px-4 py-2"
-                                       style="font-weight: bold; border-radius: 25px;">
-                                        Visit Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2 -->
-
-                    <div class="carousel-item">
-                        <div class="col-lg-12 col-md-12">
-                            <div class="card"
-                                 style="background: linear-gradient(135deg, #353333 0%, #010f19 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                <div class="card-body text-center p-4">
-                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Boost your Engagement</h5>
-                                    <p class="text-white-50 mb-2">with more followers and likes</p>
-                                    <a href="https://aceboosts.com" target="_blank"
-                                       class="btn btn-light btn-lg px-4 py-2"
-                                       style="font-weight: bold; border-radius: 25px;">
-                                        Boost Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                </div>
-
-                <!-- Controls -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-
-
         </div>
-
-
-
-
     </section>
 
-
-
-
-
-
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const table = document.getElementById('data-table');
-            const rows = table.querySelectorAll('tbody tr');
-
-            rows.forEach(row => {
-                const countdownElement = row.cells[2]; // Assumes "Expires" is in the third column (index 2)
-                let seconds = parseInt(countdownElement.getAttribute('data-seconds'), 10);
-
-                const countdownInterval = setInterval(function () {
-                    countdownElement.textContent = seconds + 's';
-
-                    if (seconds <= 0) {
-                        clearInterval(countdownInterval);
-                        // Add your logic to handle the expiration, e.g., sendPostRequest(row);
-                        console.log('Expired:', row);
-                    }
-
-                    seconds--;
-                }, 1000);
-            });
-
-            // You may add the sendPostRequest function here or modify the code accordingly
-        });
-    </script>
+    <!-- SweetAlert + Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            //change selectboxes to selectize mode to be searchable
             $("select").select2();
+
+            // Load services when country is selected
+            $('#countrySelect').on('change', function () {
+                const countryID = $(this).val();
+                $('#serviceSelect').html('<option>Loading...</option>').prop('disabled', true);
+
+                if (countryID) {
+                    $.ajax({
+                        url: '/get-world-services/' + countryID,
+                        type: 'GET',
+                        success: function (res) {
+                            $('#serviceSelect').empty().append('<option value="">Select Service</option>');
+                            res.forEach(service => {
+                                $('#serviceSelect').append(`<option value="${service.ID}">${service.name}</option>`);
+                            });
+                            $('#serviceSelect').prop('disabled', false);
+                        }
+                    });
+                }
+            });
+
+            // When service selected → check availability
+            $('#serviceSelect').on('change', function () {
+                const country = $('#countrySelect').val();
+                const service = $(this).val();
+
+                if (country && service) {
+                    $.ajax({
+                        url: '/check-world-availability',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            country: country,
+                            service: service
+                        },
+                        beforeSend: function () {
+                            $('#priceSection').hide();
+                            Swal.fire({ title: 'Checking...', text: 'Please wait', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                        },
+                        success: function (res) {
+                            Swal.close();
+                            if (res.status === 'success') {
+                                $('#priceSection').show();
+                                $('#priceDisplay').text('₦' + res.price);
+                                $('#buyNowBtn').data('country', country).data('service', service).data('price', res.price);
+                            } else {
+                                Swal.fire('Unavailable', res.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.close();
+                            Swal.fire('Error', 'Unable to check availability', 'error');
+                        }
+                    });
+                }
+            });
+
+            // Buy number button
+            $('#buyNowBtn').on('click', function () {
+                const country = $(this).data('country');
+                const service = $(this).data('service');
+                const price = $(this).data('price');
+
+                Swal.fire({
+                    title: 'Confirm Purchase',
+                    text: `Buy number for ₦${price}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Buy Now',
+                    cancelButtonText: 'Cancel'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        $.post('/order-world-number', {
+                            _token: '{{ csrf_token() }}',
+                            country: country,
+                            service: service,
+                            price: price
+                        }, function (resp) {
+                            if (resp.status === 'success') {
+                                Swal.fire('Success', 'Number purchased successfully', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', resp.message, 'error');
+                            }
+                        });
+                    }
+                });
+            });
         });
     </script>
-
-
-    <script>
-        function hideButtondelete(link) {
-            // Hide the clicked link
-            link.style.display = 'none';
-
-            setTimeout(function () {
-                link.style.display = 'inline'; // or 'block' depending on your layout
-            }, 5000); // 5 seconds
-        }
-    </script>
-
 @endsection
