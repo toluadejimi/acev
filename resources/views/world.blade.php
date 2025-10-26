@@ -461,7 +461,7 @@
                             price: price
                         }, function (resp) {
                             if (resp.status === 'success') {
-                                Swal.fire('Success', 'Number purchased successfully', 'success').then(() => location.reload());
+                                Swal.fire('Success', 'Number purchased successfully, Please wait, page reloading....', 'success').then(() => location.reload());
                             } else {
                                 Swal.fire('Error', resp.message, 'error');
                             }
