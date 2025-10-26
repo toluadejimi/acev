@@ -46,23 +46,23 @@
                             @endif
 
 
-                                <div class="d-flex justify-content-center col-xl-6 col-md-6 col-sm-12 my-3">
+                            <div class="d-flex justify-content-center my-3">
 
-                                                                    <div class="btn-group" role="group" aria-label="Third group">
-                                                                        <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
-                                                                           href="/us" class="btn  w-200 mt-1">
-                                                                            🇺🇸 USA SV1
-                                                                        </a>
+                                <div class="btn-group" role="group" aria-label="Third group">
+                                    <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
+                                       href="/us" class="btn  w-200 mt-1">
+                                        🇺🇸 USA SV1
+                                    </a>
 
-                                                                        <a style="font-size: 12px; background: rgb(230 61 138); color: white"
-                                                                           href="/usa2" class="btn  w-200 mt-1">
-                                                                            🇺🇸 USA SV2
-                                                                        </a>
+                                    <a style="font-size: 12px; background: rgb(230 61 138); color: white"
+                                       href="/usa2" class="btn  w-200 mt-1">
+                                        🇺🇸 USA SV2
+                                    </a>
 
 
-                                                                    </div>
+                                </div>
 
-                                                                </div>
+                            </div>
 
                             <p class="text-center mb-0">🌎 Choose Country & Service</p>
                             <hr>
@@ -87,279 +87,285 @@
                                     <h3 class="text-center" id="priceDisplay">Loading...</h3>
                                     <button type="button" id="buyNowBtn"
                                             class="btn btn-primary w-100 mt-3"
-                                            style="background: rgba(23,69,132,1); border: none;">Buy Number Now</button>
+                                            style="background: rgba(23,69,132,1); border: none;">Buy Number Now
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Info Display -->
-                <div class="col-xl-6 col-md-6 col-sm-12 p-3">
-                    <div id="infoCard"></div>
-                </div>
 
+                <div class="col-xl-6 col-md-6 col-sm-12 my-3">
 
-                <div class="card shadow-sm border-0">
-                    <div
-                        class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-white">Verification Requests</h6>
-                    </div>
+                    <div class="card shadow-sm border-0">
+                        <div
+                            class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-white">Verification Requests</h6>
+                        </div>
 
-                    <div class="table-responsive">
-                        <table class="table  table-striped align-middle mb-0"
-                               id="verificationTable">
-                            <thead class="table-light">
-                            <tr>
-                                <th>Service</th>
-                                <th>Phone No</th>
-                                <th>Code</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @forelse($verification as $data)
+                        <div class="table-responsive">
+                            <table class="table  table-striped align-middle mb-0"
+                                   id="verificationTable">
+                                <thead class="table-light">
                                 <tr>
-                                    <td>{{ $data->service }}</td>
-                                    <td class="text-success fw-semibold">{{ $data->phone }}</td>
+                                    <th>Service</th>
+                                    <th>Phone No</th>
+                                    <th>Code</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($verification as $data)
+                                    <tr>
+                                        <td>{{ $data->service }}</td>
+                                        <td class="text-success fw-semibold">{{ $data->phone }}</td>
 
 
-                                    <td>
-                                        <div id="smsContainer{{ $data->id }}">
-                                            <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
-                                                <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-                                                <span class="text-muted small">Waiting for code...</span>
+                                        <td>
+                                            <div id="smsContainer{{ $data->id }}">
+                                                <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
+                                                    <div class="spinner-border text-danger spinner-border-sm"
+                                                         role="status"></div>
+                                                    <span class="text-muted small">Waiting for code...</span>
+                                                </div>
+
+                                                <!-- Main Code -->
+                                                <span id="data-sm{{ $data->id }}"
+                                                      class="sms-code text-success fw-semibold d-none"
+                                                      style="cursor:pointer;" title="Click to copy"></span>
+
+                                                <!-- Extra Codes -->
+                                                <div id="extraSmsList{{ $data->id }}"
+                                                     class="small text-light mt-1 d-none"></div>
                                             </div>
 
-                                            <!-- Main Code -->
-                                            <span id="data-sm{{ $data->id }}" class="sms-code text-success fw-semibold d-none"
-                                                  style="cursor:pointer;" title="Click to copy"></span>
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', () => {
+                                                    const id = {{ $data->id }};
+                                                    const phone = `{{ $data->phone }}`;
+                                                    const type = {{ $data->type }};
+                                                    const smsSpan = document.getElementById(`data-sm${id}`);
+                                                    const loader = document.getElementById(`loader${id}`);
+                                                    const extraList = document.getElementById(`extraSmsList${id}`);
+                                                    let countdownTimer = null;
+                                                    let lastCodes = [];
 
-                                            <!-- Extra Codes -->
-                                            <div id="extraSmsList{{ $data->id }}" class="small text-light mt-1 d-none"></div>
-                                        </div>
+                                                    // URLs
+                                                    const mainUrl = type === 3
+                                                        ? `{{ url('get-smscode-usa2') }}?num=${phone}`
+                                                        : `{{ url('get-smscode') }}?num=${phone}`;
+                                                    const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
 
-                                        <script>
-                                            document.addEventListener('DOMContentLoaded', () => {
-                                                const id = {{ $data->id }};
-                                                const phone = `{{ $data->phone }}`;
-                                                const type = {{ $data->type }};
-                                                const smsSpan = document.getElementById(`data-sm${id}`);
-                                                const loader = document.getElementById(`loader${id}`);
-                                                const extraList = document.getElementById(`extraSmsList${id}`);
-                                                let countdownTimer = null;
-                                                let lastCodes = [];
+                                                    console.log(`[INIT] Watching for SMS on ${phone}, mainUrl: ${mainUrl}`);
 
-                                                // URLs
-                                                const mainUrl = type === 3
-                                                    ? `{{ url('get-smscode-usa2') }}?num=${phone}`
-                                                    : `{{ url('get-smscode') }}?num=${phone}`;
-                                                const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
-
-                                                console.log(`[INIT] Watching for SMS on ${phone}, mainUrl: ${mainUrl}`);
-
-                                                // ========== COUNTDOWN HANDLER ==========
-                                                async function startCountdown() {
-                                                    console.log(`[COUNTDOWN] Starting countdown for ID ${id}`);
-                                                    try {
-                                                        const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
-                                                        const data = await res.json();
-                                                        let secs = data.seconds || 0;
-                                                        const countdownDisplay = document.getElementById('secondsDisplay' + id);
-                                                        if (countdownDisplay) countdownDisplay.textContent = secs;
-
-                                                        countdownTimer = setInterval(() => {
-                                                            secs--;
+                                                    // ========== COUNTDOWN HANDLER ==========
+                                                    async function startCountdown() {
+                                                        console.log(`[COUNTDOWN] Starting countdown for ID ${id}`);
+                                                        try {
+                                                            const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
+                                                            const data = await res.json();
+                                                            let secs = data.seconds || 0;
+                                                            const countdownDisplay = document.getElementById('secondsDisplay' + id);
                                                             if (countdownDisplay) countdownDisplay.textContent = secs;
-                                                            if (secs <= 0) {
-                                                                clearInterval(countdownTimer);
-                                                                console.log(`[COUNTDOWN] Time up for ID ${id}, deleting order...`);
-                                                                fetch('{{ url('api/delete-order') }}', {
-                                                                    method: 'POST',
-                                                                    headers: {'Content-Type': 'application/json'},
-                                                                    body: JSON.stringify({id})
-                                                                }).then(() => location.reload());
-                                                            }
-                                                        }, 1000);
-                                                    } catch (e) {
-                                                        console.error('[COUNTDOWN ERROR]', e);
-                                                    }
-                                                }
 
-                                                @if($data->status == 1)
-                                                startCountdown();
-                                                @endif
-
-                                                async function fetchMainSMS() {
-                                                    console.log(`[CHECK] Checking main SMS for ${phone} ...`);
-                                                    try {
-                                                        const res = await fetch(mainUrl);
-                                                        const data = await res.json();
-                                                        console.log('[MAIN RESPONSE]', data);
-                                                        const msg = data?.message?.trim();
-
-                                                        if (msg && msg.length > 0) {
-                                                            console.log(`[FOUND] Main code for ${phone}: ${msg}`);
-                                                            loader.classList.add('d-none');
-                                                            smsSpan.classList.remove('d-none');
-                                                            smsSpan.textContent = msg;
-
-                                                            smsSpan.addEventListener('click', () => {
-                                                                navigator.clipboard.writeText(msg).then(() => {
-                                                                    smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
-                                                                    setTimeout(() => smsSpan.textContent = msg, 500);
-                                                                });
-                                                            });
-
-                                                            if (countdownTimer) clearInterval(countdownTimer);
-                                                        } else {
-                                                            console.log(`[NOT FOUND] Still waiting for code for ${phone}`);
+                                                            countdownTimer = setInterval(() => {
+                                                                secs--;
+                                                                if (countdownDisplay) countdownDisplay.textContent = secs;
+                                                                if (secs <= 0) {
+                                                                    clearInterval(countdownTimer);
+                                                                    console.log(`[COUNTDOWN] Time up for ID ${id}, deleting order...`);
+                                                                    fetch('{{ url('api/delete-order') }}', {
+                                                                        method: 'POST',
+                                                                        headers: {'Content-Type': 'application/json'},
+                                                                        body: JSON.stringify({id})
+                                                                    }).then(() => location.reload());
+                                                                }
+                                                            }, 1000);
+                                                        } catch (e) {
+                                                            console.error('[COUNTDOWN ERROR]', e);
                                                         }
-                                                    } catch (err) {
-                                                        console.error('[MAIN FETCH ERROR]', err);
                                                     }
-                                                }
 
-                                                // ========== FETCH EXTRA CODES ==========
-                                                async function fetchExtraCodes() {
-                                                    console.log(`[CHECK] Checking extra codes for ${phone} ...`);
-                                                    try {
-                                                        const res = await fetch(fetchUrl);
-                                                        const result = await res.json();
-                                                        console.log('[EXTRA RESPONSE]', result);
+                                                    @if($data->status == 1)
+                                                    startCountdown();
 
-                                                        const messages = Array.isArray(result) ? result : result.codes || [];
+                                                    @endif
 
-                                                        if (messages.length > 0) {
-                                                            loader.classList.add('d-none');
-                                                            extraList.classList.remove('d-none');
+                                                    async function fetchMainSMS() {
+                                                        console.log(`[CHECK] Checking main SMS for ${phone} ...`);
+                                                        try {
+                                                            const res = await fetch(mainUrl);
+                                                            const data = await res.json();
+                                                            console.log('[MAIN RESPONSE]', data);
+                                                            const msg = data?.message?.trim();
 
-                                                            if (countdownTimer) clearInterval(countdownTimer);
+                                                            if (msg && msg.length > 0) {
+                                                                console.log(`[FOUND] Main code for ${phone}: ${msg}`);
+                                                                loader.classList.add('d-none');
+                                                                smsSpan.classList.remove('d-none');
+                                                                smsSpan.textContent = msg;
 
-                                                            if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
-                                                                extraList.innerHTML = '';
-                                                                messages.forEach((msg, index) => {
-                                                                    const code = msg.sms ?? msg;
-                                                                    const isNew = !lastCodes.some(old => (old.sms ?? old) === code);
+                                                                smsSpan.addEventListener('click', () => {
+                                                                    navigator.clipboard.writeText(msg).then(() => {
+                                                                        smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
+                                                                        setTimeout(() => smsSpan.textContent = msg, 500);
+                                                                    });
+                                                                });
 
-                                                                    const div = document.createElement('div');
-                                                                    div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
-                                                                    div.innerHTML = `
+                                                                if (countdownTimer) clearInterval(countdownTimer);
+                                                            } else {
+                                                                console.log(`[NOT FOUND] Still waiting for code for ${phone}`);
+                                                            }
+                                                        } catch (err) {
+                                                            console.error('[MAIN FETCH ERROR]', err);
+                                                        }
+                                                    }
+
+                                                    // ========== FETCH EXTRA CODES ==========
+                                                    async function fetchExtraCodes() {
+                                                        console.log(`[CHECK] Checking extra codes for ${phone} ...`);
+                                                        try {
+                                                            const res = await fetch(fetchUrl);
+                                                            const result = await res.json();
+                                                            console.log('[EXTRA RESPONSE]', result);
+
+                                                            const messages = Array.isArray(result) ? result : result.codes || [];
+
+                                                            if (messages.length > 0) {
+                                                                loader.classList.add('d-none');
+                                                                extraList.classList.remove('d-none');
+
+                                                                if (countdownTimer) clearInterval(countdownTimer);
+
+                                                                if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                    extraList.innerHTML = '';
+                                                                    messages.forEach((msg, index) => {
+                                                                        const code = msg.sms ?? msg;
+                                                                        const isNew = !lastCodes.some(old => (old.sms ?? old) === code);
+
+                                                                        const div = document.createElement('div');
+                                                                        div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
+                                                                        div.innerHTML = `
                                     <span class="text-dark">${code}</span>
                                     <span class="badge bg-success bg-opacity-75"></span>
                                 `;
-                                                                    extraList.appendChild(div);
+                                                                        extraList.appendChild(div);
 
-                                                                    div.addEventListener('click', () => navigator.clipboard.writeText(code));
+                                                                        div.addEventListener('click', () => navigator.clipboard.writeText(code));
 
-                                                                    if (isNew) {
-                                                                        div.classList.add('flash-green');
-                                                                        setTimeout(() => div.classList.remove('flash-green'), 2000);
-                                                                    }
-                                                                });
+                                                                        if (isNew) {
+                                                                            div.classList.add('flash-green');
+                                                                            setTimeout(() => div.classList.remove('flash-green'), 2000);
+                                                                        }
+                                                                    });
 
-                                                                lastCodes = messages;
+                                                                    lastCodes = messages;
+                                                                }
+                                                            } else {
+                                                                console.log(`[NONE] No extra codes yet for ${phone}`);
                                                             }
-                                                        } else {
-                                                            console.log(`[NONE] No extra codes yet for ${phone}`);
+                                                        } catch (err) {
+                                                            console.error('[EXTRA FETCH ERROR]', err);
                                                         }
-                                                    } catch (err) {
-                                                        console.error('[EXTRA FETCH ERROR]', err);
+                                                    }
+
+                                                    // ========== RUN BOTH CHECKERS ==========
+                                                    function updateAll() {
+                                                        fetchMainSMS();
+                                                        fetchExtraCodes();
+                                                    }
+
+                                                    updateAll();
+                                                    setInterval(updateAll, 10000);
+                                                });
+                                            </script>
+
+                                            <style>
+                                                .flash-green {
+                                                    background-color: rgba(0, 255, 0, 0.3);
+                                                    animation: flashFade 2s ease-out;
+                                                }
+
+                                                @keyframes flashFade {
+                                                    0% {
+                                                        background-color: rgba(0, 255, 0, 0.4);
+                                                    }
+                                                    100% {
+                                                        background-color: transparent;
                                                     }
                                                 }
-
-                                                // ========== RUN BOTH CHECKERS ==========
-                                                function updateAll() {
-                                                    fetchMainSMS();
-                                                    fetchExtraCodes();
-                                                }
-
-                                                updateAll();
-                                                setInterval(updateAll, 10000);
-                                            });
-                                        </script>
-
-                                        <style>
-                                            .flash-green {
-                                                background-color: rgba(0, 255, 0, 0.3);
-                                                animation: flashFade 2s ease-out;
-                                            }
-
-                                            @keyframes flashFade {
-                                                0% { background-color: rgba(0, 255, 0, 0.4); }
-                                                100% { background-color: transparent; }
-                                            }
-                                        </style>
-                                    </td>
+                                            </style>
+                                        </td>
 
 
+                                        <td>₦{{ number_format($data->cost, 2) }}</td>
 
-                                    <td>₦{{ number_format($data->cost, 2) }}</td>
+                                        {{-- STATUS + ACTIONS --}}
+                                        <td>
+                                            @if ($data->status == 1)
+                                                <span
+                                                    class="badge bg-warning text-dark">Pending</span>
+                                                <form method="POST"
+                                                      action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                                      class="d-inline-block"
+                                                      onsubmit="return confirmDelete(event, this);">
+                                                    @csrf
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-danger ms-1">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="badge bg-success">Completed</span>
+                                            @endif
+                                        </td>
 
-                                    {{-- STATUS + ACTIONS --}}
-                                    <td>
-                                        @if ($data->status == 1)
-                                            <span
-                                                class="badge bg-warning text-dark">Pending</span>
-                                            <form method="POST"
-                                                  action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                                  class="d-inline-block"
-                                                  onsubmit="return confirmDelete(event, this);">
-                                                @csrf
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-danger ms-1">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="badge bg-success">Completed</span>
-                                        @endif
-                                    </td>
-
-                                    <td>{{ $data->created_at }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-3">No
-                                        verification found
-                                    </td>
-                                </tr>
-                            @endforelse
-                            </tbody>
-                        </table>
+                                        <td>{{ $data->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-3">No
+                                            verification found
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
+                    {{-- SweetAlert Confirm --}}
+                    <script>
+                        function confirmDelete(event, form) {
+                            event.preventDefault();
+                            Swal.fire({
+                                title: 'Cancel order?',
+                                text: 'Are you sure you want to cancel this verification?',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, delete it',
+                                cancelButtonText: 'No, keep it'
+                            }).then(result => {
+                                if (result.isConfirmed) form.submit();
+                            });
+                            return false;
+                        }
+                    </script>
+
+                    {{-- Live Search --}}
+                    <script>
+                        document.getElementById("searchInput").addEventListener("keyup", function () {
+                            const filter = this.value.toLowerCase();
+                            document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
+                                const text = row.textContent.toLowerCase();
+                                row.style.display = text.includes(filter) ? "" : "none";
+                            });
+                        });
+                    </script>
                 </div>
-
-                {{-- SweetAlert Confirm --}}
-                <script>
-                    function confirmDelete(event, form) {
-                        event.preventDefault();
-                        Swal.fire({
-                            title: 'Cancel order?',
-                            text: 'Are you sure you want to cancel this verification?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Yes, delete it',
-                            cancelButtonText: 'No, keep it'
-                        }).then(result => {
-                            if (result.isConfirmed) form.submit();
-                        });
-                        return false;
-                    }
-                </script>
-
-                {{-- Live Search --}}
-                <script>
-                    document.getElementById("searchInput").addEventListener("keyup", function () {
-                        const filter = this.value.toLowerCase();
-                        document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
-                            const text = row.textContent.toLowerCase();
-                            row.style.display = text.includes(filter) ? "" : "none";
-                        });
-                    });
-                </script>
             </div>
         </div>
     </section>
@@ -408,7 +414,12 @@
                         },
                         beforeSend: function () {
                             $('#priceSection').hide();
-                            Swal.fire({ title: 'Checking...', text: 'Please wait', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                            Swal.fire({
+                                title: 'Checking...',
+                                text: 'Please wait',
+                                allowOutsideClick: false,
+                                didOpen: () => Swal.showLoading()
+                            });
                         },
                         success: function (res) {
                             Swal.close();
