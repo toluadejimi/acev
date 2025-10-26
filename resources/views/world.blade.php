@@ -441,9 +441,10 @@
 
             // Buy number button
             $('#buyNowBtn').on('click', function () {
-                const country = $(this).data('country');
-                const service = $(this).data('service');
-                const price = $(this).data('price');
+                const btn = $(this);
+                const country = btn.data('country');
+                const service = btn.data('service');
+                const price = btn.data('price');
 
                 Swal.fire({
                     title: 'Confirm Purchase',
@@ -454,16 +455,34 @@
                     cancelButtonText: 'Cancel'
                 }).then((res) => {
                     if (res.isConfirmed) {
-                        $.post('/order-world-number', {
-                            _token: '{{ csrf_token() }}',
-                            country: country,
-                            service: service,
-                            price: price
-                        }, function (resp) {
-                            if (resp.status === 'success') {
-                                Swal.fire('Success', 'Number purchased successfully, Please wait, page reloading....', 'success').then(() => location.reload());
-                            } else {
-                                Swal.fire('Error', resp.message, 'error');
+
+                        // 🔒 Disable button and show loading spinner
+                        btn.prop('disabled', true)
+                            .html('<i class="fas fa-spinner fa-spin me-2"></i> Getting number...');
+
+                        $.ajax({
+                            url: '/order-world-number',
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                country: country,
+                                service: service,
+                                price: price
+                            },
+                            success: function (resp) {
+                                if (resp.status === 'success') {
+                                    Swal.fire('Success', 'Please wait, page reloading....', 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', resp.message || 'Something went wrong', 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Unable to process your request', 'error');
+                            },
+                            complete: function () {
+                                btn.prop('disabled', false)
+                                    .html('Buy Number Now');
                             }
                         });
                     }

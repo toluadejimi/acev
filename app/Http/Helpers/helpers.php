@@ -762,13 +762,11 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         return 99;
     }
 
-    // Ensure wallet check record exists
     $wallet_check = WalletCheck::where('user_id', $user->id)->first();
     if (!$wallet_check) {
-        return 8; // No wallet check record
+        return 8;
     }
 
-    // Prepare API call
     $key = env('WKEY');
 
     $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
@@ -777,8 +775,10 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         'key' => $key,
     ]);
 
+
+
     if ($response->failed()) {
-        return 2; // API connection failed
+        return 2;
     }
 
     $data = $response->json();
@@ -788,12 +788,11 @@ function create_world_order($country, $service, $price = null, $calculated = nul
     }
 
     if ($data['success'] == 0) {
-        return 5; // API returned failure
+        return 5;
     }
 
     if ($data['success'] == 1) {
 
-        // Remove old expired verifications for same number
         Verification::where('phone', $data['cc'] . $data['phonenumber'])
             ->where('status', 2)
             ->delete();

@@ -372,6 +372,8 @@ class WorldNumberController extends Controller
 
         $order = create_world_order($request->country, $request->service, $request->price, $request->price);
 
+        dd($order);
+
 
         if ($order == 3) {
             return response()->json(['status' => 'success']);
