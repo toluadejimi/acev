@@ -301,6 +301,17 @@ body {
     color: #0284c7;
 }
 
+
+.stat-icon.inflow {
+    background: #f0f9ff;
+    color: #038221;
+}
+
+.stat-icon.outflow {
+    background: #f0f9ff;
+    color: #bf0616;
+}
+
 .stat-icon.orders {
     background: #fdf4ff;
     color: #a855f7;
