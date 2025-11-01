@@ -49,46 +49,60 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon balance">
+                <div class="stat-icon outflow">
                     <i class="fas fa-wallet"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Total Spent</div>
                     <div class="stat-value">₦{{number_format($debit, 2)}}</div>
-                    <div class="stat-status processed">
-                        <i class="fas fa-check"></i>
-                        Processed
-                    </div>
+                    <div class="stat-status attention">Processed</div>
+
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon orders">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-label">Total Orders</div>
-                    <div class="stat-value">0}</div>
-                    <div class="stat-status complete">
-                        <i class="fas fa-check-circle"></i>
-                        Complete
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon deposits">
-                    <i class="fas fa-credit-card"></i>
-                </div>
-
-            </div>
 
 
         </section>
 
 
         <section class="stats-grid">
+            <div class="card">
 
+                <div class="card-body">
+
+                    <h5 class="my-3">Search Transaction</h5>
+
+                    <form action="search-trx" method="get">
+                        @csrf
+
+                        <div class="row">
+
+                            <div class="col-6">
+
+                                <label>Date From</label>
+                                <input class="form-control" name="from" type="date">
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <label>Date To</label>
+                                <input class="form-control" name="to" type="date">
+
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-lg btn-success my-3">Search</button>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </div>
 
         </section>
 
@@ -121,8 +135,8 @@
                             <td>{{ number_format($data->old_balance, 2) }} </td>
                             <td>{{ number_format($data->balance, 2) }} </td>
                             @if($data->type == 2)
-                                <td>                    <div class="stat-status active-green">Credit</div>
-
+                                <td>
+                                    <div class="stat-status active-green">Credit</div>
                                 </td>
                             @else
                                 <td>                                    <div class="stat-status attention">Debit</div>

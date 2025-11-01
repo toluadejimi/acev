@@ -85,6 +85,8 @@ Route::get('verify-account-now',  [HomeController::class,'verify_account_now']);
 Route::get('verify-account-now-success',  [HomeController::class,'verify_account_now_page']);
 
 
+Route::get('/search-trx', [AdminController::class,'search_trx']);
+
 
 
 Route::any('get-smscode',  [HomeController::class,'get_smscode']);

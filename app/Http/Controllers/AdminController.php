@@ -15,6 +15,7 @@ use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class AdminController extends Controller
 {
@@ -103,10 +104,69 @@ class AdminController extends Controller
         }
 
 
-        $data['transaction'] = Transaction::latest()->paginate(100);
-        $data['credit'] = Transaction::where('type', 2)->where('status', 2)->sum('amount');
-        $data['debit'] = Transaction::where(['type'=> 1])->where('status', 2)->sum('amount');
+
+        $data['transaction'] = Transaction::latest()->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->paginate(100);;
+
+
+
+        $data['credit'] = Transaction::where('type', 2)
+            ->where('status', 2)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('amount');
+
+        $data['debit'] = Transaction::where('type', 1)
+            ->where('status', 2)
+            ->where('ref_id', 'LIKE', '%Verification%')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('amount');
+
         return view('transactions', $data);
+
+
+    }
+
+    public
+    function search_trx(request $request)
+    {
+
+
+        $data['credit'] = Transaction::where(['type' => 2])
+            ->where('status', 2)
+            ->when($request->from && $request->to, function ($query) use ($request) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($request->from)->startOfDay(),
+                    Carbon::parse($request->to)->endOfDay(),
+                ]);
+            })
+            ->sum('amount');
+
+
+            $data['debit'] = Transaction::where('type', 1)
+            ->where('ref_id', 'LIKE', '%Verification%')
+            ->where('status', 2)
+            ->when($request->from && $request->to, function ($query) use ($request) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($request->from)->startOfDay(),
+                    Carbon::parse($request->to)->endOfDay(),
+                ]);
+            })
+            ->sum('amount');
+
+        $data['transaction'] = Transaction::latest()->when($request->from && $request->to, function ($query) use ($request) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($request->from)->startOfDay(),
+                    Carbon::parse($request->to)->endOfDay(),
+                ]);
+            })
+            ->paginate(100);
+
+        return view('transactions', $data);
+
+
 
 
     }
