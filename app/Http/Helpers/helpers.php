@@ -811,10 +811,9 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         $ver->cost = $calculatedCost;
         $ver->api_cost = $data['cost'] ?? 0;
         $ver->status = 1;
-        $ver->type = 2;
+        $ver->type = 8;
         $ver->save();
 
-        // Deduct from user wallet
         $oldBalance = $user->wallet;
         $newBalance = $oldBalance - $calculatedCost;
 

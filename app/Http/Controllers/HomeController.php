@@ -1356,7 +1356,7 @@ class HomeController extends Controller
             $trx->amount      = $request->amount;
             $trx->balance     = $new_balance;
             $trx->old_balance = $old_balance;
-            $trx->type        = 8;
+            $trx->type        = 2;
             $trx->save();
 
             WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);

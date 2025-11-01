@@ -105,7 +105,7 @@ class AdminController extends Controller
 
         $data['transaction'] = Transaction::latest()->paginate(100);
         $data['credit'] = Transaction::where('type', 2)->where('status', 2)->sum('amount');
-        $data['debit'] = Transaction::where('type', 1)->where('status', 2)->sum('amount');
+        $data['debit'] = Transaction::where(['type'=> 1])->where('status', 2)->sum('amount');
         return view('transactions', $data);
 
 

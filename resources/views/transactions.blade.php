@@ -54,7 +54,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Total Spent</div>
-                    <div class="stat-value">₦0</div>
+                    <div class="stat-value">₦{{number_format($debit, 2)}}</div>
                     <div class="stat-status processed">
                         <i class="fas fa-check"></i>
                         Processed
@@ -115,8 +115,8 @@
 
                         <tr>
                             <td>{{ $data->ref_id }} </td>
-                            @php $user = User::where('id', $data->user_id)->first()->email; @endphp
-                            <td>{{$user}}</td>
+                            @php $user = User::where('id', $data->user_id)->first()->email ?? null; @endphp
+                            <td>{{$user ?? "name"}}</td>
                             <td>{{ number_format($data->amount, 2) }} </td>
                             <td>{{ number_format($data->old_balance, 2) }} </td>
                             <td>{{ number_format($data->balance, 2) }} </td>
