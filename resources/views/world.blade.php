@@ -282,7 +282,7 @@
                                                     }
 
                                                     updateAll();
-                                                    setInterval(updateAll, 10000);
+                                                    setInterval(updateAll, 60000);
                                                 });
                                             </script>
 
