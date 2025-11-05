@@ -612,7 +612,6 @@ class ApiController extends Controller
         WalletCheck::where('user_id', $user->id)->increment('total_bought', $nairaCost);
         WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $nairaCost);
 
-        // Log transaction
         $trx = new Transaction();
         $trx->ref_id      = "APIVerification-" . uniqid();
         $trx->user_id     = $user->id;

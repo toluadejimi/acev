@@ -530,6 +530,9 @@
                                                                 <script>
                                                                     document.addEventListener('DOMContentLoaded', () => {
                                                                         const id = {{ $data->id }};
+                                                                        const status = {{ $data->status }};
+                                                                        if (status !== 1) return;
+
                                                                         const phone = `{{ $data->phone }}`;
                                                                         const type = {{ $data->type }};
                                                                         const smsSpan = document.getElementById(`data-sm${id}`);
@@ -538,7 +541,6 @@
                                                                         let countdownTimer = null;
                                                                         let lastCodes = [];
 
-                                                                        // URLs
                                                                         const mainUrl = type === 3
                                                                             ? `{{ url('get-smscode-usa2') }}?num=${phone}`
                                                                             : `{{ url('get-smscode') }}?num=${phone}`;
@@ -546,7 +548,6 @@
 
                                                                         console.log(`[INIT] Watching for SMS on ${phone}, mainUrl: ${mainUrl}`);
 
-                                                                        // ========== COUNTDOWN HANDLER ==========
                                                                         async function startCountdown() {
                                                                             console.log(`[COUNTDOWN] Starting countdown for ID ${id}`);
                                                                             try {
