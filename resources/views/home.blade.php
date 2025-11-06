@@ -516,7 +516,7 @@
                                                                 <div id="smsContainer{{ $data->id }}">
                                                                     <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
                                                                         <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-                                                                        <span class="text-warning small ">Waiting for code...</span>
+                                                                        <span class="text-warning small ">Loading Sms code...</span>
                                                                     </div>
 
                                                                     <!-- Main Code -->

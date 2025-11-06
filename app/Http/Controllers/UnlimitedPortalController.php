@@ -302,7 +302,7 @@ class UnlimitedPortalController extends Controller
 
                            DB::commit();
 
-                           return back()->with('message', "Order canceled, NGN{$order->cost} refunded");
+                           return redirect()->back()->with('topMessage', "Order canceled, NGN{$order->cost} refunded");
                        } catch (\Exception $e) {
                            DB::rollBack();
                            return back()->with('error', "Error: " . $e->getMessage());
@@ -313,7 +313,7 @@ class UnlimitedPortalController extends Controller
                }
            }
 
-           return back()->with('error', "Order already processed or canceled");
+           return redirect()->back()->with('topMessage', "Order already processed or canceled");
 
        }
 
