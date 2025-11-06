@@ -86,6 +86,7 @@ Route::get('verify-account-now-success',  [HomeController::class,'verify_account
 
 
 Route::get('/search-trx', [AdminController::class,'search_trx']);
+Route::get('/search-trx', [AdminController::class,'search_trx']);
 
 
 

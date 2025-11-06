@@ -1208,9 +1208,9 @@ class HomeController extends Controller
             $trx->user_id     = $order->user_id;
             $trx->status      = 2;
             $trx->amount      = $order->cost;
-            $trx->balance     = $new_balance;    // ✅ new balance
-            $trx->old_balance = $old_balance;    // old balance
-            $trx->type        = 3;               // refund
+            $trx->balance     = $new_balance;
+            $trx->old_balance = $old_balance;
+            $trx->type        = 3;               
             $trx->save();
 
             $order->delete();

@@ -531,8 +531,6 @@
                                                                     document.addEventListener('DOMContentLoaded', () => {
                                                                         const id = {{ $data->id }};
                                                                         const status = {{ $data->status }};
-                                                                        if (status !== 1) return;
-
                                                                         const phone = `{{ $data->phone }}`;
                                                                         const type = {{ $data->type }};
                                                                         const smsSpan = document.getElementById(`data-sm${id}`);
@@ -546,23 +544,18 @@
                                                                             : `{{ url('get-smscode') }}?num=${phone}`;
                                                                         const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
 
-                                                                        console.log(`[INIT] Watching for SMS on ${phone}, mainUrl: ${mainUrl}`);
-
                                                                         async function startCountdown() {
-                                                                            console.log(`[COUNTDOWN] Starting countdown for ID ${id}`);
                                                                             try {
                                                                                 const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
                                                                                 const data = await res.json();
                                                                                 let secs = data.seconds || 0;
                                                                                 const countdownDisplay = document.getElementById('secondsDisplay' + id);
-                                                                                if (countdownDisplay) countdownDisplay.textContent = secs;
 
                                                                                 countdownTimer = setInterval(() => {
                                                                                     secs--;
                                                                                     if (countdownDisplay) countdownDisplay.textContent = secs;
                                                                                     if (secs <= 0) {
                                                                                         clearInterval(countdownTimer);
-                                                                                        console.log(`[COUNTDOWN] Time up for ID ${id}, deleting order...`);
                                                                                         fetch('{{ url('api/delete-order') }}', {
                                                                                             method: 'POST',
                                                                                             headers: {'Content-Type': 'application/json'},
@@ -575,24 +568,16 @@
                                                                             }
                                                                         }
 
-                                                                        @if($data->status == 1)
-                                                                        startCountdown();
-                                                                        @endif
-
                                                                         async function fetchMainSMS() {
-                                                                            console.log(`[CHECK] Checking main SMS for ${phone} ...`);
                                                                             try {
                                                                                 const res = await fetch(mainUrl);
                                                                                 const data = await res.json();
-                                                                                console.log('[MAIN RESPONSE]', data);
                                                                                 const msg = data?.message?.trim();
 
                                                                                 if (msg && msg.length > 0) {
-                                                                                    console.log(`[FOUND] Main code for ${phone}: ${msg}`);
                                                                                     loader.classList.add('d-none');
                                                                                     smsSpan.classList.remove('d-none');
                                                                                     smsSpan.textContent = msg;
-
                                                                                     smsSpan.addEventListener('click', () => {
                                                                                         navigator.clipboard.writeText(msg).then(() => {
                                                                                             smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
@@ -601,70 +586,54 @@
                                                                                     });
 
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
-                                                                                } else {
-                                                                                    console.log(`[NOT FOUND] Still waiting for code for ${phone}`);
                                                                                 }
                                                                             } catch (err) {
                                                                                 console.error('[MAIN FETCH ERROR]', err);
                                                                             }
                                                                         }
 
-                                                                        // ========== FETCH EXTRA CODES ==========
                                                                         async function fetchExtraCodes() {
-                                                                            console.log(`[CHECK] Checking extra codes for ${phone} ...`);
                                                                             try {
                                                                                 const res = await fetch(fetchUrl);
                                                                                 const result = await res.json();
-                                                                                console.log('[EXTRA RESPONSE]', result);
-
                                                                                 const messages = Array.isArray(result) ? result : result.codes || [];
 
                                                                                 if (messages.length > 0) {
                                                                                     loader.classList.add('d-none');
                                                                                     extraList.classList.remove('d-none');
-
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
 
                                                                                     if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
                                                                                         extraList.innerHTML = '';
-                                                                                        messages.forEach((msg, index) => {
+                                                                                        messages.forEach(msg => {
                                                                                             const code = msg.sms ?? msg;
-                                                                                            const isNew = !lastCodes.some(old => (old.sms ?? old) === code);
-
                                                                                             const div = document.createElement('div');
                                                                                             div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
-                                                                                            div.innerHTML = `
-                                    <span class="text-dark">${code}</span>
-                                    <span class="badge bg-success bg-opacity-75"></span>
-                                `;
+                                                                                            div.innerHTML = `<span class="text-dark">${code}</span>`;
                                                                                             extraList.appendChild(div);
-
                                                                                             div.addEventListener('click', () => navigator.clipboard.writeText(code));
-
-                                                                                            if (isNew) {
-                                                                                                div.classList.add('flash-green');
-                                                                                                setTimeout(() => div.classList.remove('flash-green'), 2000);
-                                                                                            }
                                                                                         });
-
                                                                                         lastCodes = messages;
                                                                                     }
-                                                                                } else {
-                                                                                    console.log(`[NONE] No extra codes yet for ${phone}`);
                                                                                 }
                                                                             } catch (err) {
                                                                                 console.error('[EXTRA FETCH ERROR]', err);
                                                                             }
                                                                         }
 
-                                                                        // ========== RUN BOTH CHECKERS ==========
                                                                         function updateAll() {
                                                                             fetchMainSMS();
                                                                             fetchExtraCodes();
                                                                         }
 
-                                                                        updateAll();
-                                                                        setInterval(updateAll, 60000);
+                                                                        // ✅ Logic
+                                                                        if (status === 1) {
+                                                                            startCountdown();
+                                                                            updateAll();
+                                                                            setInterval(updateAll, 30000);
+                                                                        } else {
+                                                                            updateAll();
+                                                                        }
                                                                     });
                                                                 </script>
 
