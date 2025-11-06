@@ -33,17 +33,44 @@
                 </div>
             </div>
 
+
+            @if(session('topMessage'))
+                <div id="top-popup" class="popup-banner">
+                    <div class="popup-content">
+                        <span>{{ session('topMessage') }}</span>
+                    </div>
+                </div>
+            @endif
+
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            @if (session()->has('message'))
+                <div class="alert alert-success">
+                    {{ session()->get('message') }}
+                </div>
+            @endif
+            @if (session()->has('error'))
+                <div class="alert alert-danger">
+                    {{ session()->get('error') }}
+                </div>
+            @endif
+
+
+
             <!-- Country and Service Selector -->
             <div class="row mt-4">
                 <div class="col-xl-6 col-md-6 col-sm-12 my-3">
                     <div class="card">
                         <div class="card-body">
-                            @if (session('error'))
-                                <div class="alert alert-danger">{{ session('error') }}</div>
-                            @endif
-                            @if (session('message'))
-                                <div class="alert alert-success">{{ session('message') }}</div>
-                            @endif
+
 
 
                             <div class="d-flex justify-content-center my-3">

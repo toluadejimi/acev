@@ -1162,15 +1162,16 @@ class HomeController extends Controller
 
             if (!$order) {
                 DB::rollBack();
-                return back()->with('error', "Order not found");
+                return redirect()->back()->with('topMessage', 'Order Not found');
             }
 
             if ($order->status != 1) {
                 DB::rollBack();
-                return back()->with('error', "Order already processed or canceled");
+                return redirect()->back()->with('topMessage', 'Order already processed or canceled');
             }
 
-            $can_order = $order->type == 2
+
+            $can_order = $order->type == 8
                 ? cancel_world_order($order->order_id)
                 : ($order->type == 1
                     ? cancel_order($order->order_id)
@@ -1183,7 +1184,7 @@ class HomeController extends Controller
 
             if ($can_order !== 1) {
                 DB::rollBack();
-                return back()->with('error', "Order cannot be canceled at this time");
+                return redirect()->back()->with('topMessage', 'Order cannot be canceled at this time');
             }
 
             $order->status = 99;
@@ -1210,7 +1211,7 @@ class HomeController extends Controller
             $trx->amount      = $order->cost;
             $trx->balance     = $new_balance;
             $trx->old_balance = $old_balance;
-            $trx->type        = 3;               
+            $trx->type        = 3;
             $trx->save();
 
             $order->delete();
