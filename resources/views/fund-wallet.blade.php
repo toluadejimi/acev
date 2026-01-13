@@ -48,64 +48,6 @@
             </div>
 
 
-            <div id="promoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
-                <div class="carousel-inner">
-
-                    <!-- Card 1 -->
-                    <div class="carousel-item active">
-                        <div class="col-lg-12 col-md-12">
-                            <div class="card"
-                                 style="background: linear-gradient(135deg, #2990d8 0%, #022843 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                <div class="card-body text-center p-4">
-                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Get Social Media
-                                        Accounts</h5>
-                                    <p class="text-white-50 mb-2">For all types of social accounts</p>
-                                    <a href="https://acelogstores.com" target="_blank"
-                                       class="btn btn-light btn-lg px-4 py-2"
-                                       style="font-weight: bold; border-radius: 25px;">
-                                        Visit Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2 -->
-
-                    <div class="carousel-item">
-                        <div class="col-lg-12 col-md-12">
-                            <div class="card"
-                                 style="background: linear-gradient(135deg, #353333 0%, #010f19 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                <div class="card-body text-center p-4">
-                                    <h5 class="text-white mb-1" style="font-weight: bold;">📱 Boost your Engagement</h5>
-                                    <p class="text-white-50 mb-2">with more followers and likes</p>
-                                    <a href="https://aceboosts.com" target="_blank"
-                                       class="btn btn-light btn-lg px-4 py-2"
-                                       style="font-weight: bold; border-radius: 25px;">
-                                        Boost Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-                <!-- Controls -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel"
-                        data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel"
-                        data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-
-
 
             <div class="row p-3">
 
@@ -266,6 +208,63 @@
                     </div>
                 </div>
 
+                <div id="promoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+
+                        <!-- Card 1 -->
+                        <div class="carousel-item active">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="card"
+                                     style="background: linear-gradient(135deg, #2990d8 0%, #022843 100%);
+                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                    <div class="card-body text-center p-4">
+                                        <h5 class="text-white mb-1" style="font-weight: bold;">📱 Get Social Media
+                                            Accounts</h5>
+                                        <p class="text-white-50 mb-2">For all types of social accounts</p>
+                                        <a href="https://acelogstores.com" target="_blank"
+                                           class="btn btn-light btn-lg px-4 py-2"
+                                           style="font-weight: bold; border-radius: 25px;">
+                                            Visit Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+
+                        <div class="carousel-item">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="card"
+                                     style="background: linear-gradient(135deg, #353333 0%, #010f19 100%);
+                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                    <div class="card-body text-center p-4">
+                                        <h5 class="text-white mb-1" style="font-weight: bold;">📱 Boost your Engagement</h5>
+                                        <p class="text-white-50 mb-2">with more followers and likes</p>
+                                        <a href="https://aceboosts.com" target="_blank"
+                                           class="btn btn-light btn-lg px-4 py-2"
+                                           style="font-weight: bold; border-radius: 25px;">
+                                            Boost Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+
 
                 {{-- TRANSACTIONS --}}
                 <div class="col-lg-12 col-sm-12 mt-4">
@@ -338,6 +337,8 @@
                 </div>
 
             </div>
+
+
 
 
 
