@@ -33,6 +33,9 @@ class UnlimitedPortalController extends Controller
 
         $response = Http::asForm()->post($this->baseUrl, $payload);
 
+
+
+
         if ($response->failed()) {
 
             Log::error("UNLIMITED ERROR =====>".json_encode($response->json()));
@@ -40,6 +43,8 @@ class UnlimitedPortalController extends Controller
 
             return response()->json(['error' => 'API request failed', 'details' => $response->body()], 500);
         }
+
+
 
         return $response->json();
     }
@@ -113,17 +118,17 @@ class UnlimitedPortalController extends Controller
 
 
 
-        $res  = $this->sendRequest('list_services',[
-        'service' => $request->service,
-        ]);
+//        $res  = $this->sendRequest('list_services',[
+//        'service' => $request->service,
+//        ]);
+//
+//        $gcost = (double)$res['message'][0]['price'];
+//
+//
+//        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
 
-        $gcost = (double)$res['message'][0]['price'];
 
-
-        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
-
-
-        if (Auth::user()->wallet < $costs) {
+        if (Auth::user()->wallet < $request->cost) {
             $data['status'] = false;
             $data['message'] = "Insufficient Funds";
             return $data;
@@ -138,7 +143,7 @@ class UnlimitedPortalController extends Controller
         $carrier = $request->carrier;
 
 
-        $order = $this->create_order_usa2($service, $price, $cost, $service_name, $gcost, $area_code);
+        $order = $this->create_order_usa2($service, $price, $cost, $service_name, $request->cost, $area_code);
 
 
         if ($order == 8) {
@@ -323,6 +328,8 @@ class UnlimitedPortalController extends Controller
     private function create_order_usa2($service, $price, $cost, $service_name, $gcost, $area_code)
     {
 
+
+
         if (Auth::user()->wallet < $price) {
             return 8;
         }
@@ -362,7 +369,11 @@ class UnlimitedPortalController extends Controller
 
 
 
+
+
+
         $result = $rent['status'];
+
 
 
         if (strstr($result, "NO_NUMBERS") !== false) {

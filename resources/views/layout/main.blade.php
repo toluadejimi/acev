@@ -387,6 +387,26 @@
     }
 </script>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('form').on('submit', function () {
+
+            // disable button
+            $('#generateBtn').prop('disabled', true);
+
+            // show loader
+            $('#btnLoader').removeClass('d-none');
+
+            // change text
+            $('#btnText').text('Generating...');
+        });
+    });
+</script>
+
+
 
 </body>
 <!-- [Body] end -->

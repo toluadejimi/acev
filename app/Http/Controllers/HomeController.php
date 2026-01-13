@@ -7,6 +7,7 @@ use App\Models\Deposit;
 use App\Models\ManualPayment;
 use App\Models\Notification;
 use App\Models\PaymentMethod;
+use App\Models\PaymentPoint;
 use App\Models\Setting;
 use App\Models\SoldLog;
 use App\Models\Transaction;
@@ -51,7 +52,7 @@ class HomeController extends Controller
     public function generate_token(request $request)
     {
 
-        $token = Str::random(30).date('mhis');
+        $token = Str::random(30) . date('mhis');
 
         User::where('id', Auth::id())->update(['api_key' => $token]);
         return back()->with('message', 'Api Key Set successfully');
@@ -59,8 +60,111 @@ class HomeController extends Controller
     }
 
 
+    public function generate_account(request $request)
+    {
 
-        public function index(request $request)
+
+
+            if (Auth::user()->name == null &&  Auth::user()->phone = null) {
+
+                $request->validate([
+                    'name' => 'required',
+                    'phone' => 'required|max:11|min:11',
+                ]);
+
+                User::where('id', Auth::id())->update(['name' => $request->name, 'phone' => $request->phone]);
+            }
+
+
+
+
+            $email = Auth::user()->email;
+            $get_account = PaymentPoint::where('email', $email)->first() ?? null;
+
+            if ($get_account != null) {
+                $data2['account_no'] = $get_account->account_no;
+                $data2['bank_name'] = $get_account->bank_name;
+                $data2['account_name'] = $get_account->account_name;
+
+                $data2['status'] ="off";
+                $data2['transaction'] =Transaction::latest()->where('user_id', Auth::id())->paginate(100);
+
+
+                return redirect('fund-wallet')->with('message', 'Account created');
+
+            }
+
+            $key = env('PALMPAYKEY');
+
+            $databody = array(
+                "email" => $email,
+                "account_name" => $request->fullname ?? Auth::user()->name,
+                "key" => $key,
+            );
+
+
+            $post_data = json_encode($databody);
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://web.sprintpay.online/api/generate-virtual-account',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 20,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $post_data,
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                ),
+            ));
+
+            $var = curl_exec($curl);
+
+
+        curl_close($curl);
+            $var = json_decode($var);
+            $status = $var->status ?? null;
+            $error = $var->message ?? null;
+
+
+
+
+        if ($status != false) {
+
+
+                $pay = new PaymentPoint();
+                $pay->account_no = $var->data->account_number;
+                $pay->account_name = $var->data->account_name;
+                $pay->bank_name = $var->data->bank_name;
+                $pay->email = $email;
+                $pay->save();
+
+
+
+
+                $data2['account_no'] = $var->data->account_number;
+                $data2['bank_name'] =  $var->data->bank_name;
+                $data2['account_name'] =$var->data->account_name;
+                $data2['status'] ="off";
+                $data2['transaction'] =Transaction::latest()->where('user_id', Auth::id())->paginate(100);
+
+
+              return redirect('fund-wallet')->with('message', 'Account created');
+
+
+        }
+
+            return back()->with('error', "$error");
+
+
+    }
+
+
+    public function index(request $request)
     {
         $data['services'] = get_services();
 
@@ -80,8 +184,6 @@ class HomeController extends Controller
         return response()->json($codes);
 
 
-
-
     }
 
 
@@ -93,7 +195,8 @@ class HomeController extends Controller
         return view('h1', $data);
 
     }
- public function home(request $request)
+
+    public function home(request $request)
     {
 
         $services = get_services();
@@ -101,7 +204,7 @@ class HomeController extends Controller
         $allServices = [];
         foreach ($services as $provider => $items) {
             foreach ($items as $id => $service) {
-                $allServices[] = (object) array_merge((array) $service, ['provider' => $provider]);
+                $allServices[] = (object)array_merge((array)$service, ['provider' => $provider]);
             }
         }
 
@@ -130,12 +233,12 @@ class HomeController extends Controller
         $result = get_services_usa_server_2(); // Or dynamically pass ZIP
 
         $data['services'] = $result['availableServices'] ?? [];
-        $data['zips']     = $result['availableZips'] ?? [];
+        $data['zips'] = $result['availableZips'] ?? [];
 
 
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
-        $data['rate'] =   $data['margin'] + $data['get_rate'];
+        $data['rate'] = $data['margin'] + $data['get_rate'];
 
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
         $data['order'] = 0;
@@ -162,14 +265,13 @@ class HomeController extends Controller
 
         $ver = Verification::where('id', $request->id)->first();
 
-        if($ver){
+        if ($ver) {
 
-            if($ver->status === 1){
+            if ($ver->status === 1) {
                 $secs = Verification::where('id', $request->id)->update(['expires_in' => $request->secs]);
 
             }
         }
-
 
 
     }
@@ -194,29 +296,24 @@ class HomeController extends Controller
     {
 
 
-
         $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
-        if(!$wallet_check){
+        if (!$wallet_check) {
             Auth::logout();
             return redirect('login');
         }
 
 
-
-
-
         if (Auth::user()->wallet < $request->price) {
             $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
+            $data['message'] = "Insufficient Funds";
 
             return $data;
         }
 
 
-
         if (Auth::user()->wallet < $request->price) {
             $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
+            $data['message'] = "Insufficient Funds";
 
             return $data;
         }
@@ -225,11 +322,9 @@ class HomeController extends Controller
         $data2['margin'] = Setting::where('id', 1)->first()->margin;
 
 
-
         $service = $request->key;
 
         $gcost = get_d_price($service);
-
 
 
 //        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
@@ -248,17 +343,17 @@ class HomeController extends Controller
         $carrier = $request->carrier;
 
 
-        $order = create_order($service, $price, $cost, $service_name, $gcost,  $area_code, $carrier);
+        $order = create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier);
 
         if ($order == 8) {
             $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
+            $data['message'] = "Insufficient Funds";
             return $data;
         }
 
         if ($order == 54) {
             $data['status'] = false;
-            $data['message'] =  "Price has been updated, Please re-order number";
+            $data['message'] = "Price has been updated, Please re-order number";
             return $data;
         }
 
@@ -270,14 +365,14 @@ class HomeController extends Controller
         if ($order == 8) {
 
             $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
+            $data['message'] = "Insufficient Funds";
 
             return $data;
         }
 
         if ($order == 8) {
             $data['status'] = false;
-            $data['message'] =  "Insufficient Funds";
+            $data['message'] = "Insufficient Funds";
 
             return $data;
         }
@@ -297,14 +392,14 @@ class HomeController extends Controller
         if ($order == 0) {
 
             $data['status'] = false;
-            $data['message'] =  "Number Currently out of stock, Please check back later";
+            $data['message'] = "Number Currently out of stock, Please check back later";
             return $data;
         }
 
         if ($order == 56) {
 
             $data['status'] = false;
-            $data['message'] =  "No number found";
+            $data['message'] = "No number found";
             return $data;
         }
 
@@ -314,7 +409,8 @@ class HomeController extends Controller
                 'status' => true,
                 'reload' => true,
                 'message' => "Successful"
-            ]);        }
+            ]);
+        }
     }
 
 
@@ -374,7 +470,7 @@ class HomeController extends Controller
                     send_notification2($message);
 
 
-                        return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
+                    return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
 
                 }
 
@@ -448,8 +544,6 @@ class HomeController extends Controller
                     return redirect()->back()->with('topMessage', "✅ Order has been canceled, NGN$amount has been refunded");
 
 
-
-
                 }
 
 
@@ -496,15 +590,27 @@ class HomeController extends Controller
 
     public function fund_wallet(Request $request)
     {
-        $user = Auth::id() ?? null;
-        $pay = PaymentMethod::all();
-        $status = AccountDetail::where('id', 1)->first()->status;
-        $transaction = Transaction::query()
+        $data2['user'] = Auth::id() ?? null;
+        $data2['pay'] = PaymentMethod::all();
+        $data2['status'] = AccountDetail::where('id', 1)->first()->status;
+        $data2['transaction'] = Transaction::query()
             ->orderByRaw('updated_at DESC')
             ->where('user_id', Auth::id())
             ->paginate(10);
 
-        return view('fund-wallet', compact('user', 'pay', 'status', 'transaction'));
+
+        $email = Auth::user()->email;
+        $get_account = PaymentPoint::where('email', $email)->first() ?? null;
+
+        if ($get_account != null) {
+            $data2['account_no'] = $get_account->account_no;
+            $data2['bank_name'] = $get_account->bank_name;
+            $data2['account_name'] = $get_account->account_name;
+
+        }
+
+
+        return view('fund-wallet', $data2);
     }
 
 
@@ -652,11 +758,10 @@ class HomeController extends Controller
             }
 
 
-
             $get_user_balance = Auth::user()->wallet;
             $ck = WalletCheck::where('user_id', Auth::user())->first();
             //$total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
-            if(!$ck){
+            if (!$ck) {
                 $wal = new WalletCheck();
                 $wal->user_id = Auth::id();
                 $wal->total_funded = Auth::user()->wallet;
@@ -683,7 +788,6 @@ class HomeController extends Controller
         User::where('id', $request->id)->update(['status' => 9]);
         return back()->with('message', "Account Banned Successfully");
     }
-
 
 
     public function destroy_user($id)
@@ -806,14 +910,13 @@ class HomeController extends Controller
         $get_user_balance = Auth::user()->wallet;
         $ck = WalletCheck::where('user_id', Auth::user())->first();
         $total_funded = Transaction::where(['user_id' => Auth::id(), 'status' => 2])->where('type', 2)->sum('amount');
-        if(!$ck){
+        if (!$ck) {
             $wal = new WalletCheck();
             $wal->user_id = Auth::id();
             $wal->total_funded = $total_funded;
             $wal->wallet_amount = 0;
             $wal->save();
         }
-
 
 
         // Redirect the user to a protected route or dashboard
@@ -971,9 +1074,7 @@ class HomeController extends Controller
         $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
 
 
-
         $ck_order = check_sms($order_id);
-
 
 
         $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
@@ -996,8 +1097,6 @@ class HomeController extends Controller
 
 
     }
-
-
 
 
     public
@@ -1038,7 +1137,7 @@ class HomeController extends Controller
         $ver = Verification::where('order_id', $activationId)->first() ?? null;
         $get_webhook_url = User::where('id', $get_user_id)->first()->webhook_url ?? null;
 
-        if($get_webhook_url){
+        if ($get_webhook_url) {
 
 
             try {
@@ -1092,17 +1191,16 @@ class HomeController extends Controller
 
         }
 
-        try{
+        try {
 
             $order = Verification::where('order_id', $activationId)->first() ?? null;
             $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
 
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
 
 
         }
-
 
 
     }
@@ -1205,13 +1303,13 @@ class HomeController extends Controller
             send_notification2($message);
 
             $trx = new Transaction();
-            $trx->ref_id      = "Order Cancel " . $order->id;
-            $trx->user_id     = $order->user_id;
-            $trx->status      = 2;
-            $trx->amount      = $order->cost;
-            $trx->balance     = $new_balance;
+            $trx->ref_id = "Order Cancel " . $order->id;
+            $trx->user_id = $order->user_id;
+            $trx->status = 2;
+            $trx->amount = $order->cost;
+            $trx->balance = $new_balance;
             $trx->old_balance = $old_balance;
-            $trx->type        = 3;
+            $trx->type = 3;
             $trx->save();
 
             $order->delete();
@@ -1320,7 +1418,6 @@ class HomeController extends Controller
     }
 
 
-
     public function e_fund(Request $request)
     {
         $ip = $request->ip();
@@ -1328,7 +1425,7 @@ class HomeController extends Controller
         if ($ip != "209.74.80.245") {
             return response()->json([
                 'status' => false,
-                'message' =>  "Wrong IP | $ip"
+                'message' => "Wrong IP | $ip"
             ]);
         }
 
@@ -1351,13 +1448,13 @@ class HomeController extends Controller
 
         if (!$get_depo) {
             $trx = new Transaction();
-            $trx->ref_id      = $request->order_id;
-            $trx->user_id     = $get_user->id;
-            $trx->status      = 2;
-            $trx->amount      = $request->amount;
-            $trx->balance     = $new_balance;
+            $trx->ref_id = $request->order_id;
+            $trx->user_id = $get_user->id;
+            $trx->status = 2;
+            $trx->amount = $request->amount;
+            $trx->balance = $new_balance;
             $trx->old_balance = $old_balance;
-            $trx->type        = 2;
+            $trx->type = 2;
             $trx->save();
 
             WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
@@ -1365,8 +1462,8 @@ class HomeController extends Controller
 
         } else {
             Transaction::where('ref_id', $request->order_id)->update([
-                'status'      => 2,
-                'balance'     => $new_balance,
+                'status' => 2,
+                'balance' => $new_balance,
                 'old_balance' => $old_balance,
             ]);
 
@@ -1415,9 +1512,7 @@ class HomeController extends Controller
     {
 
 
-
         User::where('id', $request->id)->update(['status' => 2]);
-
 
 
         return back()->with('message', 'User Unban');
@@ -1444,7 +1539,7 @@ class HomeController extends Controller
         $request->validate([
             'action' => 'required|in:add,remove',
             'amount' => 'required|numeric|min:1',
-            'note'   => 'nullable|string'
+            'note' => 'nullable|string'
         ]);
 
         $user = User::findOrFail($id);
@@ -1454,11 +1549,11 @@ class HomeController extends Controller
 
 
             $trx = new Transaction();
-            $trx->ref_id = "ADMINFUNDING".random_int(000000, 999999);
+            $trx->ref_id = "ADMINFUNDING" . random_int(000000, 999999);
             $trx->user_id = $user->id;
             $trx->status = 2;
             $trx->amount = $request->amount;
-            $trx->balance =  $user->wallet + $request->amount;
+            $trx->balance = $user->wallet + $request->amount;
             $trx->old_balance = $user->wallet;
             $trx->type = 2;
             $trx->save();
@@ -1479,11 +1574,11 @@ class HomeController extends Controller
             $user->wallet -= $request->amount;
 
             $trx = new Transaction();
-            $trx->ref_id = "ADMINREMOVAL".random_int(000000, 999999);
+            $trx->ref_id = "ADMINREMOVAL" . random_int(000000, 999999);
             $trx->user_id = $user->id;
             $trx->status = 2;
             $trx->amount = $request->amount;
-            $trx->balance =  $user->wallet - $request->amount;
+            $trx->balance = $user->wallet - $request->amount;
             $trx->old_balance = $user->wallet;
             $trx->type = 1;
             $trx->save();
@@ -1496,7 +1591,6 @@ class HomeController extends Controller
 
         return back()->with('message', 'Funds updated successfully!');
     }
-
 
 
 }

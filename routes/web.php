@@ -52,6 +52,7 @@ Route::get('logs', [LogViewerController::class, 'index']);
 //auth
 
 Route::get('/',  [HomeController::class,'index']);
+Route::any('generate-account',  [HomeController::class,'generate_account']);
 
 
 Route::post('login_now',  [HomeController::class,'login']);
