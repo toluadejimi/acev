@@ -2,7 +2,59 @@
 @section('content')
 
     <section id="technologies mt-4 my-5">
+
+
+
+
+
         <div class="container title my-5">
+
+
+            <div class="col-lg-12 col-md-12 mt-4">
+                <div class="card"
+                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                border: none;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between">
+
+                            <!-- Wallet Info -->
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-wallet fa-3x text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-white mb-1" style="font-weight: 600;">
+                                        {{ Auth::user()->username }}
+                                    </h5>
+                                    <h3 class="text-white mb-0" style="font-weight: bold;">
+                                        ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
+                                    </h3>
+                                    <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
+                                </div>
+                            </div>
+
+                            <!-- Fund Button -->
+                            <div class="mt-3 mt-md-0">
+                                <a href="{{ url('us') }}"
+                                   class="btn btn-light btn-lg px-4 py-2"
+                                   style="font-weight: bold;
+                              border-radius: 25px;
+                              box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+                              transition: 0.3s;">
+                                    <i class="fas fa-home me-2 text-primary"></i>
+                                    Home
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
             <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">
                 <h6 class="col-md-8 col-xl-6">
                     <h4 class="mb-3 text-danger">Hi {{ Auth::user()->username }},</h4>
