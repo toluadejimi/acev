@@ -746,33 +746,45 @@ function create_world_order($country, $service, $price = null, $calculated = nul
         return 2;
     }
 
-    $providerCost = pool_cost($service, $country);
-    $providerCost = (float)preg_replace('/[^\d.]/', '', (string)$providerCost);
+    $rate = (float)$setting->rate;    // USD to NGN rate
+    $margin = (float)$setting->margin;  // margin percentage
 
-    $sentPrice = (float)preg_replace('/[^\d.]/', '', (string)$price);
+    $providerUsd = pool_cost($service, $country);
+    $providerUsd = (float)preg_replace('/[^\d.]/', '', (string)$providerUsd);
 
-    if ($providerCost <= 0) {
+    if ($providerUsd <= 0) {
         Log::error("POOL COST ERROR", [
             'service' => $service,
             'country' => $country,
-            'providerCost' => $providerCost,
+            'providerUsd' => $providerUsd,
         ]);
         return 2;
     }
 
+    $providerNgn = $providerUsd * $rate;
 
-    if (abs($sentPrice - $providerCost) > 0.5) {
+    $providerNgn = $providerNgn + (($margin / 100) * $providerNgn);
+
+    $providerNgn = round($providerNgn, 2);
+
+    $sentPrice = (float)preg_replace('/[^\d.]/', '', (string)$price);
+    $sentPrice = round($sentPrice, 2);
+
+    if (abs($sentPrice - $providerNgn) > 1) { // allow ₦1 difference
         Log::warning("PRICE MISMATCH", [
             'user_id' => $user->id,
             'sentPrice' => $sentPrice,
-            'providerCost' => $providerCost,
+            'providerUsd' => $providerUsd,
+            'rate' => $rate,
+            'margin' => $margin,
+            'providerNgn' => $providerNgn,
             'service' => $service,
             'country' => $country,
         ]);
         return 98;
     }
 
-    if ((float)$user->wallet < $providerCost) {
+    if ((float)$user->wallet < $providerNgn) {
         return 99;
     }
 
@@ -784,8 +796,9 @@ function create_world_order($country, $service, $price = null, $calculated = nul
     $key = env('WKEY');
 
     try {
-        return DB::transaction(function () use ($user, $wallet_check, $providerCost, $country, $service, $key) {
+        return DB::transaction(function () use ($user, $wallet_check, $providerNgn, $country, $service, $key) {
 
+            // ✅ Buy from provider
             $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
                 'country' => $country,
                 'service' => $service,
@@ -798,17 +811,9 @@ function create_world_order($country, $service, $price = null, $calculated = nul
 
             $data = $response->json();
 
-            if (!isset($data['success'])) {
-                return 2;
-            }
-
-            if ((int)$data['success'] === 0) {
-                return 5;
-            }
-
-            if ((int)$data['success'] !== 1) {
-                return 2;
-            }
+            if (!isset($data['success'])) return 2;
+            if ((int)$data['success'] === 0) return 5;
+            if ((int)$data['success'] !== 1) return 2;
 
             Verification::where('phone', $data['cc'] . $data['phonenumber'])
                 ->where('status', 2)
@@ -821,32 +826,33 @@ function create_world_order($country, $service, $price = null, $calculated = nul
             $ver->country = $data['country'];
             $ver->service = $data['service'];
             $ver->expires_in = 300;
-            $ver->cost = $providerCost;
-            $ver->api_cost = $data['cost'] ?? 0;
+            $ver->cost = $providerNgn;              // ✅ stored in NGN
+            $ver->api_cost = $data['cost'] ?? 0;    // provider USD cost
             $ver->status = 1;
             $ver->type = 8;
             $ver->save();
 
             $oldBalance = (float)$user->wallet;
-            $newBalance = $oldBalance - $providerCost;
+            $newBalance = $oldBalance - $providerNgn;
 
-            $user->decrement('wallet', $providerCost);
-            $wallet_check->increment('total_bought', $providerCost);
-            $wallet_check->decrement('wallet_amount', $providerCost);
+            $user->decrement('wallet', $providerNgn);
+            $wallet_check->increment('total_bought', $providerNgn);
+            $wallet_check->decrement('wallet_amount', $providerNgn);
 
             $trx = new Transaction();
             $trx->ref_id = "Verification " . $data['order_id'];
             $trx->user_id = $user->id;
             $trx->status = 2;
-            $trx->amount = $providerCost;
+            $trx->amount = $providerNgn;
             $trx->balance = $newBalance;
             $trx->old_balance = $oldBalance;
             $trx->type = 1;
             $trx->save();
 
-            $cost2 = number_format($providerCost, 2);
+            $cost2 = number_format($providerNgn, 2);
             $bal = number_format($newBalance, 2);
-            $message = "{$user->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
+
+            $message = "{$user->email} ordered SMSPOOL number — NGN {$cost2} | Balance: NGN {$bal}";
             send_notification($message);
             send_notification2($message);
 
@@ -860,7 +866,6 @@ function create_world_order($country, $service, $price = null, $calculated = nul
             'service' => $service,
             'country' => $country,
         ]);
-
         return 2;
     }
 }
