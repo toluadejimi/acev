@@ -309,12 +309,12 @@ class WorldNumberController extends Controller
         $data['product'] = null;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->get();
 
+
         return view('world', $data);
     }
 
     public function getServices($countryID)
     {
-        // Optional: Filter services if your external API allows country filter
         $services = get_world_services();
         return response()->json($services);
     }
