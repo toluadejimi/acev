@@ -405,13 +405,12 @@ class WorldNumberController extends Controller
             ], 400);
         }
 
-//        $order = create_world_order(
-//            $request->country,
-//            $request->service,
-//            $price,
-//            $price
-//        );
-        $order = create_world_order($request->country, $request->service, $request->price, null);
+        $order = create_world_order(
+            $request->country,
+            $request->service,
+            $price,
+            $price
+        );
 
 
         if ($order == 3) {
