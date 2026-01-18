@@ -298,6 +298,7 @@ use App\Models\Verification;
 use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class WorldNumberController extends Controller
 {
@@ -369,21 +370,66 @@ class WorldNumberController extends Controller
 
     public function orderNumber(Request $request)
     {
-        if (Auth::user()->wallet < $request->price) {
-            return response()->json(['status' => 'error', 'message' => 'Insufficient wallet balance']);
+        $validator = Validator::make($request->all(), [
+            'country' => 'required',
+            'service' => 'required',
+            'price'   => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first()
+            ], 422);
         }
 
-        $order = create_world_order($request->country, $request->service, $request->price, $request->price);
+        $price = (float) preg_replace('/[^\d.]/', '', (string) $request->price);
+
+        $wallet = (float) Auth::user()->wallet;
+
+
+
+        if ($price <= 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid price sent'
+            ], 400);
+        }
+
+        if ($wallet < $price) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Insufficient wallet balance',
+                'wallet_balance' => $wallet,
+                'required_amount' => $price
+            ], 400);
+        }
+
+//        $order = create_world_order(
+//            $request->country,
+//            $request->service,
+//            $price,
+//            $price
+//        );
+        $order = create_world_order($request->country, $request->service, $request->price, null);
 
 
         if ($order == 3) {
-            return response()->json(['status' => 'success']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order completed successfully'
+            ]);
         }
 
         if ($order == 99) {
-            return response()->json(['status' => 'error', 'message' => 'Insufficient wallet balance']);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Insufficient wallet balance'
+            ], 400);
         }
 
-        return response()->json(['status' => 'error', 'message' => 'Unable to complete purchase']);
-    }
-}
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Unable to complete purchase'
+        ], 400);
+    }}
