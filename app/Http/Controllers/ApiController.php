@@ -516,9 +516,7 @@ class ApiController extends Controller
             $trx->type = 3; // refund type
             $trx->save();
 
-            // Update order status to cancelled
-            $order->status = 2;
-            $order->save();
+            $order->delete();
 
             DB::commit();
 
