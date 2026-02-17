@@ -412,91 +412,131 @@ class ApiController extends Controller
     }
 
 
-    public
-    function cancel_usa_number(request $request)
+    public function cancel_usa_number(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'order_id' => 'nullable|integer',
+            'phone'    => 'nullable|string'
+        ]);
 
-        $order = Verification::where('id', $request->order_id)->first() ?? null;
+        // Try to find order
+        $order = null;
 
-        if ($order == null) {
+        if ($request->order_id) {
+            $order = Verification::where('id', $request->order_id)->first();
+        }
 
+        if (!$order && $request->phone) {
+            $order = Verification::where('phone', $request->phone)->first();
+        }
+
+        if (!$order) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => "Order not found"
             ]);
         }
 
+        // If already cancelled
         if ($order->status == 2) {
-            Verification::where('id', $request->order_id)->delete();
+            return response()->json([
+                'status'  => false,
+                'message' => "Order already cancelled"
+            ]);
+        }
+
+        // If order is active
+        if ($order->status != 1) {
+            return response()->json([
+                'status'  => false,
+                'message' => "Order cannot be cancelled at this stage"
+            ]);
+        }
+
+        // Call external cancel API
+        $corder = cancel_order($order->order_id);
+
+        if ($corder == 0) {
+            return response()->json([
+                'status'  => false,
+                'message' => "Please wait and try again later"
+            ]);
+        }
+
+        if ($corder == 5) {
+            return response()->json([
+                'status'  => false,
+                'message' => "SMS already received. Cannot cancel."
+            ]);
+        }
+
+        if ($corder != 1) {
+            return response()->json([
+                'status'  => false,
+                'message' => "Cancellation failed"
+            ]);
+        }
+
+        // Process refund safely
+        DB::beginTransaction();
+
+        try {
+
+            $user = User::lockForUpdate()->find($order->user_id);
+
+            if (!$user) {
+                DB::rollBack();
+                return response()->json([
+                    'status'  => false,
+                    'message' => "User not found"
+                ]);
+            }
+
+            $old_balance = $user->wallet;
+
+            // Refund wallet
+            $user->wallet += $order->cost;
+            $user->save();
+
+            // Update wallet check
+            WalletCheck::where('user_id', $user->id)
+                ->increment('wallet_amount', $order->cost);
+
+            $new_balance = $user->wallet;
+
+            // Log transaction
+            $trx = new Transaction();
+            $trx->ref_id = "API_ORDER_CANCEL_" . $order->id;
+            $trx->user_id = $user->id;
+            $trx->status = 2; // success
+            $trx->amount = $order->cost;
+            $trx->balance = $new_balance;
+            $trx->old_balance = $old_balance;
+            $trx->type = 3; // refund type
+            $trx->save();
+
+            // Update order status to cancelled
+            $order->status = 2;
+            $order->save();
+
+            DB::commit();
 
             return response()->json([
-                'status' => false,
-                'message' => "Order has been successfully deleted"
+                'status'  => true,
+                'message' => "ORDER CANCELLED & REFUNDED"
             ]);
 
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => false,
+                'message' => "Something went wrong. Please try again."
+            ]);
         }
-
-        if ($order->status == 1) {
-
-            $orderID = $order->order_id;
-            $corder = cancel_order($orderID);
-
-
-            if ($corder == 0) {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => "Please wait and try again later"
-                ]);
-
-            }
-
-            if ($corder == 5) {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => "SMS Found already"
-                ]);
-
-            }
-
-
-            if ($corder == 1) {
-
-                sleep(5);
-                $amount = number_format($order->cost, 2);
-
-                $user_id = $order->user_id;
-                User::where('id', $user_id)->increment('wallet', $order->cost);
-                WalletCheck::where('user_id', $user_id)->increment('wallet_amount', $order->cost);
-
-
-                $get_balance = User::where('id', $user_id)->first()->wallet;
-                $balance = $get_balance + $order->cost;
-
-                $trx = new Transaction();
-                $trx->ref_id = "API Order Cancel " . $request->id;
-                $trx->user_id = $user_id;
-                $trx->status = 2;
-                $trx->amount = $order->cost;
-                $trx->balance = $balance;
-                $trx->old_balance = $get_balance;
-                $trx->type = 3;
-                $trx->save();
-
-
-                return response()->json([
-                    'status' => true,
-                    'message' => "ORDER CANCELLED"
-                ]);
-
-            }
-
-
-        }
-
     }
-
 
 
     public function rent_usa_number(Request $request)
