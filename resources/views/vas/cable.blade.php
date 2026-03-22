@@ -74,17 +74,12 @@
                             <select id="vb-cable-service" class="fw-select" {{ $vasConfigured ? '' : 'disabled' }}>
                                 <option value="">Loading catalogue…</option>
                             </select>
-                            <input type="text" id="vb-cable-service-manual" class="fw-input mt-2" placeholder="Override: e.g. dstv, gotv, startimes"
-                                   autocomplete="off" {{ $vasConfigured ? '' : 'disabled' }}>
-                            <p class="vb-muted mb-0">If the list is empty, type the SprintPay / VTpass service id in the override field (submitted instead of the select).</p>
                         </div>
                         <div>
                             <label class="fw-label" for="vb-cable-variation">Plan (variation_code)</label>
                             <select id="vb-cable-variation" class="fw-select" disabled>
                                 <option value="">Load providers first</option>
                             </select>
-                            <input type="text" id="vb-cable-variation-manual" class="fw-input mt-2" placeholder="Override variation_code"
-                                   autocomplete="off" {{ $vasConfigured ? '' : 'disabled' }}>
                             <input type="hidden" name="variation_code" id="vb-cable-variation-hidden" value="" required>
                         </div>
                     </div>
@@ -311,8 +306,6 @@
                 const svcSel = document.getElementById('vb-cable-service');
                 const varSel = document.getElementById('vb-cable-variation');
                 const varHidden = document.getElementById('vb-cable-variation-hidden');
-                const svcManual = document.getElementById('vb-cable-service-manual');
-                const varManual = document.getElementById('vb-cable-variation-manual');
                 const amtInput = document.getElementById('vb-cable-amt');
                 const loadBtn = document.getElementById('vb-cable-load');
                 const loading = document.getElementById('vb-cable-loading');
@@ -324,11 +317,6 @@
                 }
 
                 function syncVariationHidden() {
-                    const m = varManual.value.trim();
-                    if (m) {
-                        varHidden.value = m;
-                        return;
-                    }
                     const opt = varSel.selectedOptions[0];
                     varHidden.value = opt && opt.dataset.code ? opt.dataset.code : '';
                     if (opt && opt.dataset.amount && amtInput && !amtInput.dataset.userEdited) {
@@ -368,8 +356,7 @@
                     }
                 }
 
-                function applyProviderById(sid, skipManualClear) {
-                    if (!skipManualClear) svcManual.value = '';
+                function applyProviderById(sid) {
                     const p = providerModels.find(function (x) { return x.id === sid; });
                     syncServiceId();
                     if (!p) {
@@ -415,14 +402,13 @@
                             debug.textContent = '';
                             fillProviderSelect();
                             svcSel.selectedIndex = 1;
-                            return applyProviderById(svcSel.value, true);
+                            return applyProviderById(svcSel.value);
                         })
                         .finally(function () { setLoading(false); });
                 }
 
                 function syncServiceId() {
-                    const m = svcManual.value.trim();
-                    document.getElementById('vb-cable-sid-h').value = m || svcSel.value || '';
+                    document.getElementById('vb-cable-sid-h').value = svcSel.value || '';
                 }
 
                 if (amtInput) {
@@ -434,26 +420,20 @@
                 });
 
                 svcSel.addEventListener('change', function () {
-                    svcManual.value = '';
                     if (amtInput) delete amtInput.dataset.userEdited;
-                    applyProviderById(svcSel.value, true);
+                    applyProviderById(svcSel.value);
                 });
 
                 varSel.addEventListener('change', syncVariationHidden);
-                varManual.addEventListener('input', function () { syncVariationHidden(); });
-                svcManual.addEventListener('input', function () {
-                    if (svcManual.value.trim()) svcSel.value = '';
-                    syncServiceId();
-                });
 
                 loadCatalog();
 
                 document.getElementById('vb-cable-validate').addEventListener('click', function () {
-                    const sid = svcManual.value.trim() || svcSel.value;
+                    const sid = svcSel.value;
                     const smart = document.getElementById('vb-cable-smart').value.trim();
                     const out = document.getElementById('vb-cable-validate-out');
                     if (!sid || !smart) {
-                        alert('Select or enter provider and smartcard number.');
+                        alert('Select a provider and enter the smartcard number.');
                         return;
                     }
                     out.classList.remove('d-none', 'alert-danger', 'alert-success');
