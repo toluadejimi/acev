@@ -32,6 +32,48 @@ class WalletFundingService
                     return ['ok' => true, 'duplicate' => true, 'message' => 'Already credited'];
                 }
 
+                // fund_now() creates a pending row (status 1) with this ref before redirecting to SprintPay.
+                if ((int) $existing->status === 1 && (int) $existing->type === 2) {
+                    if (abs((float) $existing->amount - $amount) >= 0.01) {
+                        return [
+                            'ok' => false,
+                            'http' => 409,
+                            'message' => 'Payment amount does not match pending transaction',
+                        ];
+                    }
+
+                    $user = User::where('email', $email)->lockForUpdate()->first();
+                    if (!$user) {
+                        return ['ok' => false, 'http' => 404, 'message' => 'No user found, please check email and try again'];
+                    }
+
+                    if ((int) $existing->user_id !== (int) $user->id) {
+                        return [
+                            'ok' => false,
+                            'http' => 403,
+                            'message' => 'Payment reference does not match account',
+                        ];
+                    }
+
+                    $old = (float) $user->wallet;
+                    $user->increment('wallet', $amount);
+                    $new = $old + $amount;
+
+                    $existing->status = 2;
+                    $existing->balance = $new;
+                    $existing->old_balance = $old;
+                    $existing->save();
+
+                    WalletCheck::firstOrCreate(
+                        ['user_id' => $user->id],
+                        ['total_funded' => $old, 'wallet_amount' => $old]
+                    );
+                    WalletCheck::where('user_id', $user->id)->increment('total_funded', $amount);
+                    WalletCheck::where('user_id', $user->id)->increment('wallet_amount', $amount);
+
+                    return ['ok' => true, 'duplicate' => false, 'message' => 'Wallet credited successfully'];
+                }
+
                 return ['ok' => false, 'http' => 409, 'message' => 'Payment reference already used'];
             }
 
