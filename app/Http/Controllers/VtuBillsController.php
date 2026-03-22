@@ -310,7 +310,7 @@ class VtuBillsController extends Controller
         $userId = (int) Auth::id();
         $phone = preg_replace('/\D/', '', (string) $request->input('phone'));
         if (strlen($phone) < 10) {
-            return back()->with('error', 'Enter a valid phone number for the receipt.');
+            return back()->with('error', 'Enter a valid phone number.');
         }
 
         $debit = $this->tryDebitForVas($userId, $amount);

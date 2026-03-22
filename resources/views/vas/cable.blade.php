@@ -70,13 +70,13 @@
                     <input type="hidden" name="service_id" id="vb-cable-sid-h" value="" required>
                     <div class="vb-stack vb-stack--2">
                         <div>
-                            <label class="fw-label" for="vb-cable-service">Provider (service_id)</label>
+                            <label class="fw-label" for="vb-cable-service">Provider</label>
                             <select id="vb-cable-service" class="fw-select" {{ $vasConfigured ? '' : 'disabled' }}>
                                 <option value="">Loading catalogue…</option>
                             </select>
                         </div>
                         <div>
-                            <label class="fw-label" for="vb-cable-variation">Plan (variation_code)</label>
+                            <label class="fw-label" for="vb-cable-variation">Plan</label>
                             <select id="vb-cable-variation" class="fw-select" disabled>
                                 <option value="">Load providers first</option>
                             </select>

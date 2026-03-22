@@ -86,8 +86,6 @@
                                     <option value="{{ $sid }}">{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <input type="text" id="vb-el-sid-manual" class="fw-input mt-2" placeholder="Override service_id (if different from list)"
-                                   autocomplete="off" {{ $vasConfigured ? '' : 'disabled' }}>
                         </div>
                         <div>
                             <label class="fw-label" for="vb-el-type">Meter type</label>
@@ -104,12 +102,10 @@
                     </div>
 
                     <div>
-                        <label class="fw-label" for="vb-el-variation">Tariff / bundle (variation_code)</label>
+                        <label class="fw-label" for="vb-el-variation">Tariff / bundle</label>
                         <select id="vb-el-variation" class="fw-select" disabled>
                             <option value="">Load options first</option>
                         </select>
-                        <input type="text" id="vb-el-var-manual" class="fw-input mt-2" placeholder="Override variation_code"
-                               autocomplete="off" {{ $vasConfigured ? '' : 'disabled' }}>
                     </div>
 
                     <div>
@@ -130,7 +126,7 @@
                                    {{ $vasConfigured ? '' : 'disabled' }}>
                         </div>
                         <div>
-                            <label class="fw-label" for="vb-el-phone">Phone (receipt)</label>
+                            <label class="fw-label" for="vb-el-phone">Phone</label>
                             <input id="vb-el-phone" type="text" name="phone" class="fw-input" inputmode="tel" autocomplete="tel"
                                    placeholder="08012345678" required {{ $vasConfigured ? '' : 'disabled' }}>
                         </div>
@@ -164,41 +160,30 @@
                 }
 
                 const disco = document.getElementById('vb-el-disco');
-                const sidManual = document.getElementById('vb-el-sid-manual');
                 const sidH = document.getElementById('vb-el-sid-h');
                 const typeSel = document.getElementById('vb-el-type');
                 const varSel = document.getElementById('vb-el-variation');
-                const varManual = document.getElementById('vb-el-var-manual');
                 const varH = document.getElementById('vb-el-var-h');
 
                 function syncServiceId() {
-                    const m = sidManual.value.trim();
-                    sidH.value = m || disco.value || '';
+                    sidH.value = disco.value || '';
                 }
 
                 function syncVariation() {
-                    const m = varManual.value.trim();
-                    varH.value = m || (varSel.selectedOptions[0] && varSel.selectedOptions[0].dataset.code) || '';
+                    const opt = varSel.selectedOptions[0];
+                    varH.value = opt && opt.dataset.code ? opt.dataset.code : '';
                 }
 
-                disco.addEventListener('change', function () {
-                    sidManual.value = '';
-                    syncServiceId();
-                });
-                sidManual.addEventListener('input', function () {
-                    if (sidManual.value.trim()) disco.value = '';
-                    syncServiceId();
-                });
+                disco.addEventListener('change', syncServiceId);
 
                 varSel.addEventListener('change', syncVariation);
-                varManual.addEventListener('input', syncVariation);
 
                 document.getElementById('vb-el-load-var').addEventListener('click', function () {
                     syncServiceId();
                     const sid = sidH.value;
                     const loadEl = document.getElementById('vb-el-loading');
                     if (!sid) {
-                        alert('Select or enter a DISCO service id.');
+                        alert('Select a distribution company.');
                         return;
                     }
                     loadEl.classList.remove('d-none');
@@ -218,7 +203,7 @@
                         });
                         varSel.disabled = rows.length === 0;
                         if (!rows.length) {
-                            varSel.innerHTML = '<option value="">No options — use override field</option>';
+                            varSel.innerHTML = '<option value="">No options available</option>';
                         }
                     }).finally(function () { loadEl.classList.add('d-none'); });
                 });
