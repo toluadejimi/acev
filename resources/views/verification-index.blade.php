@@ -2,7 +2,7 @@
 @section('title', 'SMS verification')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=2">
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=4">
 @endpush
 
 @section('content')
@@ -83,13 +83,14 @@
 
                                 <div id="servicesDropdown" class="list-group vf-dropdown mt-2 position-absolute w-100 bg-white shadow-sm"
                                      style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
+                                    <div id="vf-service-no-results" class="vf-service-no-results" style="display:none;" role="status">No services match your search.</div>
                                     @foreach ($allServices as $service)
                                         @php $cost = $get_rate * $service->cost + $margin; @endphp
                                         <a href="javascript:void(0);"
                                            class="list-group-item list-group-item-action service-option"
-                                            data-service="{{ $service->name }}"
-                                            data-provider="{{ $service->provider }}"
-                                            data-cost="{{ $service->cost }}"
+                                            data-service="{{ e($service->name) }}"
+                                            data-provider="{{ e($service->provider) }}"
+                                            data-cost="{{ e($service->cost) }}"
                                             data-price="{{ number_format($cost, 2, '.', '') }}">
                                             <span class="vf-service-name">{{ $service->name }}</span>
                                             <span class="vf-service-price">₦{{ number_format($cost, 2) }}</span>
@@ -282,64 +283,67 @@
                                 const servicesDropdown = document.getElementById("servicesDropdown");
                                 const extraFields = document.getElementById("extraFields");
                                 const rentButton = document.getElementById("rentNumberBtn");
+                                const vfServiceNoResults = document.getElementById("vf-service-no-results");
 
                                 let selectedService = null;
                                 let selectedCost = null;
                                 let selectedPrice = null;
                                 let selectedProvider = null;
 
-                                // Show dropdown on focus
-                                searchInput.addEventListener("focus", () => {
-                                    servicesDropdown.style.display = "block";
-                                });
-
-                                // Filter services dynamically
-                                searchInput.addEventListener("keyup", () => {
-                                    const filter = searchInput.value.toLowerCase();
+                                function applyServiceFilter() {
+                                    const filter = (searchInput.value || "").toLowerCase().trim();
                                     let visibleCount = 0;
-
-                                    document.querySelectorAll("#servicesDropdown .service-option").forEach(option => {
-                                        const text = option.dataset.service.toLowerCase();
-                                        if (text.includes(filter)) {
-                                            option.style.display = "block";
-                                            visibleCount++;
-                                        } else {
-                                            option.style.display = "none";
-                                        }
+                                    document.querySelectorAll("#servicesDropdown .service-option").forEach(function (option) {
+                                        const name = (option.getAttribute("data-service") || "").toLowerCase();
+                                        const match = !filter || name.indexOf(filter) !== -1;
+                                        option.style.display = match ? "" : "none";
+                                        if (match) visibleCount++;
                                     });
+                                    if (vfServiceNoResults) {
+                                        vfServiceNoResults.style.display = (filter && visibleCount === 0) ? "block" : "none";
+                                    }
+                                }
 
-                                    servicesDropdown.style.display = visibleCount > 0 ? "block" : "none";
+                                function openServiceDropdown() {
+                                    servicesDropdown.style.display = "block";
+                                    applyServiceFilter();
+                                }
+
+                                searchInput.addEventListener("focus", openServiceDropdown);
+                                searchInput.addEventListener("input", openServiceDropdown);
+                                searchInput.addEventListener("keyup", openServiceDropdown);
+
+                                servicesDropdown.addEventListener("mousedown", function (e) {
+                                    if (e.target.closest(".service-option")) {
+                                        e.preventDefault();
+                                    }
                                 });
 
-                                // Event delegation for service selection
                                 servicesDropdown.addEventListener("click", function(e) {
                                     const option = e.target.closest(".service-option");
                                     if (!option) return;
 
-                                    selectedService = option.dataset.service;
-                                    selectedCost = option.dataset.cost;
-                                    selectedProvider = option.dataset.provider;
-                                    selectedPrice = option.dataset.price;
+                                    selectedService = option.getAttribute("data-service");
+                                    selectedCost = option.getAttribute("data-cost");
+                                    selectedProvider = option.getAttribute("data-provider");
+                                    selectedPrice = option.getAttribute("data-price");
 
-                                    searchInput.value = `${selectedService}`;
+                                    searchInput.value = selectedService || "";
                                     servicesDropdown.style.display = "none";
 
                                     rentButton.disabled = false;
                                 });
 
-                                // Hide dropdown if click outside
                                 document.addEventListener("click", (event) => {
                                     if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && !extraFields.contains(event.target)) {
                                         servicesDropdown.style.display = "none";
                                     }
                                 });
 
-                                // Toggle extra fields
                                 document.getElementById("toggleSettings").addEventListener("click", () => {
                                     extraFields.style.display = extraFields.style.display === "none" ? "block" : "none";
                                 });
 
-                                // Rent number button
                                 rentButton.addEventListener("click", () => {
                                     if (!selectedService) return;
 
@@ -396,7 +400,7 @@
                         <div class="vf-panel__head vf-panel__head--split">
                             <div>
                                 <h2 class="vf-panel__title">Verification requests</h2>
-                                <p class="vf-panel__sub">Codes update automatically. Tap a code to copy. Use the filter for this table only — it does not change the service search above.</p>
+                                <p class="vf-panel__sub">Codes update automatically. Use <strong>Copy</strong> beside the number or SMS, or tap the code. Filter below only affects this list — not the service search when ordering.</p>
                             </div>
                             <div>
                                 <label class="visually-hidden" for="vf-requests-filter">Filter requests</label>
@@ -410,7 +414,7 @@
                                                     <tr>
                                                         <th>Service</th>
                                                         <th>Phone</th>
-                                                        <th>Code</th>
+                                                        <th>Code / SMS</th>
                                                         <th>Price</th>
                                                         <th>Status</th>
                                                         <th>Date</th>
@@ -418,139 +422,58 @@
                                                     </thead>
                                                     <tbody>
                                                     @forelse($verification as $data)
-                                                        <tr>
-                                                            <td>{{ $data->service }}</td>
-                                                            <td class="vf-mono">{{ $data->phone }}</td>
+                                                        @php
+                                                            $vfDigits = preg_replace('/\D/', '', (string) $data->phone);
+                                                            if (strlen($vfDigits) === 11 && str_starts_with($vfDigits, '1')) {
+                                                                $vfDigits = substr($vfDigits, 1);
+                                                            }
+                                                            $vfPhoneDisplay = (string) $data->phone;
+                                                            if (strlen($vfDigits) === 10) {
+                                                                $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
+                                                            }
+                                                            $vfSearchHaystack = mb_strtolower(
+                                                                ($data->service ?? '') . ' ' . ($data->phone ?? '') . ' ' . ($data->sms ?? ''),
+                                                                'UTF-8'
+                                                            );
+                                                        @endphp
+                                                        <tr class="vf-req-row"
+                                                            data-vf-id="{{ $data->id }}"
+                                                            data-vf-phone="{{ e($data->phone) }}"
+                                                            data-vf-type="{{ $data->type }}"
+                                                            data-vf-status="{{ $data->status }}"
+                                                            data-vf-initial-sms="{{ e($data->sms ?? '') }}"
+                                                            data-vf-search="{{ e($vfSearchHaystack) }}">
+                                                            <td data-label="Service">{{ $data->service }}</td>
+                                                            <td class="vf-phone-cell" data-label="Phone">
+                                                                <div class="vf-copy-row">
+                                                                    <span class="vf-mono vf-phone-display">{{ $vfPhoneDisplay }}</span>
+                                                                    <button type="button" class="vf-btn-copy" data-copy="{{ e($data->phone) }}" title="Copy full number" aria-label="Copy phone number">
+                                                                        <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
 
-                                                            <td>
-                                                                <div id="smsContainer{{ $data->id }}">
+                                                            <td data-label="Code">
+                                                                <div id="smsContainer{{ $data->id }}" class="vf-sms-cell">
                                                                     <div class="vf-code-loader" id="loader{{ $data->id }}">
                                                                         <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
                                                                         <span class="vf-code-loading-text">Waiting for SMS…</span>
                                                                     </div>
 
-                                                                    <span id="data-sm{{ $data->id }}" class="vf-sms-code d-none"
-                                                                          title="Click to copy"></span>
+                                                                    <div id="vf-sms-wrap{{ $data->id }}" class="vf-sms-wrap d-none">
+                                                                        <span id="data-sm{{ $data->id }}" class="vf-sms-code" title="Tap to copy"></span>
+                                                                        <button type="button" class="vf-btn-copy vf-btn-copy--sms" id="vf-copy-sms{{ $data->id }}" hidden aria-label="Copy SMS">
+                                                                            <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                                                        </button>
+                                                                    </div>
 
                                                                     <div id="extraSmsList{{ $data->id }}" class="vf-extra-codes d-none"></div>
                                                                 </div>
-
-                                                                <script>
-                                                                    document.addEventListener('DOMContentLoaded', () => {
-                                                                        const id = {{ $data->id }};
-                                                                        const status = {{ $data->status }};
-                                                                        const phone = `{{ $data->phone }}`;
-                                                                        const type = {{ $data->type }};
-                                                                        const smsSpan = document.getElementById(`data-sm${id}`);
-                                                                        const loader = document.getElementById(`loader${id}`);
-                                                                        const extraList = document.getElementById(`extraSmsList${id}`);
-                                                                        let countdownTimer = null;
-                                                                        let lastCodes = [];
-
-                                                                        const mainUrl = type === 3
-                                                                            ? `{{ url('get-smscode-usa2') }}?num=${phone}`
-                                                                            : `{{ url('get-smscode') }}?num=${phone}`;
-                                                                        const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
-
-                                                                        async function startCountdown() {
-                                                                            try {
-                                                                                const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
-                                                                                const data = await res.json();
-                                                                                let secs = data.seconds || 0;
-                                                                                const countdownDisplay = document.getElementById('secondsDisplay' + id);
-
-                                                                                countdownTimer = setInterval(() => {
-                                                                                    secs--;
-                                                                                    if (countdownDisplay) countdownDisplay.textContent = secs;
-                                                                                    if (secs <= 0) {
-                                                                                        clearInterval(countdownTimer);
-                                                                                        fetch('{{ url('api/delete-order') }}', {
-                                                                                            method: 'POST',
-                                                                                            headers: {'Content-Type': 'application/json'},
-                                                                                            body: JSON.stringify({id})
-                                                                                        }).then(() => location.reload());
-                                                                                    }
-                                                                                }, 1000);
-                                                                            } catch (e) {
-                                                                                console.error('[COUNTDOWN ERROR]', e);
-                                                                            }
-                                                                        }
-
-                                                                        async function fetchMainSMS() {
-                                                                            try {
-                                                                                const res = await fetch(mainUrl);
-                                                                                const data = await res.json();
-                                                                                const msg = data?.message?.trim();
-
-                                                                                if (msg && msg.length > 0) {
-                                                                                    loader.classList.add('d-none');
-                                                                                    smsSpan.classList.remove('d-none');
-                                                                                    smsSpan.textContent = msg;
-                                                                                    smsSpan.addEventListener('click', () => {
-                                                                                        navigator.clipboard.writeText(msg).then(() => {
-                                                                                            smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                            setTimeout(() => smsSpan.textContent = msg, 500);
-                                                                                        });
-                                                                                    });
-
-                                                                                    if (countdownTimer) clearInterval(countdownTimer);
-                                                                                }
-                                                                            } catch (err) {
-                                                                                console.error('[MAIN FETCH ERROR]', err);
-                                                                            }
-                                                                        }
-
-                                                                        async function fetchExtraCodes() {
-                                                                            try {
-                                                                                const res = await fetch(fetchUrl);
-                                                                                const result = await res.json();
-                                                                                const messages = Array.isArray(result) ? result : result.codes || [];
-
-                                                                                if (messages.length > 0) {
-                                                                                    loader.classList.add('d-none');
-                                                                                    extraList.classList.remove('d-none');
-                                                                                    if (countdownTimer) clearInterval(countdownTimer);
-
-                                                                                    if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
-                                                                                        extraList.innerHTML = '';
-                                                                                        messages.forEach(msg => {
-                                                                                            const code = msg.sms ?? msg;
-                                                                                            const div = document.createElement('div');
-                                                                                            div.className = 'vf-code-line';
-                                                                                            div.innerHTML = `<span>${code}</span>`;
-                                                                                            extraList.appendChild(div);
-                                                                                            div.addEventListener('click', () => navigator.clipboard.writeText(code));
-                                                                                        });
-                                                                                        lastCodes = messages;
-                                                                                    }
-                                                                                }
-                                                                            } catch (err) {
-                                                                                console.error('[EXTRA FETCH ERROR]', err);
-                                                                            }
-                                                                        }
-
-                                                                        function updateAll() {
-                                                                            fetchMainSMS();
-                                                                            fetchExtraCodes();
-                                                                        }
-
-                                                                        // ✅ Logic
-                                                                        if (status === 1) {
-                                                                            startCountdown();
-                                                                            updateAll();
-                                                                            setInterval(updateAll, 30000);
-                                                                        } else {
-                                                                            updateAll();
-                                                                        }
-                                                                    });
-                                                                </script>
                                                             </td>
 
+                                                            <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
 
-
-                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
-
-                                                            <td>
+                                                            <td data-label="Status">
                                                                 @if ($data->status == 1)
                                                                     <div class="vf-status-row">
                                                                         <span class="vf-status vf-status--pending">Pending</span>
@@ -567,14 +490,10 @@
                                                                 @endif
                                                             </td>
 
-
-
-
-
-                                                            <td>{{ $data->created_at }}</td>
+                                                            <td class="vf-date-cell" data-label="Date">{{ $data->created_at?->format('M j, Y g:i A') ?? $data->created_at }}</td>
                                                         </tr>
                                                     @empty
-                                                        <tr>
+                                                        <tr class="vf-empty-row">
                                                             <td colspan="6" class="vf-empty">No verification requests yet.</td>
                                                         </tr>
                                                     @endforelse
@@ -602,18 +521,183 @@
 
                                         <script>
                                             (function () {
+                                                var VF = {
+                                                    getSms: @json(url('get-smscode')),
+                                                    getSmsUsa2: @json(url('get-smscode-usa2')),
+                                                    checkMore: @json(url('check-more-sms')),
+                                                    getCountdown: @json(url('getInitialCountdown')),
+                                                    deleteOrder: @json(url('api/delete-order')),
+                                                };
+
+                                                function vfFlashCopy(btn) {
+                                                    if (!btn) return;
+                                                    var ic = btn.querySelector('i');
+                                                    if (!ic) return;
+                                                    var prev = ic.className;
+                                                    ic.className = 'bi bi-check2';
+                                                    setTimeout(function () { ic.className = prev; }, 1100);
+                                                }
+
+                                                document.getElementById('vf-requests-table').addEventListener('click', function (e) {
+                                                    var btn = e.target.closest('.vf-btn-copy[data-copy]');
+                                                    if (!btn || btn.hasAttribute('disabled')) return;
+                                                    var t = btn.getAttribute('data-copy');
+                                                    if (!t) return;
+                                                    e.preventDefault();
+                                                    navigator.clipboard.writeText(t).then(function () {
+                                                        vfFlashCopy(btn);
+                                                    });
+                                                });
+
+                                                document.querySelectorAll('tr.vf-req-row').forEach(function (row) {
+                                                    var id = row.getAttribute('data-vf-id');
+                                                    var phone = row.getAttribute('data-vf-phone') || '';
+                                                    var type = parseInt(row.getAttribute('data-vf-type'), 10);
+                                                    var status = parseInt(row.getAttribute('data-vf-status'), 10);
+                                                    var smsSpan = document.getElementById('data-sm' + id);
+                                                    var loader = document.getElementById('loader' + id);
+                                                    var wrap = document.getElementById('vf-sms-wrap' + id);
+                                                    var copySmsBtn = document.getElementById('vf-copy-sms' + id);
+                                                    var extraList = document.getElementById('extraSmsList' + id);
+                                                    var countdownTimer = null;
+                                                    var lastCodes = [];
+
+                                                    var enc = encodeURIComponent(phone);
+                                                    var mainUrl = type === 3
+                                                        ? VF.getSmsUsa2 + '?num=' + enc
+                                                        : VF.getSms + '?num=' + enc;
+                                                    var fetchUrl = VF.checkMore + '?num=' + enc;
+
+                                                    function extendSearch(extra) {
+                                                        if (!extra) return;
+                                                        var cur = (row.getAttribute('data-vf-search') || '').toLowerCase();
+                                                        var add = String(extra).toLowerCase();
+                                                        if (cur.indexOf(add) === -1) {
+                                                            row.setAttribute('data-vf-search', (cur + ' ' + add).trim());
+                                                        }
+                                                    }
+
+                                                    function showMainSms(msg) {
+                                                        if (!msg) return;
+                                                        loader.classList.add('d-none');
+                                                        wrap.classList.remove('d-none');
+                                                        smsSpan.textContent = msg;
+                                                        copySmsBtn.hidden = false;
+                                                        copySmsBtn.setAttribute('data-copy', msg);
+                                                        smsSpan.onclick = function () {
+                                                            navigator.clipboard.writeText(msg).then(function () {
+                                                                vfFlashCopy(copySmsBtn);
+                                                            });
+                                                        };
+                                                        extendSearch(msg);
+                                                        if (countdownTimer) {
+                                                            clearInterval(countdownTimer);
+                                                            countdownTimer = null;
+                                                        }
+                                                    }
+
+                                                    async function startCountdown() {
+                                                        try {
+                                                            var res = await fetch(VF.getCountdown + '?id=' + encodeURIComponent(id));
+                                                            var data = await res.json();
+                                                            var secs = data.seconds || 0;
+                                                            var countdownDisplay = document.getElementById('secondsDisplay' + id);
+                                                            countdownTimer = setInterval(function () {
+                                                                secs--;
+                                                                if (countdownDisplay) countdownDisplay.textContent = secs;
+                                                                if (secs <= 0) {
+                                                                    clearInterval(countdownTimer);
+                                                                    countdownTimer = null;
+                                                                    fetch(VF.deleteOrder, {
+                                                                        method: 'POST',
+                                                                        headers: {'Content-Type': 'application/json'},
+                                                                        body: JSON.stringify({id: parseInt(id, 10)})
+                                                                    }).then(function () { location.reload(); });
+                                                                }
+                                                            }, 1000);
+                                                        } catch (e) { console.error(e); }
+                                                    }
+
+                                                    async function fetchMainSMS() {
+                                                        try {
+                                                            var res = await fetch(mainUrl);
+                                                            var data = await res.json();
+                                                            var msg = (data && data.message) ? String(data.message).trim() : '';
+                                                            if (msg.length > 0) showMainSms(msg);
+                                                        } catch (err) { console.error(err); }
+                                                    }
+
+                                                    async function fetchExtraCodes() {
+                                                        try {
+                                                            var res = await fetch(fetchUrl);
+                                                            var result = await res.json();
+                                                            var messages = Array.isArray(result) ? result : (result.codes || []);
+
+                                                            if (messages.length > 0) {
+                                                                loader.classList.add('d-none');
+                                                                extraList.classList.remove('d-none');
+                                                                if (countdownTimer) {
+                                                                    clearInterval(countdownTimer);
+                                                                    countdownTimer = null;
+                                                                }
+
+                                                                if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                    extraList.innerHTML = '';
+                                                                    messages.forEach(function (msg) {
+                                                                        var code = (msg && msg.sms !== undefined) ? msg.sms : msg;
+                                                                        code = String(code);
+                                                                        var div = document.createElement('div');
+                                                                        div.className = 'vf-code-line';
+                                                                        var sp = document.createElement('span');
+                                                                        sp.textContent = code;
+                                                                        div.appendChild(sp);
+                                                                        var cp = document.createElement('button');
+                                                                        cp.type = 'button';
+                                                                        cp.className = 'vf-btn-copy vf-btn-copy--inline';
+                                                                        cp.setAttribute('data-copy', code);
+                                                                        cp.setAttribute('aria-label', 'Copy');
+                                                                        cp.innerHTML = '<i class="bi bi-clipboard" aria-hidden="true"></i>';
+                                                                        div.appendChild(cp);
+                                                                        extraList.appendChild(div);
+                                                                        extendSearch(code);
+                                                                    });
+                                                                    lastCodes = messages;
+                                                                }
+                                                            }
+                                                        } catch (err) { console.error(err); }
+                                                    }
+
+                                                    function updateAll() {
+                                                        fetchMainSMS();
+                                                        fetchExtraCodes();
+                                                    }
+
+                                                    var initialSms = (row.getAttribute('data-vf-initial-sms') || '').trim();
+                                                    if (initialSms) {
+                                                        showMainSms(initialSms);
+                                                    }
+
+                                                    if (status === 1) {
+                                                        startCountdown();
+                                                        updateAll();
+                                                        setInterval(updateAll, 30000);
+                                                    } else {
+                                                        updateAll();
+                                                    }
+                                                });
+
                                                 var el = document.getElementById("vf-requests-filter");
                                                 var table = document.getElementById("vf-requests-table");
                                                 if (!el || !table) return;
                                                 el.addEventListener("input", function () {
                                                     var filter = el.value.toLowerCase().trim();
                                                     table.querySelectorAll("tbody tr").forEach(function (row) {
-                                                        if (row.querySelector(".vf-empty")) {
+                                                        if (row.classList.contains("vf-empty-row")) {
                                                             row.style.display = "";
                                                             return;
                                                         }
-                                                        var text = row.textContent.toLowerCase();
-                                                        row.style.display = !filter || text.includes(filter) ? "" : "none";
+                                                        var hay = (row.getAttribute("data-vf-search") || "").toLowerCase();
+                                                        row.style.display = !filter || hay.indexOf(filter) !== -1 ? "" : "none";
                                                     });
                                                 });
                                             })();

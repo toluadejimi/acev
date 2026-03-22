@@ -480,6 +480,14 @@
     border-bottom: none !important;
 }
 
+.vf-service-no-results {
+    padding: 0.85rem 1rem;
+    font-size: 0.8125rem;
+    color: var(--vf-muted);
+    text-align: center;
+    border-bottom: 1px solid var(--vf-line);
+}
+
 .vf-dropdown .list-group-item:hover,
 #servicesDropdown .list-group-item:hover {
     background: rgba(37, 99, 235, 0.07) !important;
@@ -570,10 +578,74 @@
     box-shadow: none;
 }
 
+/* Copy row (phone / SMS) */
+.vf-copy-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.vf-phone-display {
+    word-break: break-all;
+    min-width: 0;
+}
+
+.vf-btn-copy {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--vf-line);
+    border-radius: 10px;
+    background: #f8fafc;
+    color: var(--vf-blue-d);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.vf-btn-copy:hover {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.35);
+}
+
+.vf-btn-copy--sms {
+    width: 32px;
+    height: 32px;
+}
+
+.vf-sms-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.vf-sms-cell {
+    min-width: 0;
+}
+
+.vf-code-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.vf-btn-copy--inline {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+}
+
 /* Requests table */
 .vf-table-scroll {
     overflow-x: auto;
     padding: 0 0 1rem;
+    -webkit-overflow-scrolling: touch;
 }
 
 .vf-table {
@@ -605,6 +677,75 @@
 
 .vf-table tbody tr:hover {
     background: rgba(37, 99, 235, 0.03);
+}
+
+.vf-req-row {
+    transition: background 0.15s;
+}
+
+.vf-date-cell {
+    font-size: 0.78rem;
+    color: var(--vf-muted);
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .vf-table thead {
+        display: none;
+    }
+
+    .vf-table tbody tr.vf-req-row {
+        display: block;
+        margin-bottom: 0.9rem;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--vf-line);
+        border-radius: var(--vf-radius-sm);
+        background: var(--vf-surface);
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    .vf-table tbody tr.vf-req-row:hover {
+        background: var(--vf-surface);
+    }
+
+    .vf-table tbody tr.vf-req-row td {
+        display: grid;
+        grid-template-columns: minmax(88px, 32%) 1fr;
+        gap: 0.25rem 0.65rem;
+        padding: 0.5rem 0;
+        border: none;
+        border-bottom: 1px solid var(--vf-line);
+        vertical-align: top;
+        align-items: start;
+    }
+
+    .vf-table tbody tr.vf-req-row td:last-child {
+        border-bottom: none;
+    }
+
+    .vf-table tbody tr.vf-req-row td::before {
+        content: attr(data-label);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--vf-muted);
+        padding-top: 0.15rem;
+    }
+
+    .vf-table tbody tr.vf-empty-row td {
+        display: block;
+        text-align: center;
+        border: none;
+    }
+
+    .vf-table tbody tr.vf-empty-row td::before {
+        content: none;
+    }
+
+    .vf-date-cell {
+        white-space: normal;
+    }
 }
 
 .vf-table .vf-empty {
@@ -641,6 +782,8 @@
     cursor: pointer;
     font-weight: 700;
     color: var(--vf-green);
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .vf-extra-codes {
