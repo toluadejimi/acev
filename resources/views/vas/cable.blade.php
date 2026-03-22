@@ -226,7 +226,7 @@
 
                     if (!payload || typeof payload !== 'object') return out;
 
-                    /* SprintPay / VTpass: { "status": true, "dstv": [ { variation_code, name, ... } ], "gotv": [ ... ] } */
+                    /* Cable catalogue shape: { "status": true, "dstv": [ { variation_code, name, ... } ], ... } */
                     function addProvidersFromRoot(obj) {
                         if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return;
                         Object.keys(obj).forEach(function (key) {

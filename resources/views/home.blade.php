@@ -57,7 +57,7 @@
             <div class="hm-panel__head">
                 <p class="hm-panel__eyebrow">VTU &amp; bills</p>
                 <h2 id="hm-vtu-title" class="hm-panel__title">Quick top-ups</h2>
-                <p class="hm-panel__sub">Airtime, data, TV, and electricity. Purchases debit your wallet here; SprintPay fulfils via VTpass (configure WEBKEY + webhook secret).</p>
+                <p class="hm-panel__sub">Airtime, data, TV, and electricity — paid from your wallet.</p>
             </div>
             <div class="hm-tiles">
                 @foreach($vtuQuickLinks ?? [] as $vtu)
