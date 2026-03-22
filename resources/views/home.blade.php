@@ -57,7 +57,7 @@
             <div class="hm-panel__head">
                 <p class="hm-panel__eyebrow">VTU &amp; bills</p>
                 <h2 id="hm-vtu-title" class="hm-panel__title">Quick top-ups</h2>
-                <p class="hm-panel__sub">Airtime, data, TV, and electricity. Opens your catalog when categories are linked — otherwise fund your wallet first.</p>
+                <p class="hm-panel__sub">Airtime, data, TV, and electricity. Purchases debit your wallet here; SprintPay fulfils via VTpass (configure WEBKEY + webhook secret).</p>
             </div>
             <div class="hm-tiles">
                 @foreach($vtuQuickLinks ?? [] as $vtu)
@@ -74,7 +74,7 @@
                             @endif
                         </span>
                         <span class="hm-tile__label">{{ $vtu['label'] }}</span>
-                        <span class="hm-tile__hint">{{ !empty($vtu['active']) ? 'Catalog' : 'Wallet' }}</span>
+                        <span class="hm-tile__hint">{{ !empty($vtu['active']) ? 'Buy' : 'Wallet' }}</span>
                         <span class="hm-tile__go">Continue <i class="bi bi-arrow-right"></i></span>
                     </a>
                 @endforeach

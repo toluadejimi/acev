@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UnlimitedPortalController;
+use App\Http\Controllers\VtuBillsController;
 use App\Http\Controllers\WorldNumberController;
 use Illuminate\Support\Facades\Route;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
@@ -189,8 +190,21 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::any('resolve-now',  [HomeController::class,'resolveNow']);
     Route::get('change-password',  [HomeController::class,'change_password']);
 
-
-
+    Route::prefix('vas')->name('vas.')->controller(VtuBillsController::class)->group(function () {
+        Route::get('airtime', 'airtime')->name('airtime');
+        Route::post('airtime', 'buyAirtime')->name('airtime.buy');
+        Route::get('data', 'data')->name('data');
+        Route::post('data', 'buyData')->name('data.buy');
+        Route::get('cable', 'cable')->name('cable');
+        Route::post('cable/validate', 'validateCable')->name('cable.validate');
+        Route::post('cable', 'buyCable')->name('cable.buy');
+        Route::get('electricity', 'electricity')->name('electricity');
+        Route::post('electricity/validate', 'validateElectricity')->name('electricity.validate');
+        Route::post('electricity', 'buyElectricity')->name('electricity.buy');
+        Route::get('catalog/data-variations', 'catalogDataVariations')->name('catalog.data-variations');
+        Route::get('catalog/cable-plans', 'catalogCablePlans')->name('catalog.cable-plans');
+        Route::get('catalog/electricity-variations', 'catalogElectricityVariations')->name('catalog.electricity-variations');
+    });
 
 });
 

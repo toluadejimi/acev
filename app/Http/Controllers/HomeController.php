@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountDetail;
-use App\Models\Category;
 use App\Models\Deposit;
 use App\Models\ManualPayment;
 use App\Models\Notification;
@@ -238,43 +237,20 @@ class HomeController extends Controller
      */
     private function buildVtuQuickLinks(): array
     {
-        $fromConfig = config('vtu.categories', []);
         $defs = [
-            ['key' => 'airtime', 'label' => 'Airtime', 'config_key' => 'airtime', 'keywords' => ['airtime', 'top up', 'topup', 'recharge', 'vtu']],
-            ['key' => 'data', 'label' => 'Data', 'config_key' => 'data', 'keywords' => ['data', 'bundle', 'internet', 'mb', 'gb']],
-            ['key' => 'cable', 'label' => 'Cable TV', 'config_key' => 'cable_tv', 'keywords' => ['cable', 'dstv', 'gotv', 'tv', 'startimes']],
-            ['key' => 'electricity', 'label' => 'Electricity', 'config_key' => 'electricity', 'keywords' => ['electric', 'power', 'prepaid', 'energy', 'disco', 'bill']],
+            ['key' => 'airtime', 'label' => 'Airtime', 'route' => 'vas.airtime'],
+            ['key' => 'data', 'label' => 'Data', 'route' => 'vas.data'],
+            ['key' => 'cable', 'label' => 'Cable TV', 'route' => 'vas.cable'],
+            ['key' => 'electricity', 'label' => 'Electricity', 'route' => 'vas.electricity'],
         ];
-
-        try {
-            $categories = Category::query()->get(['id', 'title']);
-        } catch (\Throwable $e) {
-            $categories = collect();
-        }
 
         $links = [];
         foreach ($defs as $d) {
-            $id = $fromConfig[$d['config_key']] ?? null;
-            if ($id === '' || $id === null) {
-                $id = null;
-            }
-            if (!$id && $categories->isNotEmpty()) {
-                foreach ($d['keywords'] as $kw) {
-                    $cat = $categories->first(function ($c) use ($kw) {
-                        return $c->title !== null && stripos((string) $c->title, $kw) !== false;
-                    });
-                    if ($cat) {
-                        $id = $cat->id;
-                        break;
-                    }
-                }
-            }
-
             $links[] = [
                 'key' => $d['key'],
                 'label' => $d['label'],
-                'url' => $id ? url('/allcatproduct') . '?cat_id=' . $id : url('/fund-wallet'),
-                'active' => (bool) $id,
+                'url' => route($d['route']),
+                'active' => true,
             ];
         }
 

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>@yield('title', 'Dashboard') — {{ config('app.name', 'Ace') }}</title>
@@ -44,6 +45,7 @@
             <a href="{{ url('/home') }}" class="dash-nav__link{{ request()->is('home') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-speedometer2 dash-nav__ico" aria-hidden="true"></i><span>Dashboard</span></a>
             <a href="{{ route('verification.index') }}" class="dash-nav__link{{ request()->routeIs('verification.index') || request()->is('us', 'usa2', 'world') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-chat-dots dash-nav__ico" aria-hidden="true"></i><span>SMS verification</span></a>
             <a href="{{ url('/fund-wallet') }}" class="dash-nav__link{{ request()->is('fund-wallet') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-wallet2 dash-nav__ico" aria-hidden="true"></i><span>Fund wallet</span></a>
+            <a href="{{ route('vas.airtime') }}" class="dash-nav__link{{ request()->is('vas/*') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-receipt-cutoff dash-nav__ico" aria-hidden="true"></i><span>Airtime &amp; bills</span></a>
             <a href="{{ url('/api-docs') }}" class="dash-nav__link"><i class="bi bi-code-slash dash-nav__ico" aria-hidden="true"></i><span>API docs</span></a>
             <a href="https://aceboosts.com/" class="dash-nav__link" target="_blank" rel="noopener"><i class="bi bi-graph-up-arrow dash-nav__ico" aria-hidden="true"></i><span>Boost</span></a>
             @auth

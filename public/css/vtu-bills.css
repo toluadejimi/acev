@@ -1,0 +1,115 @@
+/* VTU / bills (SprintPay merchant VAS) — matches fund-wallet dashboard tone */
+.vb-page {
+    font-family: var(--fw-sans, "Outfit", system-ui, sans-serif);
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.vb-subnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.vb-subnav__a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #334155;
+    background: rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.vb-subnav__a:hover {
+    color: #0f172a;
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.25);
+}
+
+.vb-subnav__a--on {
+    color: #fff;
+    background: linear-gradient(125deg, #1d4ed8, #4338ca);
+    border-color: transparent;
+}
+
+.vb-note {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.25rem;
+    border-radius: 14px;
+    background: rgba(217, 119, 6, 0.1);
+    border: 1px solid rgba(217, 119, 6, 0.22);
+    color: #78350f;
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.vb-note--muted {
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #475569;
+}
+
+.vb-note__icon {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.vb-muted {
+    color: #64748b;
+    font-size: 0.8125rem;
+    margin-top: 0.35rem;
+}
+
+.vb-stack {
+    display: grid;
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .vb-stack--2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.vb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.5rem;
+}
+
+.vb-btn-ghost {
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #fff;
+    color: #0f172a;
+}
+
+.vb-btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.vb-json-hint {
+    font-family: ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: #64748b;
+    word-break: break-all;
+}
+
+.vb-loading {
+    font-size: 0.8125rem;
+    color: #64748b;
+}

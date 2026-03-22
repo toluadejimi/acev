@@ -41,6 +41,8 @@ return [
 
     'sprintpay' => [
         'webhook_secret' => env('SPRINTPAY_WEBHOOK_SECRET'),
+        'webkey' => env('WEBKEY'),
+        'api_base' => rtrim(env('SPRINTPAY_API_BASE', 'https://web.sprintpay.online/api'), '/'),
     ],
 
 
