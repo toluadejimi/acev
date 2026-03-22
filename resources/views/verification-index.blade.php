@@ -2,7 +2,7 @@
 @section('title', 'SMS verification')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=5">
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=6">
 @endpush
 
 @section('content')
@@ -81,8 +81,8 @@
                                     </button>
                                 </div>
 
-                                <div id="servicesDropdown" class="list-group vf-dropdown mt-2 position-absolute w-100 bg-white shadow-sm"
-                                     style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
+                                <div id="servicesDropdown" class="list-group vf-dropdown mt-2 position-absolute w-100 bg-white shadow-sm vf-services-dropdown"
+                                     style="top: 100%; left: 0; display:none; z-index:1000;">
                                     <div id="vf-service-no-results" class="vf-service-no-results" style="display:none;" role="status">No services match your search.</div>
                                     @foreach ($allServices as $service)
                                         @php
@@ -309,7 +309,7 @@
                                     document.querySelectorAll("#servicesDropdown .service-option").forEach(function (option) {
                                         const hay = (option.getAttribute("data-search") || option.getAttribute("data-service") || "").toLowerCase();
                                         const match = filter.length === 0 || hay.indexOf(filter) !== -1;
-                                        option.style.display = match ? "" : "none";
+                                        option.classList.toggle("vf-service-option--hidden", !match);
                                         option.setAttribute("aria-hidden", match ? "false" : "true");
                                         if (match) visibleCount++;
                                     });
@@ -350,7 +350,8 @@
                                 });
 
                                 document.addEventListener("click", (event) => {
-                                    if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && !extraFields.contains(event.target)) {
+                                    if (!searchInput || !servicesDropdown) return;
+                                    if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && extraFields && !extraFields.contains(event.target)) {
                                         servicesDropdown.style.display = "none";
                                     }
                                 });

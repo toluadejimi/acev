@@ -458,7 +458,11 @@
     border: 1px solid var(--vf-line) !important;
     border-radius: var(--vf-radius-sm) !important;
     box-shadow: 0 16px 48px rgba(15, 23, 42, 0.14) !important;
-    margin-top: 0.4rem !important;
+    margin-top: 0.65rem !important;
+    /* Taller panel so more rows are visible without scrolling */
+    max-height: min(70vh, 640px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .vf-dropdown .list-group-item,
@@ -468,11 +472,18 @@
     padding: 0.7rem 0.95rem !important;
     font-size: 0.8125rem !important;
     cursor: pointer;
-    display: flex !important;
+    /* No !important: JS filter uses .vf-service-option--hidden with display:none !important */
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
     transition: background 0.15s;
+}
+
+/* Beat Bootstrap .list-group-item { display:flex !important } */
+#servicesDropdown .service-option.vf-service-option--hidden,
+#servicesDropdown button.service-option.vf-service-option--hidden {
+    display: none !important;
 }
 
 button.vf-service-option-btn.service-option {
