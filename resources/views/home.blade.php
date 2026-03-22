@@ -1,887 +1,127 @@
-@extends('layout.main')
+@extends('layout.dashboard-modern')
+@section('title', 'Dashboard')
+
+@push('styles')
+<link rel="stylesheet" href="{{ url('') }}/public/css/home-dashboard.css?v=5">
+@endpush
+
 @section('content')
 
-    <section id="technologies mt-4 my-5">
-
-
-        {{--        <div class="container title my-5">--}}
-{{--            <div class="row justify-content-center text-center wow fadeInUp" data-wow-delay="0.2s">--}}
-{{--                <div class="col-md-8 col-xl-6">--}}
-{{--                    <h4 class="mb-3 text-danger">{{ Auth::user()->username }}</h4>--}}
-{{--                    <p class="mb-0">--}}
-{{--                        SMS Verifications<br>--}}
-{{--                        Rent a phone for 7 minutes.<br>--}}
-{{--                        Credits are only used if you receive the SMS code.--}}
-{{--                    </p>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-
-
-        <div class="container technology-block">
-
-
-
-
-            <div class="col-lg-12 col-md-12 mt-4">
-                <div class="card"
-                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                border: none;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-                border-radius: 15px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between">
-
-                            <!-- Wallet Info -->
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
-                                    <i class="fas fa-wallet fa-3x text-white"></i>
-                                </div>
-                                <div>
-                                    <h5 class="text-white mb-1" style="font-weight: 600;">
-                                        {{ Auth::user()->username }}
-                                    </h5>
-                                    <h3 class="text-white mb-0" style="font-weight: bold;">
-                                        ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
-                                    </h3>
-                                    <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
-                                </div>
-                            </div>
-
-                            <!-- Fund Button -->
-                            <div class="mt-3 mt-md-0">
-                                <a href="{{ url('fund-wallet') }}"
-                                   class="btn btn-light btn-lg px-4 py-2"
-                                   style="font-weight: bold;
-                              border-radius: 25px;
-                              box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-                              transition: 0.3s;">
-                                    <i class="fas fa-coins me-2 text-primary"></i>
-                                    Fund Wallet
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-        @if(session('topMessage'))
-                    <div id="top-popup" class="popup-banner">
-                        <div class="popup-content">
-                            <span>{{ session('topMessage') }}</span>
-                        </div>
-                    </div>
-                @endif
-
-
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session()->get('message') }}
-                </div>
-            @endif
-            @if (session()->has('error'))
-                <div class="alert alert-danger">
-                    {{ session()->get('error') }}
-                </div>
-            @endif
-
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-
-
-                            <div class="d-flex justify-content-center my-3">
-                                <div class="d-flex justify-content-center my-3">
-
-                                    <div class="btn-group" role="group" aria-label="Third group">
-                                        <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
-                                           href="/us" class="btn  w-200 mt-1">
-                                            🇺🇸 USA SV1
-                                        </a>
-
-                                        <a style="font-size: 12px; background: rgb(230 61 138); color: white"
-                                           href="/usa2" class="btn  w-200 mt-1">
-                                            🇺🇸 USA SV2
-                                        </a>
-
-
-                                        <a style="font-size: 12px; box-shadow: deeppink" href="/world"
-                                           class="btn btn-dark w-200 mt-1">
-                                            🌎 ALL COUNTRIES
-
-                                        </a>
-
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <p class="d-flex justify-content-center">You are on 🇺🇸 USA Server 1 Numbers only Panel</p>
-
-
-                            <div class="p-2 col-lg-12 position-relative">
-                                <!-- Search input + settings -->
-                                <div class="d-flex align-items-center">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="Search for a service...">
-                                    <button class="btn btn-outline-secondary ms-2" id="toggleSettings" type="button">
-                                        <i class="bi bi-gear"></i>
-                                    </button>
-                                </div>
-
-                                <!-- Dropdown (services) -->
-                                <div id="servicesDropdown" class="list-group mt-2 position-absolute w-100 bg-white shadow-sm"
-                                     style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
-                                    @foreach ($allServices as $service)
-                                        @php $cost = $get_rate * $service->cost + $margin; @endphp
-                                        <a href="javascript:void(0);"
-                                           class="list-group-item list-group-item-action service-option"
-                                            data-service="{{ $service->name }}"
-                                            data-provider="{{ $service->provider }}"
-                                            data-cost="{{ $service->cost }}"
-                                            data-price="{{ number_format($cost, 2, '.', '') }}">
-                                            <span style="font-size: 12px">{{ $service->name }}</span>
-                                            <span class="float-end"><strong>N{{ number_format($cost, 2) }}</strong></span>
-                                        </a>
-                                    @endforeach
-                                </div>
-
-                                <!-- Extra fields -->
-                                <div id="extraFields" class="card p-2 shadow-sm mt-2" style="display: none;">
-                                    <div class="mb-2">
-                                        <label class="my-1">Area codes</label>
-                                        <select id="areaCode" class="form-control" style="width: 100%;">
-                                            <option value=" ">Select Code</option>
-                                            <option value="205">Alabama (205)</option>
-                                            <option value="907">Alaska (907)</option>
-                                            <option value="480">Arizona (480)</option>
-                                            <option value="479">Arkansas (479)</option>
-                                            <option value="209">California (209)</option>
-                                            <option value="213">California (213)</option>
-                                            <option value="310">California (310)</option>
-                                            <option value="415">California (415)</option>
-                                            <option value="619">California (619)</option>
-                                            <option value="650">California (650)</option>
-                                            <option value="707">California (707)</option>
-                                            <option value="714">California (714)</option>
-                                            <option value="818">California (818)</option>
-                                            <option value="303">Colorado (303)</option>
-                                            <option value="970">Colorado (970)</option>
-                                            <option value="203">Connecticut (203)</option>
-                                            <option value="302">Delaware (302)</option>
-                                            <option value="305">Florida (305)</option>
-                                            <option value="321">Florida (321)</option>
-                                            <option value="352">Florida (352)</option>
-                                            <option value="407">Florida (407)</option>
-                                            <option value="561">Florida (561)</option>
-                                            <option value="727">Florida (727)</option>
-                                            <option value="813">Florida (813)</option>
-                                            <option value="850">Florida (850)</option>
-                                            <option value="904">Florida (904)</option>
-                                            <option value="229">Georgia (229)</option>
-                                            <option value="404">Georgia (404)</option>
-                                            <option value="470">Georgia (470)</option>
-                                            <option value="478">Georgia (478)</option>
-                                            <option value="678">Georgia (678)</option>
-                                            <option value="912">Georgia (912)</option>
-                                            <option value="808">Hawaii (808)</option>
-                                            <option value="208">Idaho (208)</option>
-                                            <option value="217">Illinois (217)</option>
-                                            <option value="312">Illinois (312)</option>
-                                            <option value="618">Illinois (618)</option>
-                                            <option value="708">Illinois (708)</option>
-                                            <option value="872">Illinois (872)</option>
-                                            <option value="219">Indiana (219)</option>
-                                            <option value="317">Indiana (317)</option>
-                                            <option value="574">Indiana (574)</option>
-                                            <option value="515">Iowa (515)</option>
-                                            <option value="316">Kansas (316)</option>
-                                            <option value="606">Kentucky (606)</option>
-                                            <option value="225">Louisiana (225)</option>
-                                            <option value="207">Maine (207)</option>
-                                            <option value="301">Maryland (301)</option>
-                                            <option value="410">Maryland (410)</option>
-                                            <option value="781">Massachusetts (781)</option>
-                                            <option value="857">Massachusetts (857)</option>
-                                            <option value="231">Michigan (231)</option>
-                                            <option value="248">Michigan (248)</option>
-                                            <option value="313">Michigan (313)</option>
-                                            <option value="517">Michigan (517)</option>
-                                            <option value="616">Michigan (616)</option>
-                                            <option value="734">Michigan (734)</option>
-                                            <option value="810">Michigan (810)</option>
-                                            <option value="952">Minnesota (952)</option>
-                                            <option value="228">Mississippi (228)</option>
-                                            <option value="314">Missouri (314)</option>
-                                            <option value="417">Missouri (417)</option>
-                                            <option value="406">Montana (406)</option>
-                                            <option value="308">Nebraska (308)</option>
-                                            <option value="702">Nevada (702)</option>
-                                            <option value="603">New Hampshire (603)</option>
-                                            <option value="201">New Jersey (201)</option>
-                                            <option value="609">New Jersey (609)</option>
-                                            <option value="732">New Jersey (732)</option>
-                                            <option value="848">New Jersey (848)</option>
-                                            <option value="505">New Mexico (505)</option>
-                                            <option value="212">New York (212)</option>
-                                            <option value="315">New York (315)</option>
-                                            <option value="347">New York (347)</option>
-                                            <option value="516">New York (516)</option>
-                                            <option value="585">New York (585)</option>
-                                            <option value="607">New York (607)</option>
-                                            <option value="646">New York (646)</option>
-                                            <option value="716">New York (716)</option>
-                                            <option value="718">New York (718)</option>
-                                            <option value="845">New York (845)</option>
-                                            <option value="914">New York (914)</option>
-                                            <option value="919">North Carolina (919)</option>
-                                            <option value="701">North Dakota (701)</option>
-                                            <option value="216">Ohio (216)</option>
-                                            <option value="330">Ohio (330)</option>
-                                            <option value="419">Ohio (419)</option>
-                                            <option value="440">Ohio (440)</option>
-                                            <option value="513">Ohio (513)</option>
-                                            <option value="614">Ohio (614)</option>
-                                            <option value="740">Ohio (740)</option>
-                                            <option value="918">Oklahoma (918)</option>
-                                            <option value="503">Oregon (503)</option>
-                                            <option value="215">Pennsylvania (215)</option>
-                                            <option value="267">Pennsylvania (267)</option>
-                                            <option value="412">Pennsylvania (412)</option>
-                                            <option value="570">Pennsylvania (570)</option>
-                                            <option value="717">Pennsylvania (717)</option>
-                                            <option value="787">Puerto Rico (787)</option>
-                                            <option value="401">Rhode Island (401)</option>
-                                            <option value="803">South Carolina (803)</option>
-                                            <option value="605">South Dakota (605)</option>
-                                            <option value="423">Tennessee (423)</option>
-                                            <option value="615">Tennessee (615)</option>
-                                            <option value="731">Tennessee (731)</option>
-                                            <option value="865">Tennessee (865)</option>
-                                            <option value="901">Tennessee (901)</option>
-                                            <option value="214">Texas (214)</option>
-                                            <option value="254">Texas (254)</option>
-                                            <option value="281">Texas (281)</option>
-                                            <option value="325">Texas (325)</option>
-                                            <option value="409">Texas (409)</option>
-                                            <option value="512">Texas (512)</option>
-                                            <option value="713">Texas (713)</option>
-                                            <option value="806">Texas (806)</option>
-                                            <option value="817">Texas (817)</option>
-                                            <option value="830">Texas (830)</option>
-                                            <option value="903">Texas (903)</option>
-                                            <option value="915">Texas (915)</option>
-                                            <option value="936">Texas (936)</option>
-                                            <option value="972">Texas (972)</option>
-                                            <option value="979">Texas (979)</option>
-                                            <option value="435">Utah (435)</option>
-                                            <option value="802">Vermont (802)</option>
-                                            <option value="276">Virginia (276)</option>
-                                            <option value="434">Virginia (434)</option>
-                                            <option value="540">Virginia (540)</option>
-                                            <option value="703">Virginia (703)</option>
-                                            <option value="757">Virginia (757)</option>
-                                            <option value="804">Virginia (804)</option>
-                                            <option value="206">Washington (206)</option>
-                                            <option value="253">Washington (253)</option>
-                                            <option value="360">Washington (360)</option>
-                                            <option value="425">Washington (425)</option>
-                                            <option value="509">Washington (509)</option>
-                                            <option value="304">West Virginia (304)</option>
-                                            <option value="414">Wisconsin (414)</option>
-                                            <option value="608">Wisconsin (608)</option>
-                                            <option value="715">Wisconsin (715)</option>
-                                            <option value="920">Wisconsin (920)</option>
-                                            <option value="307">Wyoming (307)</option>
-                                        </select>
-                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-                                        <script
-                                            src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-                                        <script>
-                                            // Initialize Select2 on the dropdown
-                                            $(document).ready(function () {
-                                                $('#area_code').select2({
-                                                    placeholder: "Search or select an area code...",
-                                                    allowClear: true
-                                                });
-                                            });
-                                        </script>
-
-
-
-
-                                    </div>
-                                    <div>
-                                        <label class="my-1">Carriers</label>
-                                        <select id="carrier" class="form-control" placeholder="Enter Carrier">
-                                            <option value="">Any Carrier</option>
-                                            <option value="tmo">T-Mobile</option>
-                                            <option value="vz">Verizon</option>
-                                            <option value="att">AT&T</option>
-                                        </select>
-                                    </div>
-                                    <p style="color:#8e0404;" class="my-3 d-flex justify-content-center">This may attract extra 20% charge</p>
-                                </div>
-                            </div>
-
-                            <div class="list-group-item text-center bg-light">
-                                <button style="background: rgba(23, 69, 132, 1); color: white; border-color: transparent" id="rentNumberBtn" class="btn btn-primary w-100" disabled>
-                                    <i class="bi bi-telephone"></i> Rent Number
-                                </button>
-                            </div>
-
-                            <script>
-                                const searchInput = document.getElementById("searchInput");
-                                const servicesDropdown = document.getElementById("servicesDropdown");
-                                const extraFields = document.getElementById("extraFields");
-                                const rentButton = document.getElementById("rentNumberBtn");
-
-                                let selectedService = null;
-                                let selectedCost = null;
-                                let selectedPrice = null;
-                                let selectedProvider = null;
-
-                                // Show dropdown on focus
-                                searchInput.addEventListener("focus", () => {
-                                    servicesDropdown.style.display = "block";
-                                });
-
-                                // Filter services dynamically
-                                searchInput.addEventListener("keyup", () => {
-                                    const filter = searchInput.value.toLowerCase();
-                                    let visibleCount = 0;
-
-                                    document.querySelectorAll("#servicesDropdown .service-option").forEach(option => {
-                                        const text = option.dataset.service.toLowerCase();
-                                        if (text.includes(filter)) {
-                                            option.style.display = "block";
-                                            visibleCount++;
-                                        } else {
-                                            option.style.display = "none";
-                                        }
-                                    });
-
-                                    servicesDropdown.style.display = visibleCount > 0 ? "block" : "none";
-                                });
-
-                                // Event delegation for service selection
-                                servicesDropdown.addEventListener("click", function(e) {
-                                    const option = e.target.closest(".service-option");
-                                    if (!option) return;
-
-                                    selectedService = option.dataset.service;
-                                    selectedCost = option.dataset.cost;
-                                    selectedProvider = option.dataset.provider;
-                                    selectedPrice = option.dataset.price;
-
-                                    searchInput.value = `${selectedService}`;
-                                    servicesDropdown.style.display = "none";
-
-                                    rentButton.disabled = false;
-                                });
-
-                                // Hide dropdown if click outside
-                                document.addEventListener("click", (event) => {
-                                    if (!searchInput.contains(event.target) && !servicesDropdown.contains(event.target) && !extraFields.contains(event.target)) {
-                                        servicesDropdown.style.display = "none";
-                                    }
-                                });
-
-                                // Toggle extra fields
-                                document.getElementById("toggleSettings").addEventListener("click", () => {
-                                    extraFields.style.display = extraFields.style.display === "none" ? "block" : "none";
-                                });
-
-                                // Rent number button
-                                rentButton.addEventListener("click", () => {
-                                    if (!selectedService) return;
-
-                                    rentButton.disabled = true;
-                                    rentButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
-
-                                    const areaCode = document.getElementById("areaCode").value || null;
-                                    const carrier = document.getElementById("carrier").value || null;
-
-                                    const payload = {
-                                        provider: selectedProvider,
-                                        service: selectedService,
-                                        cost: selectedCost,
-                                        price: selectedPrice,
-                                        areaCode: areaCode,
-                                        carrier: carrier
-                                    };
-
-                                    fetch("/order-usano", {
-                                        method: "POST",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                                        },
-                                        body: JSON.stringify(payload)
-                                    })
-                                        .then(response => response.json())
-                                        .then(res => {
-                                            rentButton.disabled = false;
-                                            rentButton.innerHTML = '<i class="bi bi-telephone"></i> Rent Number';
-
-                                            if (res.status && res.reload) {
-                                                window.location.reload();
-                                            } else if (res.status === true) {
-                                                Swal.fire({
-                                                    title: "Success 🎉",
-                                                    text: res.message || "Your purchase was successful!",
-                                                    icon: "success",
-                                                    timer: 3000,
-                                                    showConfirmButton: false
-                                                });
-                                            } else {
-                                                Swal.fire("Error ❌", res.message || "Purchase failed", "error");
-                                            }
-                                        });
-                                });
-                            </script>
-
-
-
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-                @auth
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-
-                                <div class="">
-
-                                    <div class="p-2 col-lg-6">
-                                        <strong>
-                                            <h4>Rented numbers</h4>
-                                            <p class="text-danger">No need to refresh the page to get the code.</p>
-                                        </strong>
-                                    </div>
-
-                                    <div>
-
-
-                                        <div id="smsTableContainer" class="card shadow-sm border-0">
-                                            <div
-                                                style="background: rgba(23, 69, 132, 1); color: white;" class="card-header text-white d-flex justify-content-between align-items-center">
-                                                <h6 class="mb-0 text-white">Verification Requests</h6>
-                                            </div>
-
-                                            <div class="table-responsive">
-                                                <table class="table  table-striped align-middle mb-0"
-                                                       id="basic-table">
-                                                    <thead class="table-light">
-                                                    <tr>
-                                                        <th>Service</th>
-                                                        <th>Phone No</th>
-                                                        <th>Code</th>
-                                                        <th>Price</th>
-                                                        <th>Status</th>
-                                                        <th>Date</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @forelse($verification as $data)
-                                                        <tr>
-                                                            <td>{{ $data->service }}</td>
-                                                            <td class="text-success fw-semibold">{{ $data->phone }}</td>
-
-
-
-                                                            <td>
-                                                                <div id="smsContainer{{ $data->id }}">
-                                                                    <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
-                                                                        <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-                                                                        <span class="text-warning small ">Loading Sms code...</span>
-                                                                    </div>
-
-                                                                    <!-- Main Code -->
-                                                                    <span id="data-sm{{ $data->id }}" class="sms-code text-success fw-semibold d-none"
-                                                                          style="cursor:pointer;" title="Click to copy"></span>
-
-                                                                    <!-- Extra Codes -->
-                                                                    <div id="extraSmsList{{ $data->id }}" class="small text-light mt-1 d-none"></div>
-                                                                </div>
-
-                                                                <script>
-                                                                    document.addEventListener('DOMContentLoaded', () => {
-                                                                        const id = {{ $data->id }};
-                                                                        const status = {{ $data->status }};
-                                                                        const phone = `{{ $data->phone }}`;
-                                                                        const type = {{ $data->type }};
-                                                                        const smsSpan = document.getElementById(`data-sm${id}`);
-                                                                        const loader = document.getElementById(`loader${id}`);
-                                                                        const extraList = document.getElementById(`extraSmsList${id}`);
-                                                                        let countdownTimer = null;
-                                                                        let lastCodes = [];
-
-                                                                        const mainUrl = type === 3
-                                                                            ? `{{ url('get-smscode-usa2') }}?num=${phone}`
-                                                                            : `{{ url('get-smscode') }}?num=${phone}`;
-                                                                        const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
-
-                                                                        async function startCountdown() {
-                                                                            try {
-                                                                                const res = await fetch('{{ url('getInitialCountdown') }}?id={{ $data->id }}');
-                                                                                const data = await res.json();
-                                                                                let secs = data.seconds || 0;
-                                                                                const countdownDisplay = document.getElementById('secondsDisplay' + id);
-
-                                                                                countdownTimer = setInterval(() => {
-                                                                                    secs--;
-                                                                                    if (countdownDisplay) countdownDisplay.textContent = secs;
-                                                                                    if (secs <= 0) {
-                                                                                        clearInterval(countdownTimer);
-                                                                                        fetch('{{ url('api/delete-order') }}', {
-                                                                                            method: 'POST',
-                                                                                            headers: {'Content-Type': 'application/json'},
-                                                                                            body: JSON.stringify({id})
-                                                                                        }).then(() => location.reload());
-                                                                                    }
-                                                                                }, 1000);
-                                                                            } catch (e) {
-                                                                                console.error('[COUNTDOWN ERROR]', e);
-                                                                            }
-                                                                        }
-
-                                                                        async function fetchMainSMS() {
-                                                                            try {
-                                                                                const res = await fetch(mainUrl);
-                                                                                const data = await res.json();
-                                                                                const msg = data?.message?.trim();
-
-                                                                                if (msg && msg.length > 0) {
-                                                                                    loader.classList.add('d-none');
-                                                                                    smsSpan.classList.remove('d-none');
-                                                                                    smsSpan.textContent = msg;
-                                                                                    smsSpan.addEventListener('click', () => {
-                                                                                        navigator.clipboard.writeText(msg).then(() => {
-                                                                                            smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                            setTimeout(() => smsSpan.textContent = msg, 500);
-                                                                                        });
-                                                                                    });
-
-                                                                                    if (countdownTimer) clearInterval(countdownTimer);
-                                                                                }
-                                                                            } catch (err) {
-                                                                                console.error('[MAIN FETCH ERROR]', err);
-                                                                            }
-                                                                        }
-
-                                                                        async function fetchExtraCodes() {
-                                                                            try {
-                                                                                const res = await fetch(fetchUrl);
-                                                                                const result = await res.json();
-                                                                                const messages = Array.isArray(result) ? result : result.codes || [];
-
-                                                                                if (messages.length > 0) {
-                                                                                    loader.classList.add('d-none');
-                                                                                    extraList.classList.remove('d-none');
-                                                                                    if (countdownTimer) clearInterval(countdownTimer);
-
-                                                                                    if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
-                                                                                        extraList.innerHTML = '';
-                                                                                        messages.forEach(msg => {
-                                                                                            const code = msg.sms ?? msg;
-                                                                                            const div = document.createElement('div');
-                                                                                            div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
-                                                                                            div.innerHTML = `<span class="text-dark">${code}</span>`;
-                                                                                            extraList.appendChild(div);
-                                                                                            div.addEventListener('click', () => navigator.clipboard.writeText(code));
-                                                                                        });
-                                                                                        lastCodes = messages;
-                                                                                    }
-                                                                                }
-                                                                            } catch (err) {
-                                                                                console.error('[EXTRA FETCH ERROR]', err);
-                                                                            }
-                                                                        }
-
-                                                                        function updateAll() {
-                                                                            fetchMainSMS();
-                                                                            fetchExtraCodes();
-                                                                        }
-
-                                                                        // ✅ Logic
-                                                                        if (status === 1) {
-                                                                            startCountdown();
-                                                                            updateAll();
-                                                                            setInterval(updateAll, 30000);
-                                                                        } else {
-                                                                            updateAll();
-                                                                        }
-                                                                    });
-                                                                </script>
-
-                                                                <style>
-                                                                    .flash-green {
-                                                                        background-color: rgba(0, 255, 0, 0.3);
-                                                                        animation: flashFade 2s ease-out;
-                                                                    }
-
-                                                                    @keyframes flashFade {
-                                                                        0% { background-color: rgba(0, 255, 0, 0.4); }
-                                                                        100% { background-color: transparent; }
-                                                                    }
-                                                                </style>
-                                                            </td>
-
-
-
-                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
-
-                                                            <td>
-                                                                @if ($data->status == 1)
-                                                                    <span
-                                                                        class="badge bg-warning text-dark">Pending</span>
-                                                                    <form method="POST"
-                                                                          action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                                                          class="d-inline-block"
-                                                                          onsubmit="return confirmDelete(event, this);">
-                                                                        @csrf
-                                                                        <button type="submit"
-                                                                                class="btn btn-sm btn-danger ms-1">
-                                                                            Delete
-                                                                        </button>
-                                                                    </form>
-                                                                @else
-                                                                    <span class="badge bg-success">Completed</span>
-                                                                @endif
-                                                            </td>
-
-
-
-
-
-                                                            <td>{{ $data->created_at }}</td>
-                                                        </tr>
-                                                    @empty
-                                                        <tr>
-                                                            <td colspan="8" class="text-center text-muted py-3">No
-                                                                verification found
-                                                            </td>
-                                                        </tr>
-                                                    @endforelse
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        {{-- SweetAlert Confirm --}}
-                                        <script>
-                                            function confirmDelete(event, form) {
-                                                event.preventDefault();
-                                                Swal.fire({
-                                                    title: 'Cancel order?',
-                                                    text: 'Are you sure you want to cancel this verification?',
-                                                    icon: 'question',
-                                                    showCancelButton: true,
-                                                    confirmButtonText: 'Yes, delete it',
-                                                    cancelButtonText: 'No, keep it'
-                                                }).then(result => {
-                                                    if (result.isConfirmed) form.submit();
-                                                });
-                                                return false;
-                                            }
-                                        </script>
-
-                                        {{-- Live Search --}}
-                                        <script>
-                                            document.getElementById("searchInput").addEventListener("keyup", function () {
-                                                const filter = this.value.toLowerCase();
-                                                document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
-                                                    const text = row.textContent.toLowerCase();
-                                                    row.style.display = text.includes(filter) ? "" : "none";
-                                                });
-                                            });
-                                        </script>
-
-                                    </div>
-
-
-                                </div>
-
-
-                            </div>
-                        </div><!-- [ sample-page ] end -->
-
-
-
-
-                    </div>
-                @endauth
-
-
-
-                <div id="promoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-
-                        <!-- Card 1 -->
-                        <div class="carousel-item active">
-                            <div class="col-lg-12 col-md-12">
-                                <div class="card"
-                                     style="background: linear-gradient(135deg, #2990d8 0%, #022843 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                    <div class="card-body text-center p-4">
-                                        <h5 class="text-white mb-1" style="font-weight: bold;">📱 Get Social Media Accounts</h5>
-                                        <p class="text-white-50 mb-2">For all types of social accounts</p>
-                                        <a href="https://acelogstores.com" target="_blank"
-                                           class="btn btn-light btn-lg px-4 py-2"
-                                           style="font-weight: bold; border-radius: 25px;">
-                                            Visit Now
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 2 -->
-
-                        <div class="carousel-item">
-                            <div class="col-lg-12 col-md-12">
-                                <div class="card"
-                                     style="background: linear-gradient(135deg, #353333 0%, #010f19 100%);
-                    border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                                    <div class="card-body text-center p-4">
-                                        <h5 class="text-white mb-1" style="font-weight: bold;">📱 Boost your Engagement</h5>
-                                        <p class="text-white-50 mb-2">with more followers and likes</p>
-                                        <a href="https://aceboosts.com" target="_blank"
-                                           class="btn btn-light btn-lg px-4 py-2"
-                                           style="font-weight: bold; border-radius: 25px;">
-                                            Boost Now
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                    </div>
-
-                    <!-- Controls -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
-                </div>
-
-
-
-            </div>
+@php
+    $h = (int) date('G');
+    $hmGreet = $h < 12 ? 'Good morning' : ($h < 17 ? 'Good afternoon' : 'Good evening');
+@endphp
+
+<div class="hm-shell">
+
+    <header class="hm-hero">
+        <div class="hm-hero__meta">
+            <p class="hm-hero__kicker">Dashboard</p>
+            <h1 class="hm-hero__greet">{{ $hmGreet }}, <span>{{ Auth::user()->username }}</span></h1>
+            <p class="hm-hero__date"><i class="bi bi-calendar3 hm-hero__date-ico" aria-hidden="true"></i>{{ now()->format('l · j F Y') }}</p>
         </div>
+        <div class="hm-hero__balance-block">
+            <p class="hm-hero__bal-label">Available balance</p>
+            <p class="hm-hero__bal">₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}</p>
+        </div>
+        <div class="hm-hero__actions">
+            <a href="{{ url('/fund-wallet') }}" class="hm-btn hm-btn--primary">
+                <i class="bi bi-plus-lg"></i> Fund wallet
+            </a>
+            <a href="{{ route('verification.index') }}" class="hm-btn hm-btn--ghost">
+                <i class="bi bi-shield-check"></i> SMS verification
+            </a>
+        </div>
+    </header>
 
-    </section>
+    <div class="hm-alerts">
+        @if ($errors->any())
+            <div class="hm-alert hm-alert--danger" role="alert">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        @if (session()->has('message'))
+            <div class="hm-alert hm-alert--success" role="status">{{ session()->get('message') }}</div>
+        @endif
+        @if (session()->has('error'))
+            <div class="hm-alert hm-alert--danger" role="alert">{{ session()->get('error') }}</div>
+        @endif
+    </div>
 
+    <div class="hm-bento">
+        <section class="hm-panel hm-panel--wide" aria-labelledby="hm-vtu-title">
+            <div class="hm-panel__head">
+                <p class="hm-panel__eyebrow">VTU &amp; bills</p>
+                <h2 id="hm-vtu-title" class="hm-panel__title">Quick top-ups</h2>
+                <p class="hm-panel__sub">Airtime, data, TV, and electricity. Opens your catalog when categories are linked — otherwise fund your wallet first.</p>
+            </div>
+            <div class="hm-tiles">
+                @foreach($vtuQuickLinks ?? [] as $vtu)
+                    <a href="{{ $vtu['url'] }}" class="hm-tile hm-tile--{{ $vtu['key'] }}{{ empty($vtu['active']) ? ' hm-tile--fallback' : '' }}">
+                        <span class="hm-tile__icon" aria-hidden="true">
+                            @if($vtu['key'] === 'airtime')
+                                <i class="bi bi-phone"></i>
+                            @elseif($vtu['key'] === 'data')
+                                <i class="bi bi-wifi"></i>
+                            @elseif($vtu['key'] === 'cable')
+                                <i class="bi bi-tv"></i>
+                            @else
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            @endif
+                        </span>
+                        <span class="hm-tile__label">{{ $vtu['label'] }}</span>
+                        <span class="hm-tile__hint">{{ !empty($vtu['active']) ? 'Catalog' : 'Wallet' }}</span>
+                        <span class="hm-tile__go">Continue <i class="bi bi-arrow-right"></i></span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
 
+        <aside class="hm-panel hm-spotlight" aria-labelledby="hm-sms-title">
+            <div class="hm-spotlight__inner">
+                <span class="hm-spotlight__badge">OTP &amp; SMS</span>
+                <h2 id="hm-sms-title" class="hm-spotlight__title">Verification numbers</h2>
+                <p class="hm-spotlight__text">US servers or worldwide coverage. Rent a line, receive codes in your dashboard — no extra SIM.</p>
+                <ul class="hm-spotlight__list">
+                    <li>USA SV1 &amp; SV2 pools</li>
+                    <li>Global numbers</li>
+                    <li>Live code polling</li>
+                </ul>
+                <a href="{{ route('verification.index') }}" class="hm-spotlight__btn">
+                    Open verification hub <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </aside>
+    </div>
 
-    <script>
-        function filterServices() {
-            var input, filter, serviceRows, serviceNames, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            serviceRows = document.getElementsByClassName("service-row");
-            for (i = 0; i < serviceRows.length; i++) {
-                serviceNames = serviceRows[i].getElementsByClassName("service-name");
-                txtValue = serviceNames[0].textContent || serviceNames[0].innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    serviceRows[i].style.display = "";
-                } else {
-                    serviceRows[i].style.display = "none";
-                }
-            }
-        }
-    </script>
+    <div class="hm-promos">
+        <a href="https://aceboosts.com" target="_blank" rel="noopener" class="hm-promo hm-promo--b">
+            <span class="hm-promo__tag" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+            <div>
+                <p class="hm-promo__title">Grow engagement</p>
+                <p class="hm-promo__sub">Followers &amp; likes</p>
+                <span class="hm-promo__cta">Boost <i class="bi bi-arrow-up-right"></i></span>
+            </div>
+        </a>
+    </div>
 
-    <script>
-        function hideButtondelete(link) {
-            // Hide the clicked link
-            link.style.display = 'none';
-
-            setTimeout(function () {
-                link.style.display = 'inline'; // or 'block' depending on your layout
-            }, 5000); // 5 seconds
-        }
-    </script>
-
-
-    <script>
-
-        $.ajaxSetup({
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            }
-        });
-
-        $.get('/api/user', function(response) {
-            console.log(response);
-        });
-
-
-    </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const popup = document.getElementById("page-popup");
-            const closeBtn = document.getElementById("close-popup");
-
-            if (popup) {
-                // Slide down after page load
-                setTimeout(() => popup.classList.add("show"), 300);
-
-                // Auto close after 5 seconds
-                setTimeout(() => popup.classList.remove("show"), 5000);
-
-                // Manual close
-                if (closeBtn) {
-                    closeBtn.addEventListener("click", () => popup.classList.remove("show"));
-                }
-            }
-        });
-    </script>
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const topPopup = document.getElementById("top-popup");
-
-            // Show top banner
-            if (topPopup) {
-                setTimeout(() => topPopup.classList.add("show"), 400);
-                setTimeout(() => topPopup.classList.remove("show"), 8000);
-            }
-
-        });
-
-    </script>
-
-
-
+</div>
 
 @endsection
+
+@push('scripts')
+<script>
+    $.ajaxSetup({
+        headers: {
+            'Authorization': 'Bearer ' + (localStorage.getItem('access_token') || '')
+        }
+    });
+    $.get('/api/user', function (response) {
+        console.log(response);
+    });
+</script>
+@endpush

@@ -1,505 +1,430 @@
-@extends('layout.main')
+@extends('layout.dashboard-modern')
+@section('title', 'World numbers · SMS')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=3">
+@endpush
+
 @section('content')
 
-    <section id="technologies" class="mt-4 my-5">
-        <div class="container technology-block">
+<div class="vf-shell">
 
-            {{-- Wallet Card --}}
-            <div class="col-lg-12 col-md-12 mt-4">
-                <div class="card" style="background: linear-gradient(135deg, #000102 0%, #0c0c0c 100%);
-                border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 15px;">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <i class="fas fa-wallet fa-3x text-white"></i>
-                            </div>
-                            <div>
-                                <h5 class="text-white mb-1" style="font-weight: 600;">
-                                    {{ Auth::user()->username }}
-                                </h5>
-                                <h3 class="text-white mb-0" style="font-weight: bold;">
-                                    ₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}
-                                </h3>
-                                <p class="text-white-50 mb-0" style="font-size: 13px;">Available Balance</p>
-                            </div>
-                        </div>
-                        <div>
-                            <a href="{{ url('fund-wallet') }}" class="btn btn-light btn-lg px-4 py-2"
-                               style="font-weight: bold; border-radius: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.25); transition: 0.3s;">
-                                <i class="fas fa-coins me-2 text-primary"></i> Fund Wallet
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <header class="vf-hero vf-hero--world">
+        <div class="vf-hero__row">
+            <div class="vf-hero__lead">
+                <span class="vf-hero__badge"><i class="bi bi-globe2" aria-hidden="true"></i> International</span>
+                <h1 class="vf-hero__title">All countries</h1>
+                <p class="vf-hero__text">Choose a country and service, confirm price, then buy a number. US pools are on <a href="{{ route('verification.index') }}">Server 1</a> or <a href="{{ url('/usa2') }}">Server 2</a>.</p>
             </div>
-
-            {{-- Top message --}}
-            @if(session('topMessage'))
-                <div id="top-popup" class="popup-banner">
-                    <div class="popup-content">
-                        <span>{{ session('topMessage') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            {{-- Alerts --}}
-            @if ($errors->any())
-                <div class="alert alert-danger mt-3">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if (session()->has('message'))
-                <div class="alert alert-success mt-3">
-                    {{ session()->get('message') }}
-                </div>
-            @endif
-
-            @if (session()->has('error'))
-                <div class="alert alert-danger mt-3">
-                    {{ session()->get('error') }}
-                </div>
-            @endif
-
-            {{-- Country/Service + Verification --}}
-            <div class="row mt-4">
-
-                {{-- LEFT --}}
-                <div class="col-xl-6 col-md-6 col-sm-12 my-3">
-                    <div class="card">
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-center my-3">
-                                <div class="btn-group" role="group">
-                                    <a style="font-size: 12px; background: rgba(23, 69, 132, 1); color: white"
-                                       href="/us" class="btn w-200 mt-1">🇺🇸 USA SV1</a>
-
-                                    <a style="font-size: 12px; background: rgb(230 61 138); color: white"
-                                       href="/usa2" class="btn w-200 mt-1">🇺🇸 USA SV2</a>
-                                </div>
-                            </div>
-
-                            <p class="text-center mb-0">🌎 Choose Country & Service</p>
-                            <hr>
-
-                            <form id="worldForm" method="POST">
-                                @csrf
-
-                                <label class="mt-3 text-muted mb-2">🌎 Select Country</label>
-                                <select id="countrySelect" name="country" class="form-control">
-                                    <option value="">Select Country</option>
-                                    @foreach ($countries as $data)
-                                        <option value="{{ $data['ID'] }}">{{ $data['name'] }}</option>
-                                    @endforeach
-                                </select>
-
-                                <label class="mt-3 text-muted mb-2">💬 Select Service</label>
-                                <select id="serviceSelect" name="service" class="form-control" disabled>
-                                    <option value="">Select a Country First</option>
-                                </select>
-
-                                <div id="priceSection" style="display: none;">
-                                    <h5 class="text-center mt-4">💰 Price:</h5>
-                                    <h3 class="text-center" id="priceDisplay">Loading...</h3>
-
-                                    <button type="button" id="buyNowBtn"
-                                            class="btn btn-primary w-100 mt-3"
-                                            style="background: rgb(0,4,9); border: none;">
-                                        Buy Number Now
-                                    </button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-
-                {{-- RIGHT --}}
-                <div class="col-xl-6 col-md-6 col-sm-12 my-3">
-                    <div class="card shadow-sm border-0">
-
-                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 text-white">Verification Requests</h6>
-                        </div>
-
-                        {{-- ✅ SEARCH INPUT (FIX FOR YOUR ERROR) --}}
-                        <div class="p-3 border-bottom">
-                            <input type="text" id="searchInput" class="form-control"
-                                   placeholder="Search verification requests...">
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0" id="verificationTable">
-                                <thead class="table-light">
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Phone No</th>
-                                    <th>Code</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                @forelse($verification as $data)
-                                    <tr class="verify-row"
-                                        data-id="{{ $data->id }}"
-                                        data-status="{{ $data->status }}"
-                                        data-phone="{{ $data->phone }}"
-                                        data-type="{{ $data->type }}">
-
-                                        <td>{{ $data->service }}</td>
-
-                                        <td class="text-success fw-semibold">{{ $data->phone }}</td>
-
-                                        {{-- SMS CODE --}}
-                                        <td>
-                                            <div id="smsContainer{{ $data->id }}">
-                                                <div class="d-flex align-items-center gap-2" id="loader{{ $data->id }}">
-                                                    <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-                                                    <span class="text-muted small">Loading sms code...</span>
-                                                </div>
-
-                                                {{-- Main code --}}
-                                                <span id="data-sm{{ $data->id }}"
-                                                      class="sms-code text-success fw-semibold d-none"
-                                                      style="cursor:pointer;"
-                                                      title="Click to copy"></span>
-
-                                                {{-- extra codes --}}
-                                                <div id="extraSmsList{{ $data->id }}"
-                                                     class="small text-light mt-1 d-none"></div>
-                                            </div>
-                                        </td>
-
-                                        <td>₦{{ number_format($data->cost, 2) }}</td>
-
-                                        {{-- STATUS --}}
-                                        <td>
-                                            @if ($data->status == 1)
-                                                <span class="badge bg-warning text-dark">Pending</span>
-
-                                                <form method="POST"
-                                                      action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                                      class="d-inline-block"
-                                                      onsubmit="return confirmDelete(event, this);">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger ms-1">Delete</button>
-                                                </form>
-                                            @else
-                                                <span class="badge bg-success">Completed</span>
-                                            @endif
-                                        </td>
-
-                                        <td>{{ $data->created_at }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-3">
-                                            No verification found
-                                        </td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    </div>
-                </div>
-
+            <div class="vf-hero__stats">
+                <p class="vf-hero__user">{{ Auth::user()->username }}</p>
+                <p class="vf-hero__balance">₦{{ number_format(Auth::user()->wallet ?? 0, 2) }}</p>
+                <p class="vf-hero__bal-label">Wallet balance</p>
+                <a href="{{ url('/fund-wallet') }}" class="vf-hero__cta"><i class="bi bi-plus-lg" aria-hidden="true"></i> Fund wallet</a>
             </div>
         </div>
-    </section>
+    </header>
 
-    {{-- SweetAlert + Select2 --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <nav class="vf-servers" aria-label="Number pools">
+        <a href="{{ route('verification.index') }}" class="vf-server">
+            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+            <span class="vf-server__name">USA · Server 1</span>
+        </a>
+        <a href="{{ url('/usa2') }}" class="vf-server">
+            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+            <span class="vf-server__name">USA · Server 2</span>
+        </a>
+        <a href="{{ url('/world') }}" class="vf-server vf-server--active">
+            <span class="vf-server__flag" aria-hidden="true">🌎</span>
+            <span class="vf-server__name">All countries</span>
+            <span class="vf-server__hint">Current panel</span>
+        </a>
+    </nav>
 
-    <script>
-        // SweetAlert Confirm
-        function confirmDelete(event, form) {
-            event.preventDefault();
-            Swal.fire({
-                title: 'Cancel order?',
-                text: 'Are you sure you want to cancel this verification?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it',
-                cancelButtonText: 'No, keep it'
-            }).then(result => {
-                if (result.isConfirmed) form.submit();
-            });
-            return false;
-        }
-    </script>
+    @if (session('topMessage'))
+        <div class="vf-alert vf-alert--info" role="status">{{ session('topMessage') }}</div>
+    @endif
 
-    <script>
-        // ✅ SEARCH FIX (no more addEventListener error)
-        document.addEventListener("DOMContentLoaded", function () {
-            const searchInput = document.getElementById("searchInput");
-            if (searchInput) {
-                searchInput.addEventListener("keyup", function () {
-                    const filter = this.value.toLowerCase();
-                    document.querySelectorAll("#verificationTable tbody tr").forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(filter) ? "" : "none";
-                    });
-                });
-            }
+    <div class="vf-alerts">
+        @if ($errors->any())
+            <div class="vf-alert vf-alert--danger" role="alert">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        @if (session()->has('message'))
+            <div class="vf-alert vf-alert--success" role="status">{{ session()->get('message') }}</div>
+        @endif
+        @if (session()->has('error'))
+            <div class="vf-alert vf-alert--danger" role="alert">{{ session()->get('error') }}</div>
+        @endif
+    </div>
+
+    <div class="vf-grid">
+        <article class="vf-panel vf-panel--order">
+            <div class="vf-panel__head">
+                <h2 class="vf-panel__title">Order a number</h2>
+                <p class="vf-panel__sub">Select country, then service. We check live price and availability before you pay.</p>
+            </div>
+            <div class="vf-panel__body vf-world-form">
+                <form id="worldForm" method="POST">
+                    @csrf
+
+                    <label class="vf-label" for="countrySelect">Country</label>
+                    <select id="countrySelect" name="country" class="form-control">
+                        <option value="">Select country</option>
+                        @foreach ($countries as $data)
+                            <option value="{{ $data['ID'] }}">{{ $data['name'] }}</option>
+                        @endforeach
+                    </select>
+
+                    <label class="vf-label" for="serviceSelect">Service</label>
+                    <select id="serviceSelect" name="service" class="form-control" disabled>
+                        <option value="">Select a country first</option>
+                    </select>
+
+                    <div id="priceSection" class="vf-price-panel" style="display: none;">
+                        <p class="vf-price-panel__label">Price</p>
+                        <p class="vf-price-panel__amount" id="priceDisplay">—</p>
+                        <button type="button" id="buyNowBtn" class="vf-btn-buy">Buy number</button>
+                    </div>
+                </form>
+            </div>
+        </article>
+
+        <article class="vf-panel vf-panel--requests">
+            <div class="vf-panel__head vf-panel__head--split">
+                <div>
+                    <h2 class="vf-panel__title">Verification requests</h2>
+                    <p class="vf-panel__sub">Codes update automatically. Filter applies only to this table.</p>
+                </div>
+                <div>
+                    <label class="visually-hidden" for="vf-requests-filter">Filter requests</label>
+                    <input type="search" id="vf-requests-filter" class="vf-filter-input" placeholder="Filter table…" autocomplete="off">
+                </div>
+            </div>
+            <p class="vf-panel__note"><strong>Active numbers</strong> — tap a code to copy.</p>
+
+            <div class="vf-table-scroll">
+                <table class="vf-table" id="vf-requests-table">
+                    <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Phone</th>
+                        <th>Code</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($verification as $data)
+                        <tr class="verify-row"
+                            data-id="{{ $data->id }}"
+                            data-status="{{ $data->status }}"
+                            data-phone="{{ $data->phone }}"
+                            data-type="{{ $data->type }}">
+                            <td>{{ $data->service }}</td>
+                            <td class="vf-mono">{{ $data->phone }}</td>
+                            <td>
+                                <div id="smsContainer{{ $data->id }}">
+                                    <div class="vf-code-loader" id="loader{{ $data->id }}">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
+                                        <span class="vf-code-loading-text">Waiting for SMS…</span>
+                                    </div>
+                                    <span id="data-sm{{ $data->id }}" class="vf-sms-code d-none" title="Click to copy"></span>
+                                    <div id="extraSmsList{{ $data->id }}" class="vf-extra-codes d-none"></div>
+                                </div>
+                            </td>
+                            <td>₦{{ number_format($data->cost, 2) }}</td>
+                            <td>
+                                @if ($data->status == 1)
+                                    <div class="vf-status-row">
+                                        <span class="vf-status vf-status--pending">Pending</span>
+                                        <form method="POST"
+                                              action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                              class="d-inline"
+                                              onsubmit="return confirmDeleteWorld(event, this);">
+                                            @csrf
+                                            <button type="submit" class="vf-btn-del">Cancel</button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="vf-status vf-status--done">Completed</span>
+                                @endif
+                            </td>
+                            <td>{{ $data->created_at }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="vf-empty">No verification requests yet.</td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+    function confirmDeleteWorld(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Cancel order?',
+            text: 'Are you sure you want to cancel this verification?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, cancel it',
+            cancelButtonText: 'Keep it'
+        }).then(function (result) {
+            if (result.isConfirmed) form.submit();
         });
-    </script>
+        return false;
+    }
 
-    <script>
-        // ✅ SMS Fetch (One script handles all rows)
-        document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('vf-requests-filter');
+        var table = document.getElementById('vf-requests-table');
+        if (!el || !table) return;
+        el.addEventListener('input', function () {
+            var filter = el.value.toLowerCase().trim();
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                if (row.querySelector('.vf-empty')) {
+                    row.style.display = '';
+                    return;
+                }
+                var text = row.textContent.toLowerCase();
+                row.style.display = !filter || text.includes(filter) ? '' : 'none';
+            });
+        });
+    });
 
-            document.querySelectorAll('.verify-row').forEach(row => {
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.verify-row').forEach(function (row) {
+            var id = row.dataset.id;
+            var status = parseInt(row.dataset.status || '0', 10);
+            var phone = row.dataset.phone;
+            var type = parseInt(row.dataset.type || '0', 10);
 
-                const id = row.dataset.id;
-                const status = parseInt(row.dataset.status || 0);
-                const phone = row.dataset.phone;
-                const type = parseInt(row.dataset.type || 0);
+            var smsSpan = document.getElementById('data-sm' + id);
+            var loader = document.getElementById('loader' + id);
+            var extraList = document.getElementById('extraSmsList' + id);
 
-                const smsSpan = document.getElementById(`data-sm${id}`);
-                const loader = document.getElementById(`loader${id}`);
-                const extraList = document.getElementById(`extraSmsList${id}`);
+            var countdownTimer = null;
+            var lastCodes = [];
 
-                let countdownTimer = null;
-                let lastCodes = [];
+            var mainUrl = type === 3
+                ? @json(url('/get-smscode-usa2')) + '?num=' + encodeURIComponent(phone)
+                : @json(url('/get-smscode')) + '?num=' + encodeURIComponent(phone);
+            var fetchUrl = @json(url('/check-more-sms')) + '?num=' + encodeURIComponent(phone);
 
-                const mainUrl = type === 3
-                    ? `{{ url('get-smscode-usa2') }}?num=${phone}`
-                    : `{{ url('get-smscode') }}?num=${phone}`;
-
-                const fetchUrl = `{{ url('check-more-sms') }}?num=${phone}`;
-
-                async function fetchMainSMS() {
-                    try {
-                        const res = await fetch(mainUrl);
-                        const data = await res.json();
-                        const msg = data?.message?.trim();
-
-                        if (msg && msg.length > 0) {
-                            loader?.classList.add('d-none');
-                            smsSpan?.classList.remove('d-none');
-                            smsSpan.textContent = msg;
-
-                            smsSpan.onclick = () => {
-                                navigator.clipboard.writeText(msg).then(() => {
-                                    smsSpan.innerHTML = msg + ' <i class="fas fa-check-circle text-success"></i>';
-                                    setTimeout(() => smsSpan.textContent = msg, 600);
-                                });
-                            };
-
+            function fetchMainSMS() {
+                fetch(mainUrl)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        var msg = (data && data.message) ? String(data.message).trim() : '';
+                        if (msg.length > 0) {
+                            if (loader) loader.classList.add('d-none');
+                            if (smsSpan) {
+                                smsSpan.classList.remove('d-none');
+                                smsSpan.textContent = msg;
+                                smsSpan.onclick = function () {
+                                    navigator.clipboard.writeText(msg).then(function () {
+                                        smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
+                                        setTimeout(function () { smsSpan.textContent = msg; }, 600);
+                                    });
+                                };
+                            }
                             if (countdownTimer) clearInterval(countdownTimer);
                         }
-                    } catch (err) {
-                        console.error('[MAIN FETCH ERROR]', err);
-                    }
-                }
+                    })
+                    .catch(function (err) { console.error('[MAIN FETCH ERROR]', err); });
+            }
 
-                async function fetchExtraCodes() {
-                    try {
-                        const res = await fetch(fetchUrl);
-                        const result = await res.json();
-                        const messages = Array.isArray(result) ? result : result.codes || [];
-
+            function fetchExtraCodes() {
+                fetch(fetchUrl)
+                    .then(function (res) { return res.json(); })
+                    .then(function (result) {
+                        var messages = Array.isArray(result) ? result : (result.codes || []);
                         if (messages.length > 0) {
-                            loader?.classList.add('d-none');
-                            extraList?.classList.remove('d-none');
-
+                            if (loader) loader.classList.add('d-none');
+                            if (extraList) extraList.classList.remove('d-none');
                             if (countdownTimer) clearInterval(countdownTimer);
 
                             if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
                                 extraList.innerHTML = '';
-                                messages.forEach(msg => {
-                                    const code = msg.sms ?? msg;
-                                    const div = document.createElement('div');
-                                    div.className = 'border-bottom py-1 d-flex justify-content-between align-items-center code-line';
-                                    div.innerHTML = `<span class="text-dark">${code}</span>`;
+                                messages.forEach(function (msg) {
+                                    var code = msg.sms != null ? msg.sms : msg;
+                                    var div = document.createElement('div');
+                                    div.className = 'vf-code-line';
+                                    div.innerHTML = '<span>' + code + '</span>';
                                     extraList.appendChild(div);
-                                    div.addEventListener('click', () => navigator.clipboard.writeText(code));
+                                    div.addEventListener('click', function () {
+                                        navigator.clipboard.writeText(code);
+                                    });
                                 });
                                 lastCodes = messages;
                             }
                         }
-                    } catch (err) {
-                        console.error('[EXTRA FETCH ERROR]', err);
-                    }
-                }
+                    })
+                    .catch(function (err) { console.error('[EXTRA FETCH ERROR]', err); });
+            }
 
-                async function startCountdown() {
-                    try {
-                        const res = await fetch(`{{ url('getInitialCountdown') }}?id=${id}`);
-                        const data = await res.json();
-
-                        let secs = data.seconds || 0;
-
-                        countdownTimer = setInterval(() => {
+            function startCountdown() {
+                fetch(@json(url('/getInitialCountdown')) + '?id=' + id)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        var secs = data.seconds || 0;
+                        countdownTimer = setInterval(function () {
                             secs--;
                             if (secs <= 0) {
                                 clearInterval(countdownTimer);
-                                fetch('{{ url('api/delete-order') }}', {
+                                fetch(@json(url('/api/delete-order')), {
                                     method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({id})
-                                }).then(() => location.reload());
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ id: parseInt(id, 10) })
+                                }).then(function () { location.reload(); });
                             }
                         }, 1000);
+                    })
+                    .catch(function (e) { console.error('[COUNTDOWN ERROR]', e); });
+            }
 
-                    } catch (e) {
-                        console.error('[COUNTDOWN ERROR]', e);
-                    }
-                }
+            function updateAll() {
+                fetchMainSMS();
+                fetchExtraCodes();
+            }
 
-                function updateAll() {
-                    fetchMainSMS();
-                    fetchExtraCodes();
-                }
-
-                // Logic
-                if (status === 1) {
-                    startCountdown();
-                    updateAll();
-                    setInterval(updateAll, 30000);
-                } else {
-                    updateAll();
-                }
-            });
-
+            if (status === 1) {
+                startCountdown();
+                updateAll();
+                setInterval(updateAll, 30000);
+            } else {
+                updateAll();
+            }
         });
-    </script>
+    });
 
-    <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
+        $('select').select2();
 
-            // select2
-            $("select").select2();
+        $('#countrySelect').on('change', function () {
+            var countryID = $(this).val();
+            $('#serviceSelect').html('<option value="">Loading…</option>').prop('disabled', true);
 
-            // Load services when country is selected
-            $('#countrySelect').on('change', function () {
-                const countryID = $(this).val();
-                $('#serviceSelect').html('<option>Loading...</option>').prop('disabled', true);
-
-                if (countryID) {
-                    $.ajax({
-                        url: '/get-world-services/' + countryID,
-                        type: 'GET',
-                        success: function (res) {
-                            $('#serviceSelect').empty().append('<option value="">Select Service</option>');
-                            res.forEach(service => {
-                                $('#serviceSelect').append(`<option value="${service.ID}">${service.name}</option>`);
-                            });
-                            $('#serviceSelect').prop('disabled', false);
-                        }
-                    });
-                }
-            });
-
-            // When service selected → check availability
-            $('#serviceSelect').on('change', function () {
-                const country = $('#countrySelect').val();
-                const service = $(this).val();
-
-                if (country && service) {
-                    $.ajax({
-                        url: '/check-world-availability',
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            country: country,
-                            service: service
-                        },
-                        beforeSend: function () {
-                            $('#priceSection').hide();
-                            Swal.fire({
-                                title: 'Checking...',
-                                text: 'Please wait',
-                                allowOutsideClick: false,
-                                didOpen: () => Swal.showLoading()
-                            });
-                        },
-                        success: function (res) {
-                            Swal.close();
-                            if (res.status === 'success') {
-                                $('#priceSection').show();
-                                $('#priceDisplay').text('₦' + res.price);
-                                $('#buyNowBtn').data('country', country).data('service', service).data('price', res.price);
-                            } else {
-                                Swal.fire('Unavailable', res.message, 'error');
-                            }
-                        },
-                        error: function () {
-                            Swal.close();
-                            Swal.fire('Error', 'Unable to check availability', 'error');
-                        }
-                    });
-                }
-            });
-
-            // Buy number button
-            $('#buyNowBtn').on('click', function () {
-                const btn = $(this);
-                const country = btn.data('country');
-                const service = btn.data('service');
-                const price = btn.data('price');
-
-                Swal.fire({
-                    title: 'Confirm Purchase',
-                    text: `Buy number for ₦${price}?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Buy Now',
-                    cancelButtonText: 'Cancel'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-
-                        btn.prop('disabled', true)
-                            .html('<i class="fas fa-spinner fa-spin me-2"></i> Getting number...');
-
-                        $.ajax({
-                            url: '/order-world-number',
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                country: country,
-                                service: service,
-                                price: price
-                            },
-                            success: function (resp) {
-                                try { resp = JSON.parse(resp); } catch (e) {}
-
-                                if (resp === 3 || resp.status === 3 || resp.status === 'success') {
-                                    Swal.fire('Success', 'Please wait, page reloading....', 'success')
-                                        .then(() => location.reload());
-                                } else if (resp === 99) {
-                                    Swal.fire('Error', 'Insufficient balance', 'error');
-                                } else if (resp === 5) {
-                                    Swal.fire('Error', 'Service unavailable or failed', 'error');
-                                } else if (resp === 8) {
-                                    Swal.fire('Error', 'Wallet not found. Please try again later.', 'error');
-                                } else {
-                                    Swal.fire('Error', resp.message || 'Something went wrong', 'error');
-                                }
-                            },
-                            error: function () {
-                                Swal.fire('Error', 'Unable to process your request', 'error');
-                            },
-                            complete: function () {
-                                btn.prop('disabled', false).html('Buy Number Now');
-                            }
+            if (countryID) {
+                $.ajax({
+                    url: '{{ url('/get-world-services') }}/' + countryID,
+                    type: 'GET',
+                    success: function (res) {
+                        $('#serviceSelect').empty().append('<option value="">Select service</option>');
+                        res.forEach(function (service) {
+                            $('#serviceSelect').append('<option value="' + service.ID + '">' + service.name + '</option>');
                         });
+                        $('#serviceSelect').prop('disabled', false).trigger('change.select2');
+                    }
+                });
+            }
+        });
+
+        $('#serviceSelect').on('change', function () {
+            var country = $('#countrySelect').val();
+            var service = $(this).val();
+
+            if (country && service) {
+                $.ajax({
+                    url: '{{ url('/check-world-availability') }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        country: country,
+                        service: service
+                    },
+                    beforeSend: function () {
+                        $('#priceSection').hide();
+                        Swal.fire({
+                            title: 'Checking…',
+                            text: 'Please wait',
+                            allowOutsideClick: false,
+                            didOpen: function () { Swal.showLoading(); }
+                        });
+                    },
+                    success: function (res) {
+                        Swal.close();
+                        if (res.status === 'success') {
+                            $('#priceSection').show();
+                            $('#priceDisplay').text('₦' + res.price);
+                            $('#buyNowBtn').data('country', country).data('service', service).data('price', res.price);
+                        } else {
+                            Swal.fire('Unavailable', res.message || 'Try another combination', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.close();
+                        Swal.fire('Error', 'Unable to check availability', 'error');
+                    }
+                });
+            }
+        });
+
+        $('#buyNowBtn').on('click', function () {
+            var btn = $(this);
+            var country = btn.data('country');
+            var service = btn.data('service');
+            var price = btn.data('price');
+
+            Swal.fire({
+                title: 'Confirm purchase',
+                text: 'Buy number for ₦' + price + '?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Buy now',
+                cancelButtonText: 'Cancel'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status"></span> Getting number…');
+
+                $.ajax({
+                    url: '{{ url('/order-world-number') }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        country: country,
+                        service: service,
+                        price: price
+                    },
+                    success: function (resp) {
+                        try { resp = JSON.parse(resp); } catch (e) {}
+
+                        if (resp === 3 || resp.status === 3 || resp.status === 'success') {
+                            Swal.fire('Success', 'Reloading…', 'success').then(function () { location.reload(); });
+                        } else if (resp === 99) {
+                            Swal.fire('Error', 'Insufficient balance', 'error');
+                        } else if (resp === 5) {
+                            Swal.fire('Error', 'Service unavailable or failed', 'error');
+                        } else if (resp === 8) {
+                            Swal.fire('Error', 'Wallet not found. Please try again later.', 'error');
+                        } else {
+                            Swal.fire('Error', (resp && resp.message) ? resp.message : 'Something went wrong', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Unable to process your request', 'error');
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).html('Buy number');
                     }
                 });
             });
-
         });
-    </script>
-
-@endsection
+    });
+</script>
+@endpush

@@ -373,7 +373,6 @@ class WorldNumberController extends Controller
         $validator = Validator::make($request->all(), [
             'country' => 'required',
             'service' => 'required',
-            'price'   => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -383,33 +382,45 @@ class WorldNumberController extends Controller
             ], 422);
         }
 
-        $price = (float) preg_replace('/[^\d.]/', '', (string) $request->price);
-
-        $wallet = (float) Auth::user()->wallet;
-
-
-
-        if ($price <= 0) {
+        $countryRow = Country::where('country_id', $request->country)->first();
+        if (!$countryRow || !$countryRow->short_name) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid price sent'
+                'message' => 'Invalid country',
             ], 400);
         }
 
-        if ($wallet < $price) {
+        $gcost = pool_cost($request->service, $countryRow->short_name);
+        if ($gcost === null || (float) $gcost <= 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Service not available',
+            ], 400);
+        }
+
+        $setting = Setting::find(1);
+        if (!$setting) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Settings not configured',
+            ], 500);
+        }
+
+        $required = ((float) $setting->rate * (float) $gcost) + (float) $setting->margin;
+        $wallet = (float) Auth::user()->wallet;
+
+        if ($wallet < $required) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Insufficient wallet balance',
                 'wallet_balance' => $wallet,
-                'required_amount' => $price
+                'required_amount' => $required
             ], 400);
         }
 
         $order = create_world_order(
             $request->country,
-            $request->service,
-            $price,
-            $price
+            $request->service
         );
 
 
@@ -427,8 +438,16 @@ class WorldNumberController extends Controller
             ], 400);
         }
 
+        if ($order == 97) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid country',
+            ], 400);
+        }
+
         return response()->json([
             'status' => 'error',
             'message' => 'Unable to complete purchase'
         ], 400);
-    }}
+    }
+}

@@ -128,7 +128,8 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
 
     Route::get('h1',  [HomeController::class,'h1']);
-    Route::get('us',  [HomeController::class,'home']);
+    Route::get('verification', [HomeController::class, 'verification_index'])->name('verification.index');
+    Route::get('us',  [HomeController::class,'verification_index']);
 
     Route::delete('/delete-user/{id}', [HomeController::class, 'destroy_user'])->name('delete-user');
 

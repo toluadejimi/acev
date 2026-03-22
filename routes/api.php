@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\SprintPayWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -22,6 +23,8 @@ Route::any('cancle-sms',  [HomeController::class,'cancle_sms_timer']);
 Route::any('user',  [HomeController::class,'user']);
 
 
+
+Route::post('webhooks/sprintpay', SprintPayWebhookController::class);
 
 Route::any('e_fund',  [HomeController::class,'e_fund']);
 Route::any('e_check',  [HomeController::class,'e_check']);

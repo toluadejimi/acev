@@ -15,6 +15,40 @@ use Illuminate\Support\Facades\Http;
 
 class ApiController extends Controller
 {
+    private function computeApiWorldNgnPrice(User $user, string $country, string $service): ?float
+    {
+        $key = env('WKEY');
+        $response = Http::asForm()->post('https://api.smspool.net/request/price', [
+            'key' => $key,
+            'country' => $country,
+            'service' => $service,
+            'pool' => '',
+        ]);
+
+        if (!$response->ok()) {
+            return null;
+        }
+
+        $priceData = $response->json();
+        $get_s_price = $priceData['price'] ?? null;
+        $high_price = $priceData['high_price'] ?? null;
+        $pct = (float) ($user->api_percentage ?? 1);
+
+        if ($high_price === null) {
+            $usd = ($get_s_price ?? 0) * $pct;
+        } elseif ($high_price > 4) {
+            $usd = $high_price * $pct;
+        } else {
+            $usd = $high_price * $pct;
+        }
+
+        $settings = Setting::find(1);
+        if (!$settings) {
+            return null;
+        }
+
+        return ($usd * (float) $settings->rate) + (float) $settings->margin;
+    }
 
     public function get_balance(request $request)
     {
@@ -246,26 +280,15 @@ class ApiController extends Controller
             );
 
             $key = env('WKEY');
-            $databody = ["key" => $key, "country" => $request->country, "service" => $request->service];
-            $response = Http::asForm()->post('https://api.smspool.net/request/price', $databody);
-
-            if (!$response->ok()) {
-                return response()->json(['status' => false, 'message' => 'API Error'], 500);
+            $ngnprice = $this->computeApiWorldNgnPrice($user, (string) $request->country, (string) $request->service);
+            if ($ngnprice === null) {
+                return response()->json(['status' => false, 'message' => 'Could not fetch pricing'], 500);
             }
-
-            $priceData = $response->json();
-            $get_s_price = $priceData['price'] ?? null;
-            $high_price  = $priceData['high_price'] ?? null;
-            $rate        = $priceData['success_rate'] ?? null;
-
-            $price = $high_price && $high_price > 4 ? $high_price : ($get_s_price ?? 1.3);
-            $settings = Setting::find(1);
-            $ngnprice = ($price * $settings->rate) + $settings->margin;
 
             try {
                 $result = DB::transaction(function () use ($user, $ngnprice, $request, $key) {
-                    $user->refresh();
-                    if ($user->wallet < $ngnprice) {
+                    $locked = User::where('id', $user->id)->lockForUpdate()->first();
+                    if (!$locked || (float) $locked->wallet < $ngnprice) {
                         throw new \Exception("INSUFFICIENT FUNDS, FUND YOUR WALLET");
                     }
 
@@ -281,16 +304,14 @@ class ApiController extends Controller
 
                     $var = $purchase->json();
 
-
-
                     \Log::info('SMSPOOL purchase response:', $var);
 
                     if (($var['success'] ?? 0) != 1) {
                         throw new \Exception("Number Currently out of stock, Please check back later");
                     }
 
-                    $old_balance = $user->wallet;
-                    $user->decrement('wallet', $ngnprice);
+                    $old_balance = (float) $locked->wallet;
+                    User::where('id', $user->id)->decrement('wallet', $ngnprice);
                     $balance = $old_balance - $ngnprice;
 
                     $ver = Verification::create([
@@ -628,37 +649,52 @@ class ApiController extends Controller
 
         Verification::where('phone', $phone)->where('status', 2)->delete();
 
-        // Save verification record
-        $ver = new Verification();
-        $ver->user_id    = $user->id;
-        $ver->phone      = $phone;
-        $ver->order_id   = $id;
-        $ver->country    = "US";
-        $ver->service    = $service;
-        $ver->cost       = $nairaCost;
-        $ver->api_cost   = $cost;
-        $ver->status     = 1;
-        $ver->expires_in = 300; // TODO: if provider sends expiry, use it
-        $ver->type       = 1;
-        $ver->save();
+        try {
+            $ver = DB::transaction(function () use ($user, $nairaCost, $id, $phone, $service, $cost) {
+                $locked = User::where('id', $user->id)->lockForUpdate()->first();
+                if (!$locked || (float) $locked->wallet < $nairaCost) {
+                    return null;
+                }
 
-        // Update balances
-        $old_balance = $user->wallet;
-        $new_balance = $old_balance - $nairaCost;
+                $old_balance = (float) $locked->wallet;
+                $new_balance = $old_balance - $nairaCost;
 
-        User::where('id', $user->id)->decrement('wallet', $nairaCost);
-        WalletCheck::where('user_id', $user->id)->increment('total_bought', $nairaCost);
-        WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $nairaCost);
+                $verification = new Verification();
+                $verification->user_id    = $user->id;
+                $verification->phone      = $phone;
+                $verification->order_id   = $id;
+                $verification->country    = "US";
+                $verification->service    = $service;
+                $verification->cost       = $nairaCost;
+                $verification->api_cost   = $cost;
+                $verification->status     = 1;
+                $verification->expires_in = 300;
+                $verification->type       = 1;
+                $verification->save();
 
-        $trx = new Transaction();
-        $trx->ref_id      = "APIVerification-" . uniqid();
-        $trx->user_id     = $user->id;
-        $trx->status      = 2;
-        $trx->amount      = $nairaCost;
-        $trx->balance     = $new_balance;
-        $trx->old_balance = $old_balance;
-        $trx->type        = 1;
-        $trx->save();
+                User::where('id', $user->id)->decrement('wallet', $nairaCost);
+                WalletCheck::where('user_id', $user->id)->increment('total_bought', $nairaCost);
+                WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $nairaCost);
+
+                $trx = new Transaction();
+                $trx->ref_id      = "APIVerification-" . uniqid();
+                $trx->user_id     = $user->id;
+                $trx->status      = 2;
+                $trx->amount      = $nairaCost;
+                $trx->balance     = $new_balance;
+                $trx->old_balance = $old_balance;
+                $trx->type        = 1;
+                $trx->save();
+
+                return $verification;
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['status' => false, 'message' => 'Could not complete purchase'], 500);
+        }
+
+        if ($ver === null) {
+            return response()->json(['status' => false, 'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET"], 422);
+        }
 
         return response()->json([
             'status'   => true,

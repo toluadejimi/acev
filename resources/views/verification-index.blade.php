@@ -1,5 +1,5 @@
 @extends('layout.dashboard-modern')
-@section('title', 'USA Server 2 · SMS')
+@section('title', 'SMS verification')
 
 @push('styles')
     <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=2">
@@ -9,12 +9,12 @@
 
 <div class="vf-shell">
 
-    <header class="vf-hero vf-hero--usa2">
+    <header class="vf-hero">
         <div class="vf-hero__row">
             <div class="vf-hero__lead">
-                <span class="vf-hero__badge"><i class="bi bi-telephone" aria-hidden="true"></i> USA pool</span>
-                <h1 class="vf-hero__title">USA Server 2</h1>
-                <p class="vf-hero__text">Second US number pool — same flow as Server 1. Need another region? Use <a href="{{ route('verification.index') }}">Server 1</a> or <a href="{{ url('/world') }}">all countries</a>.</p>
+                <span class="vf-hero__badge"><i class="bi bi-shield-check" aria-hidden="true"></i> Verification hub</span>
+                <h1 class="vf-hero__title">SMS verification</h1>
+                <p class="vf-hero__text">Rent US numbers (Server 1 / 2) or open <a href="{{ url('/world') }}">all countries</a>. Pick a service, then track OTP codes in your active requests.</p>
             </div>
             <div class="vf-hero__stats">
                 <p class="vf-hero__user">{{ Auth::user()->username }}</p>
@@ -26,14 +26,14 @@
     </header>
 
     <nav class="vf-servers" aria-label="Number pools">
-        <a href="{{ route('verification.index') }}" class="vf-server">
+        <a href="{{ route('verification.index') }}" class="vf-server vf-server--active">
             <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
             <span class="vf-server__name">USA · Server 1</span>
+            <span class="vf-server__hint">Current panel</span>
         </a>
-        <a href="{{ url('/usa2') }}" class="vf-server vf-server--active">
+        <a href="{{ url('/usa2') }}" class="vf-server">
             <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
             <span class="vf-server__name">USA · Server 2</span>
-            <span class="vf-server__hint">Current panel</span>
         </a>
         <a href="{{ url('/world') }}" class="vf-server">
             <span class="vf-server__flag" aria-hidden="true">🌎</span>
@@ -67,16 +67,16 @@
                 <article class="vf-panel vf-panel--order">
                     <div class="vf-panel__head">
                         <h2 class="vf-panel__title">Order a number</h2>
-                        <p class="vf-panel__sub">Search for a service, then open settings to pick a US area code if needed (may add about 20% to the price).</p>
+                        <p class="vf-panel__sub">Search for a service, then use the gear icon if you need a US area code or carrier (may add ~20% to price).</p>
                     </div>
                     <div class="vf-panel__body">
 
-                            <p class="vf-order-hint">Ordering on <strong>USA Server 2</strong></p>
+                            <p class="vf-order-hint">Ordering on <strong>USA Server 1</strong></p>
 
                             <div class="position-relative">
                                 <div class="vf-search-row">
                                     <input type="text" id="searchInput" class="vf-field-input" placeholder="Search for a service…" autocomplete="off">
-                                    <button class="vf-icon-btn" id="toggleSettings" type="button" aria-label="Area code settings">
+                                    <button class="vf-icon-btn" id="toggleSettings" type="button" aria-label="Area code and carrier settings">
                                         <i class="bi bi-sliders"></i>
                                     </button>
                                 </div>
@@ -84,12 +84,12 @@
                                 <div id="servicesDropdown" class="list-group vf-dropdown mt-2 position-absolute w-100 bg-white shadow-sm"
                                      style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
                                     @foreach ($allServices as $service)
-                                        @php $cost = $get_rate * $service->price + $margin; @endphp
+                                        @php $cost = $get_rate * $service->cost + $margin; @endphp
                                         <a href="javascript:void(0);"
                                            class="list-group-item list-group-item-action service-option"
                                             data-service="{{ $service->name }}"
-                                            data-provider="{{ $service->name }}"
-                                            data-cost="{{ $service->price }}"
+                                            data-provider="{{ $service->provider }}"
+                                            data-cost="{{ $service->cost }}"
                                             data-price="{{ number_format($cost, 2, '.', '') }}">
                                             <span class="vf-service-name">{{ $service->name }}</span>
                                             <span class="vf-service-price">₦{{ number_format($cost, 2) }}</span>
@@ -254,8 +254,20 @@
                                             });
                                         </script>
 
+
+
+
                                     </div>
-                                    <p class="vf-extra-note">Optional area code may add about 20% to the price.</p>
+                                    <div>
+                                        <label class="vf-label" for="carrier">Carriers</label>
+                                        <select id="carrier" class="form-control" placeholder="Enter Carrier">
+                                            <option value="">Any Carrier</option>
+                                            <option value="tmo">T-Mobile</option>
+                                            <option value="vz">Verizon</option>
+                                            <option value="att">AT&T</option>
+                                        </select>
+                                    </div>
+                                    <p class="vf-extra-note">Optional filters may add about 20% to the price.</p>
                                 </div>
                             </div>
 
@@ -335,6 +347,7 @@
                                     rentButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
 
                                     const areaCode = document.getElementById("areaCode").value || null;
+                                    const carrier = document.getElementById("carrier").value || null;
 
                                     const payload = {
                                         provider: selectedProvider,
@@ -342,9 +355,10 @@
                                         cost: selectedCost,
                                         price: selectedPrice,
                                         areaCode: areaCode,
+                                        carrier: carrier
                                     };
 
-                                    fetch("{{ url('/order-usa2') }}", {
+                                    fetch("/order-usano", {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/json",

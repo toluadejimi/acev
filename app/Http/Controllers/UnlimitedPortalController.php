@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Verification;
 use App\Models\WalletCheck;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -47,6 +46,36 @@ class UnlimitedPortalController extends Controller
 
 
         return $response->json();
+    }
+
+    /**
+     * @return array{api_price: float, base_ngn: float}|null
+     */
+    private function resolveUsa2QuoteByServiceName(string $serviceName): ?array
+    {
+        $res = $this->sendRequest('list_services');
+        if (!is_array($res) || empty($res['message']) || !is_array($res['message'])) {
+            return null;
+        }
+
+        foreach ($res['message'] as $row) {
+            $row = (array) $row;
+            if (($row['name'] ?? '') === $serviceName) {
+                $apiPrice = (float) ($row['price'] ?? 0);
+                if ($apiPrice <= 0) {
+                    return null;
+                }
+                $s = Setting::find(3);
+                if (!$s) {
+                    return null;
+                }
+                $baseNgn = ((float) $s->rate * $apiPrice) + (float) $s->margin;
+
+                return ['api_price' => $apiPrice, 'base_ngn' => $baseNgn];
+            }
+        }
+
+        return null;
     }
 
 
@@ -99,51 +128,44 @@ class UnlimitedPortalController extends Controller
 
         }
 
-        if (Auth::user()->wallet < $request->price) {
+        $service_name = (string) $request->service;
+        $area_code = $request->areaCode;
+        $hasArea = $area_code !== null && trim((string) $area_code) !== '';
+
+        $quote = $this->resolveUsa2QuoteByServiceName($service_name);
+        if ($quote === null) {
+            $data['status'] = false;
+            $data['message'] = 'Invalid service or pricing unavailable. Please refresh and try again.';
+
+            return $data;
+        }
+
+        $finalNgn = $hasArea ? $quote['base_ngn'] * 1.2 : $quote['base_ngn'];
+        $clientPrice = (float) $request->price;
+        if (abs($clientPrice - $finalNgn) > 0.05) {
+            $data['status'] = false;
+            $data['message'] = 'Price has been updated, Please re-order number';
+
+            return $data;
+        }
+
+        if (Auth::user()->wallet < $finalNgn) {
             $data['status'] = false;
             $data['message'] = "Insufficient Funds";
 
             return $data;
         }
-
-        if (Auth::user()->wallet < $request->price) {
-            $data['status'] = false;
-            $data['message'] = "Insufficient Funds";
-
-            return $data;
-        }
-
-        $data2['get_rate'] = Setting::where('id', 3)->first()->rate;
-        $data2['margin'] = Setting::where('id', 3)->first()->margin;
-
-
-
-//        $res  = $this->sendRequest('list_services',[
-//        'service' => $request->service,
-//        ]);
-//
-//        $gcost = (double)$res['message'][0]['price'];
-//
-//
-//        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
-
-
-        if (Auth::user()->wallet < $request->cost) {
-            $data['status'] = false;
-            $data['message'] = "Insufficient Funds";
-            return $data;
-        }
-
 
         $service = $request->provider;
-        $price = $request->price;
-        $cost = $request->cost;
-        $service_name = $request->service;
-        $area_code = $request->areaCode;
-        $carrier = $request->carrier;
 
-
-        $order = $this->create_order_usa2($service, $price, $cost, $service_name, $request->cost, $area_code);
+        $order = $this->create_order_usa2(
+            $service,
+            $quote['base_ngn'],
+            $quote['api_price'],
+            $service_name,
+            $quote['api_price'],
+            $area_code
+        );
 
 
         if ($order == 8) {
@@ -327,158 +349,93 @@ class UnlimitedPortalController extends Controller
 
     private function create_order_usa2($service, $price, $cost, $service_name, $gcost, $area_code)
     {
+        $hasArea = $area_code !== null && trim((string) $area_code) !== '';
+        $finalCostPreview = $hasArea ? $price * 1.2 : $price;
 
-
-
-        if (Auth::user()->wallet < $price) {
+        if (Auth::user()->wallet < $finalCostPreview) {
             return 8;
         }
-
-        if (Auth::user()->wallet < $price) {
-            return 8;
-        }
-
-
-        if (Auth::user()->wallet < $price) {
-            return 8;
-        }
-
-
-        $currentTime = Carbon::now();
-        $futureTime = $currentTime->addMinutes(20);
-        $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-
-        if($area_code != null){
-
-
-            $finalCost = $price + ($price * 0.20);
-            if (Auth::user()->wallet < $finalCost) {
-                return 8;
-            }
-
-
-        }
-
-
 
         $rent = $this->sendRequest('request', [
             'service' => $service,
-            'areacode' => $area_code ?? null,
+            'areacode' => $hasArea ? trim((string) $area_code) : null,
         ]);
 
+        if (!is_array($rent)) {
+            return 0;
+        }
 
+        $result = $rent['status'] ?? '';
 
-
-
-
-        $result = $rent['status'];
-
-
-
-        if (strstr($result, "NO_NUMBERS") !== false) {
+        if (strstr((string) $result, "NO_NUMBERS") !== false) {
 
             return 56;
 
         }
 
-        if (strstr($result, "MAX_PRICE_EXCEEDED") !== false) {
+        if (strstr((string) $result, "MAX_PRICE_EXCEEDED") !== false) {
 
             return 54;
 
         }
 
 
-        if (strstr($result, "ok") !== false) {
+        if (strstr((string) $result, "ok") !== false) {
 
-
-            if (Auth::user()->wallet < $price) {
-                return 8;
+            $id = $rent['message'][0]['id'] ?? null;
+            $phone = $rent['message'][0]['mdn'] ?? null;
+            if ($id === null || $phone === null) {
+                return 0;
             }
 
-            $id = $rent['message'][0]['id'];
-            $phone = $rent['message'][0]['mdn'];
-
+            $finalCost = $hasArea ? $price + ($price * 0.20) : $price;
 
             Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
+            try {
+                return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
+                    $user = User::where('id', Auth::id())->lockForUpdate()->first();
+                    if (!$user || (float) $user->wallet < $finalCost) {
+                        return 8;
+                    }
 
-            if($area_code != null ){
+                    $oldBalance = (float) $user->wallet;
+                    $balance = $oldBalance - $finalCost;
 
-                $finalCost = $price + ($price * 0.20);
+                    $ver = new Verification();
+                    $ver->user_id = Auth::id();
+                    $ver->phone = $phone;
+                    $ver->order_id = $id;
+                    $ver->country = "US";
+                    $ver->service = $service_name;
+                    $ver->cost = $finalCost;
+                    $ver->api_cost = $gcost;
+                    $ver->status = 1;
+                    $ver->expires_in = 300;
+                    $ver->type = 3;
+                    $ver->save();
 
-                $ver = new Verification();
-                $ver->user_id = Auth::id();
-                $ver->phone = $phone;
-                $ver->order_id = $id;
-                $ver->country = "US";
-                $ver->service = $service_name;
-                $ver->cost = $finalCost;
-                $ver->api_cost = $gcost;
-                $ver->status = 1;
-                $ver->expires_in = 300;
-                $ver->type = 3;
-                $ver->save();
+                    User::where('id', Auth::id())->decrement('wallet', $finalCost);
+                    WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
+                    WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
 
+                    $trx = new Transaction();
+                    $trx->ref_id = "Verification-$id";
+                    $trx->user_id = Auth::id();
+                    $trx->status = 2;
+                    $trx->amount = $finalCost;
+                    $trx->balance = $balance;
+                    $trx->old_balance = $oldBalance;
+                    $trx->type = 1;
+                    $trx->save();
 
-                $get_balance = User::where('id', Auth::id())->first()->wallet;
-                $balance = $get_balance - $finalCost;
+                    return 1;
+                });
+            } catch (\Throwable $e) {
+                Log::error('create_order_usa2 debit failed', ['e' => $e->getMessage()]);
 
-                User::where('id', Auth::id())->decrement('wallet', $finalCost);
-                WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-                WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
-
-
-                $trx = new Transaction();
-                $trx->ref_id = "Verification-$id";
-                $trx->user_id = Auth::id();
-                $trx->status = 2;
-                $trx->amount = $finalCost;
-                $trx->balance = $balance;
-                $trx->old_balance = $get_balance;
-                $trx->type = 1;
-                $trx->save();
-
-                return 1;
-
+                return 0;
             }
-
-
-            $ver = new Verification();
-            $ver->user_id = Auth::id();
-            $ver->phone = $phone;
-            $ver->order_id = $id;
-            $ver->country = "US";
-            $ver->service = $service_name;
-            $ver->cost = $price;
-            $ver->api_cost = $gcost;
-            $ver->status = 1;
-            $ver->expires_in = 300;
-            $ver->type = 3;
-            $ver->save();
-
-
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            $balance = $get_balance - $price;
-
-            User::where('id', Auth::id())->decrement('wallet', $price);
-            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $price);
-            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $price);
-
-
-            $trx = new Transaction();
-            $trx->ref_id = "Verification-$id";
-            $trx->user_id = Auth::id();
-            $trx->status = 2;
-            $trx->amount = $price;
-            $trx->balance = $balance;
-            $trx->old_balance = $get_balance;
-            $trx->type = 1;
-            $trx->save();
-
-
-            return 1;
 
         }
 

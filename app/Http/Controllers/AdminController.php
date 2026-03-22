@@ -229,28 +229,38 @@ class AdminController extends Controller
 
     public function notify(request $request)
     {
+        $row = Notification::query()->find(1);
+        if ($row === null) {
+            $row = new Notification();
+            $row->id = 1;
+            $row->message = '';
+            $row->title = null;
+            $row->is_active = false;
+            $row->save();
+        }
 
-        $data['notify'] = Notification::where('id', 1)->first()->message;
+        $data['notify'] = $row->message ?? '';
+        $data['notifyTitle'] = $row->title ?? '';
+        $data['notifyActive'] = (bool) ($row->is_active ?? false);
+
         return view('notify', $data);
-
-
     }
 
     public function save_notification(request $request)
     {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'message' => 'nullable|string|max:20000',
+            'is_active' => 'nullable|boolean',
+        ]);
 
-       $update =  Notification::where('id', 1)->update(['message' => $request->message]);
-       if ($update) {
-           return redirect()->back()->with('topMessage', '✅ Data saved successfully!');
+        $row = Notification::firstOrNew(['id' => 1]);
+        $row->title = $request->input('title');
+        $row->message = $request->input('message', '');
+        $row->is_active = $request->boolean('is_active');
+        $row->save();
 
-       }
-
-
-        return redirect()->back()->with('topMessage', ' ❌ Data not saved!');
-
-
-
-
+        return redirect()->back()->with('message', 'Announcement saved.');
     }
 
 

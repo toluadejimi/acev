@@ -21,6 +21,10 @@
                     Price Setting
                 </a>
 
+                <a href="{{ url('notify') }}" class="header-btn">
+                    <i class="fas fa-bullhorn"></i>
+                    User announcement
+                </a>
 
             </div>
         </header>

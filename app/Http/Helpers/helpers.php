@@ -2,6 +2,7 @@
 
 use App\Constants\Status;
 use App\Lib\GoogleAuthenticator;
+use App\Models\Country;
 use App\Models\Extension;
 use App\Models\Setting;
 use App\Models\Transaction;
@@ -11,6 +12,7 @@ use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -239,63 +241,31 @@ function get_services()
 
 function create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier)
 {
-
-
     $APIKEY = env('KEY');
 
+    $hasArea = $area_code !== null && trim((string) $area_code) !== '';
+    $hasCarrier = $carrier !== null && trim((string) $carrier) !== '';
+    $finalCostPreview = ($hasArea || $hasCarrier) ? $price * 1.2 : $price;
 
-    if (Auth::user()->wallet < $price) {
+    if (Auth::user()->wallet < $finalCostPreview) {
         return 8;
     }
 
-    if (Auth::user()->wallet < $price) {
-        return 8;
+    $maxPrice = $gcost;
+    if ($maxPrice === null || (float) $maxPrice <= 0) {
+        $maxPrice = $cost;
     }
+    $maxPrice = (float) $maxPrice;
 
-
-    if (Auth::user()->wallet < $price) {
-        return 8;
-    }
-
-
-    $currentTime = Carbon::now();
-    $futureTime = $currentTime->addMinutes(20);
-    $formattedTime = $futureTime->format('Y-m-d H:i:s');
-
-
-    if ($area_code != null) {
-
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&areas=$area_code";
-
-        $finalCost = $price + ($price * 0.20);
-        if (Auth::user()->wallet < $finalCost) {
-            return 8;
-        }
-
-    } elseif ($carrier != null) {
-
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&carriers=$carrier";
-
-        $finalCost = $price + ($price * 0.20);
-        if (Auth::user()->wallet < $finalCost) {
-            return 8;
-        }
-
-    } elseif ($carrier != null && $area_code != null) {
-
-
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost&carriers=$carrier&areas=$area_code";
-
-        $finalCost = $price + ($price * 0.20);
-        if (Auth::user()->wallet < $finalCost) {
-            return 8;
-        }
-
+    if ($hasArea && $hasCarrier) {
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&areas=$area_code&carriers=$carrier";
+    } elseif ($hasArea) {
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&areas=$area_code";
+    } elseif ($hasCarrier) {
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&carriers=$carrier";
     } else {
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$cost";
+        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice";
     }
-
-
 
     $curl = curl_init();
 
@@ -329,197 +299,62 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     if (strstr($result, "ACCESS_NUMBER") !== false) {
 
-
-        if (Auth::user()->wallet < $price) {
-            return 8;
+        $parts = explode(":", $result);
+        if (count($parts) < 3) {
+            return 0;
         }
 
-        $parts = explode(":", $result);
-        $accessNumber = $parts[0];
         $id = $parts[1];
         $phone = $parts[2];
 
+        $finalCost = ($hasArea || $hasCarrier) ? $price + ($price * 0.20) : $price;
 
         Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
 
+        try {
+            return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
+                $user = User::where('id', Auth::id())->lockForUpdate()->first();
+                if (!$user || (float) $user->wallet < $finalCost) {
+                    return 8;
+                }
 
-        if ($area_code != null && $carrier != null) {
+                $oldBalance = (float) $user->wallet;
+                $newBalance = $oldBalance - $finalCost;
 
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            if ($get_balance < $cost) {
-                return 8;
-            }
+                $ver = new Verification();
+                $ver->user_id = Auth::id();
+                $ver->phone = $phone;
+                $ver->order_id = $id;
+                $ver->country = "US";
+                $ver->service = $service_name;
+                $ver->cost = $finalCost;
+                $ver->api_cost = $gcost;
+                $ver->status = 1;
+                $ver->expires_in = 300;
+                $ver->type = 1;
+                $ver->save();
 
+                User::where('id', Auth::id())->decrement('wallet', $finalCost);
+                WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
+                WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
 
-            $finalCost = $price + ($price * 0.20);
+                $trx = new Transaction();
+                $trx->ref_id = "Verification-$id";
+                $trx->user_id = Auth::id();
+                $trx->status = 2;
+                $trx->amount = $finalCost;
+                $trx->balance = $newBalance;
+                $trx->old_balance = $oldBalance;
+                $trx->type = 1;
+                $trx->save();
 
+                return 1;
+            });
+        } catch (\Throwable $e) {
+            Log::error('create_order debit failed', ['e' => $e->getMessage()]);
 
-            $ver = new Verification();
-            $ver->user_id = Auth::id();
-            $ver->phone = $phone;
-            $ver->order_id = $id;
-            $ver->country = "US";
-            $ver->service = $service_name;
-            $ver->cost = $finalCost;
-            $ver->api_cost = $gcost;
-            $ver->status = 1;
-            $ver->expires_in = 300;
-            $ver->type = 1;
-            $ver->save();
-
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            $balance = $get_balance - $finalCost;
-
-            User::where('id', Auth::id())->decrement('wallet', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
-
-
-            $trx = new Transaction();
-            $trx->ref_id = "Verification-$id";
-            $trx->user_id = Auth::id();
-            $trx->status = 2;
-            $trx->amount = $finalCost;
-            $trx->balance = $balance;
-            $trx->old_balance = $get_balance;
-            $trx->type = 1;
-            $trx->save();
-
-            return 1;
-
+            return 0;
         }
-
-
-        if ($area_code != null ) {
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            if ($get_balance < $cost) {
-                return 8;
-            }
-
-
-            $finalCost = $price + ($price * 0.20);
-
-
-            $ver = new Verification();
-            $ver->user_id = Auth::id();
-            $ver->phone = $phone;
-            $ver->order_id = $id;
-            $ver->country = "US";
-            $ver->service = $service_name;
-            $ver->cost = $finalCost;
-            $ver->api_cost = $gcost;
-            $ver->status = 1;
-            $ver->expires_in = 300;
-            $ver->type = 1;
-            $ver->save();
-
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            $balance = $get_balance - $finalCost;
-
-            User::where('id', Auth::id())->decrement('wallet', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
-
-
-            $trx = new Transaction();
-            $trx->ref_id = "Verification-$id";
-            $trx->user_id = Auth::id();
-            $trx->status = 2;
-            $trx->amount = $finalCost;
-            $trx->balance = $balance;
-            $trx->old_balance = $get_balance;
-            $trx->type = 1;
-            $trx->save();
-
-            return 1;
-
-        }
-
-        if ($carrier != null ) {
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            if ($get_balance < $cost) {
-                return 8;
-            }
-
-
-            $finalCost = $price + ($price * 0.20);
-
-
-            $ver = new Verification();
-            $ver->user_id = Auth::id();
-            $ver->phone = $phone;
-            $ver->order_id = $id;
-            $ver->country = "US";
-            $ver->service = $service_name;
-            $ver->cost = $finalCost;
-            $ver->api_cost = $gcost;
-            $ver->status = 1;
-            $ver->expires_in = 300;
-            $ver->type = 1;
-            $ver->save();
-
-
-            $get_balance = User::where('id', Auth::id())->first()->wallet;
-            $balance = $get_balance - $finalCost;
-
-            User::where('id', Auth::id())->decrement('wallet', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-            WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
-
-
-            $trx = new Transaction();
-            $trx->ref_id = "Verification-$id";
-            $trx->user_id = Auth::id();
-            $trx->status = 2;
-            $trx->amount = $finalCost;
-            $trx->balance = $balance;
-            $trx->old_balance = $get_balance;
-            $trx->type = 1;
-            $trx->save();
-
-            return 1;
-
-        }
-
-
-        $ver = new Verification();
-        $ver->user_id = Auth::id();
-        $ver->phone = $phone;
-        $ver->order_id = $id;
-        $ver->country = "US";
-        $ver->service = $service_name;
-        $ver->cost = $price;
-        $ver->api_cost = $gcost;
-        $ver->status = 1;
-        $ver->expires_in = 300;
-        $ver->type = 1;
-        $ver->save();
-
-
-        $get_balance = User::where('id', Auth::id())->first()->wallet;
-        $balance = $get_balance - $price;
-
-        User::where('id', Auth::id())->decrement('wallet', $price);
-        WalletCheck::where('user_id', Auth::id())->increment('total_bought', $price);
-        WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $price);
-
-
-        $trx = new Transaction();
-        $trx->ref_id = "Verification-$id";
-        $trx->user_id = Auth::id();
-        $trx->status = 2;
-        $trx->amount = $price;
-        $trx->balance = $balance;
-        $trx->old_balance = $get_balance;
-        $trx->type = 1;
-        $trx->save();
-
-
-        return 1;
 
     }
 
@@ -739,37 +574,34 @@ function get_world_services()
 
 
 
-function create_world_order($country, $service, $price = null, $calculated = null)
+function create_world_order($country, $service)
 {
-
-
-
     $user = Auth::user();
     $setting = Setting::find(1);
 
     if (!$setting) {
-        return response(['status' => false, 'message' => 'Settings not configured'], 400);
-    }
-
-    $rate = $setting->rate;
-    $margin = $setting->margin;
-
-    $gcost = pool_cost($service, $country);
-
-
-    if($price !== $calculated){
         return 98;
     }
 
-    $calculatedCost = (float) str_replace([','], '', $price);
-
-    if ($user->wallet < $calculatedCost) {
-        return 99;
+    $shortName = Country::where('country_id', $country)->value('short_name');
+    if (!$shortName) {
+        return 97;
     }
+
+    $gcost = pool_cost($service, $shortName);
+    if ($gcost === null || (float) $gcost <= 0) {
+        return 5;
+    }
+
+    $calculatedCost = ((float) $setting->rate * (float) $gcost) + (float) $setting->margin;
 
     $wallet_check = WalletCheck::where('user_id', $user->id)->first();
     if (!$wallet_check) {
         return 8;
+    }
+
+    if ($user->wallet < $calculatedCost) {
+        return 99;
     }
 
     $key = env('WKEY');
@@ -788,7 +620,7 @@ function create_world_order($country, $service, $price = null, $calculated = nul
     $data = $response->json();
 
     if (!isset($data['success'])) {
-        return 2; // Invalid response format
+        return 2;
     }
 
     if ($data['success'] == 0) {
@@ -801,47 +633,70 @@ function create_world_order($country, $service, $price = null, $calculated = nul
             ->where('status', 2)
             ->delete();
 
-        $ver = new Verification();
-        $ver->user_id = $user->id;
-        $ver->phone = $data['cc'] . $data['phonenumber'];
-        $ver->order_id = $data['order_id'];
-        $ver->country = $data['country'];
-        $ver->service = $data['service'];
-        $ver->expires_in = 300; // 5 minutes
-        $ver->cost = $calculatedCost;
-        $ver->api_cost = $data['cost'] ?? 0;
-        $ver->status = 1;
-        $ver->type = 8;
-        $ver->save();
+        try {
+            $out = DB::transaction(function () use ($user, $data, $calculatedCost) {
+                $locked = User::where('id', $user->id)->lockForUpdate()->first();
+                if (!$locked || (float) $locked->wallet < $calculatedCost) {
+                    return 99;
+                }
 
-        $oldBalance = $user->wallet;
-        $newBalance = $oldBalance - $calculatedCost;
+                $wc = WalletCheck::where('user_id', $user->id)->lockForUpdate()->first();
+                if (!$wc) {
+                    return 8;
+                }
 
-        $user->decrement('wallet', $calculatedCost);
-        $wallet_check->increment('total_bought', $calculatedCost);
-        $wallet_check->decrement('wallet_amount', $calculatedCost);
+                $oldBalance = (float) $locked->wallet;
+                $newBalance = $oldBalance - $calculatedCost;
 
-        // Log transaction
-        $trx = new Transaction();
-        $trx->ref_id = "Verification " . $data['order_id'];
-        $trx->user_id = $user->id;
-        $trx->status = 2;
-        $trx->amount = $calculatedCost;
-        $trx->balance = $newBalance;
-        $trx->old_balance = $oldBalance;
-        $trx->type = 1;
-        $trx->save();
+                $ver = new Verification();
+                $ver->user_id = $user->id;
+                $ver->phone = $data['cc'] . $data['phonenumber'];
+                $ver->order_id = $data['order_id'];
+                $ver->country = $data['country'];
+                $ver->service = $data['service'];
+                $ver->expires_in = 300;
+                $ver->cost = $calculatedCost;
+                $ver->api_cost = $data['cost'] ?? 0;
+                $ver->status = 1;
+                $ver->type = 8;
+                $ver->save();
 
-        $cost2 = number_format($calculatedCost, 2);
-        $bal = number_format($newBalance, 2);
-        $message = "{$user->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
-        send_notification($message);
-        send_notification2($message);
+                User::where('id', $user->id)->decrement('wallet', $calculatedCost);
+                $wc->increment('total_bought', $calculatedCost);
+                $wc->decrement('wallet_amount', $calculatedCost);
 
-        return 3; // Success
+                $trx = new Transaction();
+                $trx->ref_id = "Verification " . $data['order_id'];
+                $trx->user_id = $user->id;
+                $trx->status = 2;
+                $trx->amount = $calculatedCost;
+                $trx->balance = $newBalance;
+                $trx->old_balance = $oldBalance;
+                $trx->type = 1;
+                $trx->save();
+
+                return 3;
+            });
+
+            if ($out === 3) {
+                $locked = User::where('id', $user->id)->first();
+                $cost2 = number_format($calculatedCost, 2);
+                $bal = number_format((float) $locked->wallet, 2);
+                $message = "{$locked->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
+                send_notification($message);
+                send_notification2($message);
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            Log::error('create_world_order debit failed', ['e' => $e->getMessage()]);
+
+            return 2;
+        }
+
     }
 
-    return 2; // Fallback (unexpected)
+    return 2;
 }
 
 function cancel_world_order($orderID)

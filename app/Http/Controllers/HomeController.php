@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountDetail;
+use App\Models\Category;
 use App\Models\Deposit;
 use App\Models\ManualPayment;
 use App\Models\Notification;
@@ -16,6 +17,9 @@ use App\Models\Verification;
 use App\Models\VerificationSms;
 use App\Models\WalletCheck;
 use App\Models\WebhookResponse;
+use App\Services\VerificationPricingService;
+use App\Services\WalletFundingService;
+use App\Support\SprintPayWebhookAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -198,32 +202,83 @@ class HomeController extends Controller
 
     public function home(request $request)
     {
+        $data['order'] = 0;
+        $data['pend'] = 0;
+        $data['product'] = null;
 
+        $data['topMessage'] = "🎊 Welcome to Acesmsverify!!";
+        $data['centerMessage'] = Notification::where('id', 1)->first()->message;
+
+        $data['vtuQuickLinks'] = $this->buildVtuQuickLinks();
+
+        return view('home', $data);
+    }
+
+    public function verification_index(Request $request)
+    {
         $services = get_services();
 
         $allServices = [];
         foreach ($services as $provider => $items) {
             foreach ($items as $id => $service) {
-                $allServices[] = (object)array_merge((array)$service, ['provider' => $provider]);
+                $allServices[] = (object) array_merge((array) $service, ['provider' => $provider]);
             }
         }
 
         $data['allServices'] = $allServices;
-
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
-        $data['order'] = 0;
-        $verification = Verification::where('user_id', Auth::id())->get();
-        $data['pend'] = 0;
-        $data['product'] = null;
-        $data['orders'] = Verification::where('user_id', Auth::id())->get();
 
-        $data['topMessage'] = "🎊 Welcome to Acesmsverify!!";
-        $data['centerMessage'] = Notification::where('id', 1)->first()->message;
+        return view('verification-index', $data);
+    }
 
+    /**
+     * Quick links for VTU (airtime, data, cable, electricity) on dashboard.
+     */
+    private function buildVtuQuickLinks(): array
+    {
+        $fromConfig = config('vtu.categories', []);
+        $defs = [
+            ['key' => 'airtime', 'label' => 'Airtime', 'config_key' => 'airtime', 'keywords' => ['airtime', 'top up', 'topup', 'recharge', 'vtu']],
+            ['key' => 'data', 'label' => 'Data', 'config_key' => 'data', 'keywords' => ['data', 'bundle', 'internet', 'mb', 'gb']],
+            ['key' => 'cable', 'label' => 'Cable TV', 'config_key' => 'cable_tv', 'keywords' => ['cable', 'dstv', 'gotv', 'tv', 'startimes']],
+            ['key' => 'electricity', 'label' => 'Electricity', 'config_key' => 'electricity', 'keywords' => ['electric', 'power', 'prepaid', 'energy', 'disco', 'bill']],
+        ];
 
-        return view('home', $data);
+        try {
+            $categories = Category::query()->get(['id', 'title']);
+        } catch (\Throwable $e) {
+            $categories = collect();
+        }
+
+        $links = [];
+        foreach ($defs as $d) {
+            $id = $fromConfig[$d['config_key']] ?? null;
+            if ($id === '' || $id === null) {
+                $id = null;
+            }
+            if (!$id && $categories->isNotEmpty()) {
+                foreach ($d['keywords'] as $kw) {
+                    $cat = $categories->first(function ($c) use ($kw) {
+                        return $c->title !== null && stripos((string) $c->title, $kw) !== false;
+                    });
+                    if ($cat) {
+                        $id = $cat->id;
+                        break;
+                    }
+                }
+            }
+
+            $links[] = [
+                'key' => $d['key'],
+                'label' => $d['label'],
+                'url' => $id ? url('/allcatproduct') . '?cat_id=' . $id : url('/fund-wallet'),
+                'active' => (bool) $id,
+            ];
+        }
+
+        return $links;
     }
 
     public function usaserver2(request $request)
@@ -303,47 +358,43 @@ class HomeController extends Controller
         }
 
 
-        if (Auth::user()->wallet < $request->price) {
-            $data['status'] = false;
-            $data['message'] = "Insufficient Funds";
-
-            return $data;
-        }
-
-
-        if (Auth::user()->wallet < $request->price) {
-            $data['status'] = false;
-            $data['message'] = "Insufficient Funds";
-
-            return $data;
-        }
-
-        $data2['get_rate'] = Setting::where('id', 1)->first()->rate;
-        $data2['margin'] = Setting::where('id', 1)->first()->margin;
-
-
-        $service = $request->key;
-
-        $gcost = get_d_price($service);
-
-
-//        $costs = ($data2['get_rate'] * $gcost) + $data2['margin'];
-//        if (Auth::user()->wallet < $costs) {
-//            $data['status'] = false;
-//            $data['message'] =  "Insufficient Funds";
-//            return $data;
-//        }
-
-
-        $service = $request->provider;
-        $price = $request->price;
-        $cost = $request->cost;
-        $service_name = $request->service;
+        $service = (string) $request->provider;
+        $service_name = (string) $request->service;
         $area_code = $request->areaCode;
         $carrier = $request->carrier;
 
+        $quote = VerificationPricingService::usaServer1Quote($service, $area_code, $carrier);
+        if ($quote === null) {
+            $data['status'] = false;
+            $data['message'] = 'Invalid service or pricing unavailable. Please refresh and try again.';
 
-        $order = create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier);
+            return $data;
+        }
+
+        $clientPrice = (float) $request->price;
+        if (abs($clientPrice - $quote['final_ngn']) > 0.05) {
+            $data['status'] = false;
+            $data['message'] = 'Price has been updated, Please re-order number';
+
+            return $data;
+        }
+
+        if (Auth::user()->wallet < $quote['final_ngn']) {
+            $data['status'] = false;
+            $data['message'] = "Insufficient Funds";
+
+            return $data;
+        }
+
+        $order = create_order(
+            $service,
+            $quote['base_ngn'],
+            $quote['api_cost'],
+            $service_name,
+            $quote['api_cost'],
+            $area_code,
+            $carrier
+        );
 
         if ($order == 8) {
             $data['status'] = false;
@@ -1420,60 +1471,50 @@ class HomeController extends Controller
 
     public function e_fund(Request $request)
     {
-        $ip = $request->ip();
-
-        if ($ip != "209.74.80.245") {
-            return response()->json([
-                'status' => false,
-                'message' => "Wrong IP | $ip"
-            ]);
-        }
-
-        $get_user = User::where('email', $request->email)->first();
-        if (!$get_user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No user found, please check email and try again',
-            ]);
-        }
-
-        $old_balance = $get_user->wallet;
-        $new_balance = $old_balance + $request->amount;
-
-        $get_user->increment('wallet', $request->amount);
-
-        $amount = number_format($request->amount, 2);
-
-        $get_depo = Transaction::where('ref_id', $request->order_id)->first();
-
-        if (!$get_depo) {
-            $trx = new Transaction();
-            $trx->ref_id = $request->order_id;
-            $trx->user_id = $get_user->id;
-            $trx->status = 2;
-            $trx->amount = $request->amount;
-            $trx->balance = $new_balance;
-            $trx->old_balance = $old_balance;
-            $trx->type = 2;
-            $trx->save();
-
-            WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
-            WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
-
+        $configuredSecret = config('services.sprintpay.webhook_secret');
+        if (is_string($configuredSecret) && $configuredSecret !== '') {
+            if (!SprintPayWebhookAuth::tokenValid($request, $configuredSecret)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
         } else {
-            Transaction::where('ref_id', $request->order_id)->update([
-                'status' => 2,
-                'balance' => $new_balance,
-                'old_balance' => $old_balance,
-            ]);
+            $ip = $request->ip();
+            if ($ip != "209.74.80.245") {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Wrong IP | $ip"
+                ]);
+            }
+        }
 
-            WalletCheck::where('user_id', $get_user->id)->increment('total_funded', $request->amount);
-            WalletCheck::where('user_id', $get_user->id)->increment('wallet_amount', $request->amount);
+        $amount = (float) $request->input('amount', 0);
+        $result = WalletFundingService::creditFromExternalPayment(
+            (string) $request->input('email', ''),
+            $amount,
+            (string) $request->input('order_id', '')
+        );
+
+        if (!$result['ok']) {
+            return response()->json([
+                'status' => false,
+                'message' => $result['message'],
+            ], $result['http'] ?? 400);
+        }
+
+        $formatted = number_format($amount, 2);
+
+        if (!empty($result['duplicate'])) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment already applied to wallet',
+            ]);
         }
 
         return response()->json([
             'status' => true,
-            'message' => "NGN $amount has been successfully added to your wallet",
+            'message' => "NGN {$formatted} has been successfully added to your wallet",
         ]);
     }
 

@@ -32,12 +32,16 @@ return [
     ],
 
 
-        'cloudflare' => [
-            'turnstile' => [
-                'site_key' => env('TURNSTILE_SITE_KEY'),
-                'site_secret' => env('TURNSTILE_SITE_SECRET'),
-            ]
+    'cloudflare' => [
+        'turnstile' => [
+            'site_key' => env('TURNSTILE_SITE_KEY'),
+            'site_secret' => env('TURNSTILE_SITE_SECRET'),
         ],
+    ],
+
+    'sprintpay' => [
+        'webhook_secret' => env('SPRINTPAY_WEBHOOK_SECRET'),
+    ],
 
 
 
