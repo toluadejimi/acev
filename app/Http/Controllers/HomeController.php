@@ -821,7 +821,7 @@ class HomeController extends Controller
             }
 
 
-            return redirect('h1');
+            return redirect('/home');
 
         }
 
