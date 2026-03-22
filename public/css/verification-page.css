@@ -475,6 +475,22 @@
     transition: background 0.15s;
 }
 
+button.vf-service-option-btn.service-option {
+    width: 100%;
+    background: var(--vf-surface);
+    font-family: inherit;
+    font-size: inherit;
+    text-align: left;
+    color: var(--vf-ink);
+    line-height: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+button.vf-service-option-btn.service-option:hover {
+    background: rgba(37, 99, 235, 0.07) !important;
+}
+
 .vf-dropdown .list-group-item:last-child,
 #servicesDropdown .list-group-item:last-child {
     border-bottom: none !important;

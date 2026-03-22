@@ -2,7 +2,7 @@
 @section('title', 'SMS verification')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=4">
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=5">
 @endpush
 
 @section('content')
@@ -85,16 +85,27 @@
                                      style="max-height: 750px; overflow-y: auto; display:none; z-index:1000;">
                                     <div id="vf-service-no-results" class="vf-service-no-results" style="display:none;" role="status">No services match your search.</div>
                                     @foreach ($allServices as $service)
-                                        @php $cost = $get_rate * $service->cost + $margin; @endphp
-                                        <a href="javascript:void(0);"
-                                           class="list-group-item list-group-item-action service-option"
-                                            data-service="{{ e($service->name) }}"
-                                            data-provider="{{ e($service->provider) }}"
-                                            data-cost="{{ e($service->cost) }}"
+                                        @php
+                                            $cost = $get_rate * ($service->cost ?? 0) + $margin;
+                                            $sflat = (array) $service;
+                                            $svcName = $sflat['name'] ?? $sflat['Name'] ?? $sflat['service'] ?? $sflat['title'] ?? null;
+                                            if ($svcName === null || $svcName === '') {
+                                                $svcName = $service->provider ?? '';
+                                            }
+                                            $svcName = trim((string) $svcName);
+                                            $svcProvider = (string) ($service->provider ?? '');
+                                            $svcSearch = mb_strtolower($svcName . ' ' . $svcProvider, 'UTF-8');
+                                        @endphp
+                                        <button type="button"
+                                           class="list-group-item list-group-item-action service-option vf-service-option-btn"
+                                            data-service="{{ e($svcName) }}"
+                                            data-search="{{ e($svcSearch) }}"
+                                            data-provider="{{ e($svcProvider) }}"
+                                            data-cost="{{ e($service->cost ?? '') }}"
                                             data-price="{{ number_format($cost, 2, '.', '') }}">
-                                            <span class="vf-service-name">{{ $service->name }}</span>
+                                            <span class="vf-service-name">{{ $svcName !== '' ? $svcName : $svcProvider }}</span>
                                             <span class="vf-service-price">₦{{ number_format($cost, 2) }}</span>
-                                        </a>
+                                        </button>
                                     @endforeach
                                 </div>
 
@@ -291,33 +302,37 @@
                                 let selectedProvider = null;
 
                                 function applyServiceFilter() {
-                                    const filter = (searchInput.value || "").toLowerCase().trim();
+                                    if (!searchInput || !servicesDropdown) return;
+                                    const raw = (searchInput.value || "").trim();
+                                    const filter = raw.toLowerCase();
                                     let visibleCount = 0;
                                     document.querySelectorAll("#servicesDropdown .service-option").forEach(function (option) {
-                                        const name = (option.getAttribute("data-service") || "").toLowerCase();
-                                        const match = !filter || name.indexOf(filter) !== -1;
+                                        const hay = (option.getAttribute("data-search") || option.getAttribute("data-service") || "").toLowerCase();
+                                        const match = filter.length === 0 || hay.indexOf(filter) !== -1;
                                         option.style.display = match ? "" : "none";
+                                        option.setAttribute("aria-hidden", match ? "false" : "true");
                                         if (match) visibleCount++;
                                     });
                                     if (vfServiceNoResults) {
-                                        vfServiceNoResults.style.display = (filter && visibleCount === 0) ? "block" : "none";
+                                        vfServiceNoResults.style.display = (filter.length > 0 && visibleCount === 0) ? "block" : "none";
                                     }
                                 }
 
                                 function openServiceDropdown() {
+                                    if (!servicesDropdown) return;
                                     servicesDropdown.style.display = "block";
                                     applyServiceFilter();
                                 }
 
-                                searchInput.addEventListener("focus", openServiceDropdown);
-                                searchInput.addEventListener("input", openServiceDropdown);
-                                searchInput.addEventListener("keyup", openServiceDropdown);
-
-                                servicesDropdown.addEventListener("mousedown", function (e) {
-                                    if (e.target.closest(".service-option")) {
-                                        e.preventDefault();
-                                    }
-                                });
+                                if (searchInput) {
+                                    searchInput.addEventListener("focus", openServiceDropdown);
+                                    searchInput.addEventListener("input", applyServiceFilter);
+                                    searchInput.addEventListener("keyup", applyServiceFilter);
+                                    searchInput.addEventListener("search", function () {
+                                        applyServiceFilter();
+                                        if (searchInput.value === "") openServiceDropdown();
+                                    });
+                                }
 
                                 servicesDropdown.addEventListener("click", function(e) {
                                     const option = e.target.closest(".service-option");
@@ -331,7 +346,7 @@
                                     searchInput.value = selectedService || "";
                                     servicesDropdown.style.display = "none";
 
-                                    rentButton.disabled = false;
+                                    if (rentButton) rentButton.disabled = false;
                                 });
 
                                 document.addEventListener("click", (event) => {
