@@ -2,7 +2,7 @@
 @section('title', 'World numbers · SMS')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=3">
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=9">
 @endpush
 
 @section('content')
@@ -14,7 +14,7 @@
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-globe2" aria-hidden="true"></i> International</span>
                 @php $isHero = ($worldServer ?? 'world') === 'world_hero'; @endphp
-                <h1 class="vf-hero__title">{{ $isHero ? 'All countries (HeroSMS)' : 'All countries (SMS Pool)' }}</h1>
+                <h1 class="vf-hero__title">{{ $isHero ? 'All countries SV2' : 'All countries S' }}</h1>
                 <p class="vf-hero__text">Choose a country and service, confirm price, then buy a number.</p>
             </div>
             <div class="vf-hero__stats">
@@ -45,14 +45,14 @@
         @if(!empty($vfServers['world']))
             <a href="{{ url('/world') }}" class="vf-server {{ !$isHero ? 'vf-server--active' : '' }}">
                 <span class="vf-server__flag" aria-hidden="true">🌎</span>
-                <span class="vf-server__name">All countries · SMS Pool</span>
+                <span class="vf-server__name">All countries · SV1</span>
                 @if(!$isHero)<span class="vf-server__hint">Current panel</span>@endif
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
             <a href="{{ url('/world-hero') }}" class="vf-server {{ $isHero ? 'vf-server--active' : '' }}">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
-                <span class="vf-server__name">All countries · HeroSMS</span>
+                <span class="vf-server__name">All countries · SV2</span>
                 @if($isHero)<span class="vf-server__hint">Current panel</span>@endif
             </a>
         @endif
@@ -107,6 +107,10 @@
                     <div id="priceSection" class="vf-price-panel" style="display: none;">
                         <p class="vf-price-panel__label">Price</p>
                         <p class="vf-price-panel__amount" id="priceDisplay">—</p>
+                        <div id="heroPriceOptionsWrap" class="vf-hero-price-wrap d-none">
+                            <p class="vf-hero-price-wrap__title">Choose a price tier</p>
+                            <div id="heroPriceOptions" class="vf-hero-price-options" role="radiogroup" aria-label="HeroSMS price options"></div>
+                        </div>
                         <button type="button" id="buyNowBtn" class="vf-btn-buy">Buy number</button>
                     </div>
                 </form>
@@ -149,14 +153,21 @@
                             if (strlen($vfDigits) === 10) {
                                 $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
                             }
+                            $heroCooldownEndMs = null;
+                            if ((int) ($data->type ?? 0) === 9 && (int) ($data->status ?? 0) === 1 && $data->created_at) {
+                                $heroCoolEnd = $data->created_at->copy()->addSeconds(120);
+                                if ($heroCoolEnd->isFuture()) {
+                                    $heroCooldownEndMs = (int) round($heroCoolEnd->timestamp * 1000);
+                                }
+                            }
                         @endphp
-                        <tr class="verify-row"
+                        <tr class="vf-req-row"
                             data-id="{{ $data->id }}"
                             data-status="{{ $data->status }}"
                             data-phone="{{ $data->phone }}"
                             data-type="{{ $data->type }}">
-                            <td>{{ $data->service }}</td>
-                            <td class="vf-phone-cell">
+                            <td data-label="Service">{{ $data->service }}</td>
+                            <td class="vf-phone-cell" data-label="Phone">
                                 <div class="vf-copy-row">
                                     <span class="vf-mono vf-phone-display">{{ $vfPhoneDisplay }}</span>
                                     <button type="button" class="vf-btn-copy" data-copy="{{ e($data->phone) }}" title="Copy full number" aria-label="Copy phone number">
@@ -164,7 +175,7 @@
                                     </button>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Code">
                                 <div id="smsContainer{{ $data->id }}" class="vf-sms-cell">
                                     <div class="vf-code-loader" id="loader{{ $data->id }}">
                                         <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
@@ -179,17 +190,23 @@
                                     <div id="extraSmsList{{ $data->id }}" class="vf-extra-codes d-none"></div>
                                 </div>
                             </td>
-                            <td>₦{{ number_format($data->cost, 2) }}</td>
-                            <td>
+                            <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
+                            <td data-label="Status">
                                 @if ($data->status == 1)
                                     <div class="vf-status-row">
                                         <span class="vf-status vf-status--pending">Pending</span>
                                         <form method="POST"
                                               action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                              class="d-inline"
+                                              class="d-inline vf-cancel-form"
+                                              @if($heroCooldownEndMs) data-hero-cooldown-end="{{ $heroCooldownEndMs }}" @endif
                                               onsubmit="return confirmDeleteWorld(event, this);">
                                             @csrf
-                                            <button type="submit" class="vf-btn-del">Cancel</button>
+                                            <span class="vf-cancel-inline">
+                                                <button type="submit" class="vf-btn-del @if($heroCooldownEndMs) vf-btn-del--locked @endif" @if($heroCooldownEndMs) disabled aria-disabled="true" @endif>Cancel</button>
+                                                @if($heroCooldownEndMs)
+                                                    <span class="vf-hero-cancel-hint" role="status" aria-live="polite"></span>
+                                                @endif
+                                            </span>
                                         </form>
                                     </div>
                                 @else
@@ -199,7 +216,7 @@
                             <td class="vf-date-cell" data-label="Date">{{ $data->created_at?->format('M j, Y g:i A') ?? $data->created_at }}</td>
                         </tr>
                     @empty
-                        <tr>
+                        <tr class="vf-empty-row">
                             <td colspan="6" class="vf-empty">No verification requests yet.</td>
                         </tr>
                     @endforelse
@@ -225,6 +242,8 @@
 
     function confirmDeleteWorld(event, form) {
         event.preventDefault();
+        var btn = form.querySelector('.vf-btn-del');
+        if (btn && btn.disabled) return false;
         Swal.fire({
             title: 'Cancel order?',
             text: 'Are you sure you want to cancel this verification?',
@@ -238,7 +257,46 @@
         return false;
     }
 
+    function vfInitHeroCancelCooldown() {
+        document.querySelectorAll('form.vf-cancel-form[data-hero-cooldown-end]').forEach(function (form) {
+            var end = parseInt(form.getAttribute('data-hero-cooldown-end'), 10);
+            var btn = form.querySelector('.vf-btn-del');
+            var hint = form.querySelector('.vf-hero-cancel-hint');
+            if (!btn || !end || isNaN(end)) return;
+
+            function fmt(secs) {
+                var m = Math.floor(secs / 60);
+                var s = secs % 60;
+                return m + ':' + (s < 10 ? '0' : '') + s;
+            }
+
+            function tick() {
+                var left = Math.ceil((end - Date.now()) / 1000);
+                if (left <= 0) {
+                    btn.disabled = false;
+                    btn.removeAttribute('aria-disabled');
+                    btn.classList.remove('vf-btn-del--locked');
+                    if (hint) {
+                        hint.textContent = '';
+                        hint.classList.add('d-none');
+                    }
+                    form.removeAttribute('data-hero-cooldown-end');
+                    return;
+                }
+                btn.disabled = true;
+                btn.setAttribute('aria-disabled', 'true');
+                if (hint) {
+                    hint.classList.remove('d-none');
+                    hint.textContent = 'Cancel unlocks in ' + fmt(left);
+                }
+                setTimeout(tick, 1000);
+            }
+            tick();
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        vfInitHeroCancelCooldown();
         var el = document.getElementById('vf-requests-filter');
         var table = document.getElementById('vf-requests-table');
         if (!el || !table) return;
@@ -253,7 +311,7 @@
         el.addEventListener('input', function () {
             var filter = el.value.toLowerCase().trim();
             table.querySelectorAll('tbody tr').forEach(function (row) {
-                if (row.querySelector('.vf-empty')) {
+                if (row.classList.contains('vf-empty-row')) {
                     row.style.display = '';
                     return;
                 }
@@ -264,7 +322,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.verify-row').forEach(function (row) {
+        document.querySelectorAll('tr.vf-req-row').forEach(function (row) {
             var id = row.dataset.id;
             var status = parseInt(row.dataset.status || '0', 10);
             var phone = row.dataset.phone;
@@ -416,6 +474,8 @@
                     },
                     beforeSend: function () {
                         $('#priceSection').hide();
+                        $('#heroPriceOptionsWrap').addClass('d-none').find('#heroPriceOptions').empty();
+                        $('#buyNowBtn').removeData('heroApiCost');
                         Swal.fire({
                             title: 'Checking…',
                             text: 'Please wait',
@@ -427,8 +487,61 @@
                         Swal.close();
                         if (res.status === 'success') {
                             $('#priceSection').show();
-                            $('#priceDisplay').text('₦' + res.price);
-                            $('#buyNowBtn').data('country', country).data('service', service).data('price', res.price);
+                            var prov = $('#worldProvider').val() || 'smspool';
+                            if (prov === 'herosms' && res.price_options && res.price_options.length > 0) {
+                                var opts = res.price_options;
+                                var wrap = $('#heroPriceOptionsWrap');
+                                var list = $('#heroPriceOptions');
+
+                                function applyHeroOption(o) {
+                                    if (!o) return;
+                                    $('#priceDisplay').text('₦' + o.ngn_total_formatted);
+                                    $('#buyNowBtn').data('country', country).data('service', service).data('price', o.ngn_total_formatted).data('heroApiCost', o.api_cost);
+                                }
+
+                                function syncHeroOptionHighlight() {
+                                    list.find('.vf-hero-price-option').removeClass('vf-hero-price-option--active');
+                                    list.find('input[name="heroPricePick"]:checked').closest('.vf-hero-price-option').addClass('vf-hero-price-option--active');
+                                }
+
+                                if (opts.length === 1) {
+                                    wrap.addClass('d-none');
+                                    list.empty();
+                                    applyHeroOption(opts[0]);
+                                } else {
+                                    wrap.removeClass('d-none');
+                                    list.empty();
+                                    opts.forEach(function (o, i) {
+                                        var id = 'heroPriceOpt' + i;
+                                        var label = $('<label/>', { 'class': 'vf-hero-price-option', 'for': id });
+                                        label.append($('<input/>', {
+                                            type: 'radio',
+                                            name: 'heroPricePick',
+                                            id: id,
+                                            value: String(i),
+                                            class: 'vf-hero-price-option__input',
+                                            checked: i === 0
+                                        }));
+                                        var body = $('<span/>', { 'class': 'vf-hero-price-option__body' });
+                                        body.append($('<span/>', { 'class': 'vf-hero-price-option__label', text: o.label }));
+                                        body.append($('<span/>', { 'class': 'vf-hero-price-option__meta', text: '₦' + o.ngn_total_formatted + ' total' }));
+                                        label.append(body);
+                                        list.append(label);
+                                    });
+                                    list.off('change.heroPrice').on('change.heroPrice', 'input[name="heroPricePick"]', function () {
+                                        var idx = parseInt($(this).val(), 10);
+                                        applyHeroOption(opts[idx]);
+                                        syncHeroOptionHighlight();
+                                    });
+                                    applyHeroOption(opts[0]);
+                                    syncHeroOptionHighlight();
+                                }
+                            } else {
+                                $('#heroPriceOptionsWrap').addClass('d-none').find('#heroPriceOptions').empty();
+                                $('#buyNowBtn').removeData('heroApiCost');
+                                $('#priceDisplay').text('₦' + res.price);
+                                $('#buyNowBtn').data('country', country).data('service', service).data('price', res.price);
+                            }
                         } else {
                             Swal.fire('Unavailable', res.message || 'Try another combination', 'error');
                         }
@@ -447,6 +560,13 @@
             var service = btn.data('service');
             var price = btn.data('price');
             var provider = $('#worldProvider').val() || 'smspool';
+            if (provider === 'herosms') {
+                var hc = btn.data('heroApiCost');
+                if (hc === undefined || hc === null || hc === '') {
+                    Swal.fire('Choose a tier', 'Select a price option above before buying.', 'info');
+                    return;
+                }
+            }
 
             Swal.fire({
                 title: 'Confirm purchase',
@@ -463,13 +583,23 @@
                 $.ajax({
                     url: '{{ url('/order-world-number') }}',
                     type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        country: country,
-                        service: service,
-                        price: price,
-                        provider: provider
-                    },
+                    data: (function () {
+                        var label = $('#serviceSelect option:selected').text().trim();
+                        var d = {
+                            _token: '{{ csrf_token() }}',
+                            country: country,
+                            service: service,
+                            price: price,
+                            provider: provider
+                        };
+                        if (label) {
+                            d.service_name = label;
+                        }
+                        if (provider === 'herosms') {
+                            d.hero_api_cost = btn.data('heroApiCost');
+                        }
+                        return d;
+                    })(),
                     success: function (resp) {
                         try { resp = JSON.parse(resp); } catch (e) {}
 

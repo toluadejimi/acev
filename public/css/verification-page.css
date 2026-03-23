@@ -177,12 +177,13 @@
 
 .vf-hero__balance {
     margin: 0;
-    font-family: var(--vf-serif);
-    font-size: clamp(1.65rem, 5vw, 2.15rem);
+    font-family: var(--vf-font), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: clamp(1.45rem, 4.2vw, 1.95rem);
     font-weight: 700;
     color: #fff;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
 }
 
 .vf-hero__bal-label {
@@ -619,17 +620,21 @@ button.vf-service-option-btn.service-option:hover {
     box-shadow: none;
 }
 
-/* Copy row (phone / SMS) */
+/* Copy row (phone / SMS) — single line; scroll horizontally if needed */
 .vf-copy-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
 
 .vf-phone-display {
-    word-break: break-all;
-    min-width: 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
 }
 
 .vf-btn-copy {
@@ -662,11 +667,17 @@ button.vf-service-option-btn.service-option:hover {
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
 
 .vf-sms-cell {
     min-width: 0;
+    overflow-x: auto;
+    max-width: 100%;
 }
 
 .vf-code-line {
@@ -730,15 +741,21 @@ button.vf-service-option-btn.service-option:hover {
     white-space: nowrap;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 960px) {
+    .vf-panel--requests .vf-table-scroll {
+        overflow-x: visible;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
     .vf-table thead {
         display: none;
     }
 
     .vf-table tbody tr.vf-req-row {
         display: block;
-        margin-bottom: 0.9rem;
-        padding: 0.85rem 1rem;
+        margin-bottom: 0.85rem;
+        padding: 0.9rem 1rem;
         border: 1px solid var(--vf-line);
         border-radius: var(--vf-radius-sm);
         background: var(--vf-surface);
@@ -751,17 +768,22 @@ button.vf-service-option-btn.service-option:hover {
 
     .vf-table tbody tr.vf-req-row td {
         display: grid;
-        grid-template-columns: minmax(88px, 32%) 1fr;
-        gap: 0.25rem 0.65rem;
-        padding: 0.5rem 0;
+        grid-template-columns: minmax(92px, 34%) 1fr;
+        gap: 0.3rem 0.75rem;
+        padding: 0.55rem 0;
         border: none;
-        border-bottom: 1px solid var(--vf-line);
+        border-bottom: 1px solid rgba(100, 116, 139, 0.15);
         vertical-align: top;
         align-items: start;
     }
 
     .vf-table tbody tr.vf-req-row td:last-child {
         border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .vf-table tbody tr.vf-req-row td:first-child {
+        padding-top: 0;
     }
 
     .vf-table tbody tr.vf-req-row td::before {
@@ -771,7 +793,7 @@ button.vf-service-option-btn.service-option:hover {
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: var(--vf-muted);
-        padding-top: 0.15rem;
+        padding-top: 0.12rem;
     }
 
     .vf-table tbody tr.vf-empty-row td {
@@ -823,8 +845,8 @@ button.vf-service-option-btn.service-option:hover {
     cursor: pointer;
     font-weight: 700;
     color: var(--vf-green);
-    word-break: break-word;
-    max-width: 100%;
+    white-space: nowrap;
+    flex: 0 0 auto;
 }
 
 .vf-extra-codes {
@@ -867,20 +889,55 @@ button.vf-service-option-btn.service-option:hover {
 
 .vf-btn-del {
     margin-left: 0.35rem;
-    padding: 0.28rem 0.55rem;
+    padding: 0.32rem 0.65rem;
     font-size: 0.68rem;
     font-weight: 700;
-    border-radius: 8px;
-    border: 1px solid rgba(225, 29, 72, 0.35);
+    border-radius: 999px;
+    border: 1px solid rgba(225, 29, 72, 0.4);
     background: rgba(225, 29, 72, 0.06);
     color: var(--vf-red-d);
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, opacity 0.2s, box-shadow 0.2s;
 }
 
-.vf-btn-del:hover {
+.vf-btn-del:hover:not(:disabled) {
     background: rgba(225, 29, 72, 0.12);
     border-color: var(--vf-red);
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.12);
+}
+
+.vf-btn-del:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.vf-btn-del--locked {
+    border-style: dashed;
+}
+
+.vf-cancel-inline {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+}
+
+@media (min-width: 720px) {
+    .vf-cancel-inline {
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+}
+
+.vf-hero-cancel-hint {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--vf-muted);
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    max-width: 12rem;
 }
 
 .vf-status-row {
@@ -998,4 +1055,81 @@ button.vf-service-option-btn.service-option:hover {
 .vf-btn-buy:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+}
+
+/* HeroSMS — multiple price tiers */
+.vf-hero-price-wrap {
+    margin-top: 0.85rem;
+    text-align: left;
+}
+
+.vf-hero-price-wrap__title {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vf-muted);
+}
+
+.vf-hero-price-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.vf-hero-price-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0.55rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid var(--vf-line);
+    background: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.vf-hero-price-option--active {
+    border-color: rgba(37, 99, 235, 0.45);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+}
+
+.vf-hero-price-option__input {
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.vf-hero-price-option__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.vf-hero-price-option__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--vf-ink);
+    line-height: 1.25;
+}
+
+.vf-hero-price-option__meta {
+    font-size: 0.72rem;
+    color: var(--vf-muted);
+    line-height: 1.35;
+}
+
+.vf-price-breakdown {
+    margin: 0.65rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--vf-muted);
+    text-align: center;
+}
+
+.vf-price-breakdown strong {
+    color: var(--vf-ink);
+    font-weight: 700;
 }

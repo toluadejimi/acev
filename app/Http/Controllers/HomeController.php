@@ -181,12 +181,23 @@ class HomeController extends Controller
 
     public function check_more_sms(Request $request)
     {
+        $request->validate([
+            'num' => 'required|string',
+        ]);
 
-        $get_id = Verification::where('phone', $request->num)->first()->id;
-        $codes = VerificationSms::where('verification_id', $get_id)->get();
+        $verification = Verification::query()
+            ->where('phone', $request->input('num'))
+            ->where('user_id', Auth::id())
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $verification) {
+            return response()->json([]);
+        }
+
+        $codes = VerificationSms::where('verification_id', $verification->id)->get();
+
         return response()->json($codes);
-
-
     }
 
 
@@ -1177,45 +1188,68 @@ class HomeController extends Controller
     }
 
 
-    public
-    function world_webhook(request $request)
+    /**
+     * HeroSMS (world) inbound webhook. Configure in Hero dashboard to POST JSON, e.g.:
+     * { "activationId", "service", "text", "code", "country", "receivedAt" }
+     * Legacy aliases: orderid, sms (same as code).
+     */
+    public function world_webhook(Request $request)
     {
+        $activationId = $request->input('activationId') ?? $request->input('orderid');
+        if ($activationId === null || $activationId === '') {
+            return response()->json(['ok' => false, 'message' => 'activationId (or orderid) required'], 400);
+        }
 
-        $activationId = $request->orderid;
-        $messageId = $request->messageId;
-        $service = $request->service;
-        $text = $request->text;
-        $code = $request->sms;
-        $country = $request->country;
-        $receivedAt = $request->receivedAt;
-        $orders = Verification::where('order_id', $activationId)->update(['sms' => $code, 'status' => 2]);
+        $activationId = (string) $activationId;
+        $code = $request->input('code') ?? $request->input('sms');
+        $text = $request->input('text');
+        $service = $request->input('service');
+        $country = $request->input('country');
 
-        $get_user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
-        $ver = Verification::where('order_id', $activationId)->first() ?? null;
-        $get_webhook_url = User::where('id', $get_user_id)->first()->webhook_url ?? null;
+        $ver = Verification::where('order_id', $activationId)->first();
+        if (! $ver) {
+            Log::warning('world_webhook: activation not found', ['activation_id' => $activationId]);
 
-        if ($get_webhook_url) {
+            return response()->json(['ok' => false, 'message' => 'activation not found'], 404);
+        }
 
+        $smsCode = $code !== null && (string) $code !== '' ? (string) $code : '';
+        $fullSms = ($text !== null && (string) $text !== '') ? (string) $text : $smsCode;
 
+        Verification::where('id', $ver->id)->update([
+            'sms' => $smsCode !== '' ? $smsCode : $ver->sms,
+            'full_sms' => $fullSms,
+            'status' => 2,
+        ]);
+
+        try {
+            $row = new VerificationSms();
+            $row->verification_id = $ver->id;
+            $row->sms = $fullSms;
+            $row->save();
+        } catch (\Throwable $e) {
+            Log::warning('world_webhook VerificationSms save failed', ['e' => $e->getMessage()]);
+        }
+
+        $ver = Verification::find($ver->id);
+        $get_webhook_url = $ver ? User::where('id', $ver->user_id)->value('webhook_url') : null;
+
+        if ($get_webhook_url && $ver) {
             try {
-
-                $url = $get_webhook_url;
-
                 $body = [
-                    "phone" => $ver->phone,
-                    "code" => $code,
-                    "service" => $service,
-                    "order_id" => $ver->id,
-                    "full_sms" => $ver->text,
-                    "country" => $ver->country,
+                    'phone' => $ver->phone,
+                    'code' => $ver->sms,
+                    'service' => $service ?? $ver->service,
+                    'order_id' => $ver->id,
+                    'full_sms' => $ver->full_sms ?? $fullSms,
+                    'country' => $country ?? $ver->country,
                 ];
 
-
-                $response = Http::withBody(json_encode($body), 'application/json')->post($url);
+                $response = Http::withBody(json_encode($body), 'application/json')->post($get_webhook_url);
 
                 if ($response->status() === 200) {
                     $data = $response->json();
-                    $returnedCode = $data['code'] ?? null;
+                    $returnedCode = is_array($data) ? ($data['code'] ?? null) : null;
                     $fullContent = $response->body();
 
                     WebhookResponse::create([
@@ -1223,43 +1257,27 @@ class HomeController extends Controller
                         'response_code' => $returnedCode,
                         'response_body' => $fullContent,
                     ]);
-
-
                 } else {
-
+                    $json = $response->json();
+                    $errCode = is_array($json) ? ($json['code'] ?? null) : null;
 
                     WebhookResponse::create([
                         'order_id' => $ver->id,
-                        'response_code' => $response->json()['code'],
+                        'response_code' => $errCode,
                         'response_body' => $response->body(),
                         'url' => $get_webhook_url,
                     ]);
 
-                    Log::error("Webhook failed with status {$response->status()}", [
-                        'body' => $response->body()
+                    Log::error("world_webhook user callback failed: HTTP {$response->status()}", [
+                        'body' => $response->body(),
                     ]);
                 }
-
-
-            } catch (\Exception$th) {
-                return $th->getMessage();
+            } catch (\Throwable $th) {
+                Log::error('world_webhook user callback exception', ['e' => $th->getMessage()]);
             }
-
-
         }
 
-        try {
-
-            $order = Verification::where('order_id', $activationId)->first() ?? null;
-            $user_id = Verification::where('order_id', $activationId)->first()->user_id ?? null;
-
-
-        } catch (\Exception $e) {
-
-
-        }
-
-
+        return response()->json(['ok' => true]);
     }
 
 
@@ -1326,11 +1344,17 @@ class HomeController extends Controller
             }
 
 
-            $can_order = $order->type == 8
-                ? cancel_world_order($order->order_id)
-                : ($order->type == 1
-                    ? cancel_order($order->order_id)
-                    : null);
+            $can_order = null;
+            if ((int) $order->type === 8) {
+                $can_order = cancel_world_order((string) $order->order_id, 'smspool');
+                if ($can_order !== 1) {
+                    $can_order = cancel_world_order((string) $order->order_id, 'herosms');
+                }
+            } elseif ((int) $order->type === 9) {
+                $can_order = cancel_world_order((string) $order->order_id, 'herosms');
+            } elseif ((int) $order->type === 1) {
+                $can_order = cancel_order($order->order_id);
+            }
 
             if ($can_order == 5) {
                 DB::rollBack();

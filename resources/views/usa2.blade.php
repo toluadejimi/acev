@@ -2,7 +2,7 @@
 @section('title', 'USA Server 2 · SMS')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=2">
+    <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=9">
 @endpush
 
 @section('content')
@@ -45,13 +45,13 @@
         @if(!empty($vfServers['world']))
             <a href="{{ url('/world') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🌎</span>
-                <span class="vf-server__name">All countries · SMS Pool</span>
+                <span class="vf-server__name">All countries · SV1</span>
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
             <a href="{{ url('/world-hero') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
-                <span class="vf-server__name">All countries · HeroSMS</span>
+                <span class="vf-server__name">All countries · SV2</span>
             </a>
         @endif
     </nav>
@@ -428,10 +428,17 @@
                                                             if (strlen($vfDigits) === 10) {
                                                                 $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
                                                             }
+                                                            $heroCooldownEndMs = null;
+                                                            if ((int) ($data->type ?? 0) === 9 && (int) ($data->status ?? 0) === 1 && $data->created_at) {
+                                                                $heroCoolEnd = $data->created_at->copy()->addSeconds(120);
+                                                                if ($heroCoolEnd->isFuture()) {
+                                                                    $heroCooldownEndMs = (int) round($heroCoolEnd->timestamp * 1000);
+                                                                }
+                                                            }
                                                         @endphp
-                                                        <tr>
-                                                            <td>{{ $data->service }}</td>
-                                                            <td class="vf-phone-cell">
+                                                        <tr class="vf-req-row">
+                                                            <td data-label="Service">{{ $data->service }}</td>
+                                                            <td class="vf-phone-cell" data-label="Phone">
                                                                 <div class="vf-copy-row">
                                                                     <span class="vf-mono vf-phone-display">{{ $vfPhoneDisplay }}</span>
                                                                     <button type="button" class="vf-btn-copy" data-copy="{{ e($data->phone) }}" title="Copy full number" aria-label="Copy phone number">
@@ -440,7 +447,7 @@
                                                                 </div>
                                                             </td>
 
-                                                            <td>
+                                                            <td data-label="Code">
                                                                 <div id="smsContainer{{ $data->id }}" class="vf-sms-cell">
                                                                     <div class="vf-code-loader" id="loader{{ $data->id }}">
                                                                         <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
@@ -576,18 +583,24 @@
 
 
 
-                                                            <td>₦{{ number_format($data->cost, 2) }}</td>
+                                                            <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
 
-                                                            <td>
+                                                            <td data-label="Status">
                                                                 @if ($data->status == 1)
                                                                     <div class="vf-status-row">
                                                                         <span class="vf-status vf-status--pending">Pending</span>
                                                                         <form method="POST"
                                                                               action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
-                                                                              class="d-inline"
+                                                                              class="d-inline vf-cancel-form"
+                                                                              @if($heroCooldownEndMs) data-hero-cooldown-end="{{ $heroCooldownEndMs }}" @endif
                                                                               onsubmit="return confirmDelete(event, this);">
                                                                             @csrf
-                                                                            <button type="submit" class="vf-btn-del">Cancel</button>
+                                                                            <span class="vf-cancel-inline">
+                                                                                <button type="submit" class="vf-btn-del @if($heroCooldownEndMs) vf-btn-del--locked @endif" @if($heroCooldownEndMs) disabled aria-disabled="true" @endif>Cancel</button>
+                                                                                @if($heroCooldownEndMs)
+                                                                                    <span class="vf-hero-cancel-hint" role="status" aria-live="polite"></span>
+                                                                                @endif
+                                                                            </span>
                                                                         </form>
                                                                     </div>
                                                                 @else
@@ -623,6 +636,8 @@
 
                                             function confirmDelete(event, form) {
                                                 event.preventDefault();
+                                                var btn = form.querySelector('.vf-btn-del');
+                                                if (btn && btn.disabled) return false;
                                                 Swal.fire({
                                                     title: 'Cancel order?',
                                                     text: 'Are you sure you want to cancel this verification?',
@@ -635,10 +650,49 @@
                                                 });
                                                 return false;
                                             }
+
+                                            function vfInitHeroCancelCooldown() {
+                                                document.querySelectorAll('form.vf-cancel-form[data-hero-cooldown-end]').forEach(function (form) {
+                                                    var end = parseInt(form.getAttribute('data-hero-cooldown-end'), 10);
+                                                    var btn = form.querySelector('.vf-btn-del');
+                                                    var hint = form.querySelector('.vf-hero-cancel-hint');
+                                                    if (!btn || !end || isNaN(end)) return;
+
+                                                    function fmt(secs) {
+                                                        var m = Math.floor(secs / 60);
+                                                        var s = secs % 60;
+                                                        return m + ':' + (s < 10 ? '0' : '') + s;
+                                                    }
+
+                                                    function tick() {
+                                                        var left = Math.ceil((end - Date.now()) / 1000);
+                                                        if (left <= 0) {
+                                                            btn.disabled = false;
+                                                            btn.removeAttribute('aria-disabled');
+                                                            btn.classList.remove('vf-btn-del--locked');
+                                                            if (hint) {
+                                                                hint.textContent = '';
+                                                                hint.classList.add('d-none');
+                                                            }
+                                                            form.removeAttribute('data-hero-cooldown-end');
+                                                            return;
+                                                        }
+                                                        btn.disabled = true;
+                                                        btn.setAttribute('aria-disabled', 'true');
+                                                        if (hint) {
+                                                            hint.classList.remove('d-none');
+                                                            hint.textContent = 'Cancel unlocks in ' + fmt(left);
+                                                        }
+                                                        setTimeout(tick, 1000);
+                                                    }
+                                                    tick();
+                                                });
+                                            }
                                         </script>
 
                                         <script>
                                             (function () {
+                                                vfInitHeroCancelCooldown();
                                                 var el = document.getElementById("vf-requests-filter");
                                                 var table = document.getElementById("vf-requests-table");
                                                 if (!el || !table) return;

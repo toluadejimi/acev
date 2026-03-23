@@ -138,7 +138,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
 
     Route::any('home',  [HomeController::class,'home']);
-    Route::any('check-more-sms',  [HomeController::class,'check_more_sms']);
+    Route::any('check-more-sms',  [HomeController::class, 'check_more_sms']);
     Route::get('/us2', [HomeController::class, 'usaserver2']);
 //    Route::any('world',  [WorldNumberController::class,'home']);
 //    Route::any('check-av',  [WorldNumberController::class,'check_av']);

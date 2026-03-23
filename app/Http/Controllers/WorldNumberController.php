@@ -379,22 +379,43 @@ class WorldNumberController extends Controller
             if (!verification_server_flags()['world_hero']) {
                 return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
             }
-            $cost = pool_cost((string) $request->service, (string) $request->country, 'herosms');
-            if ($cost === null) {
+            $opts = hero_sms_get_price_options((string) $request->service, (string) $request->country);
+            if ($opts === []) {
                 Log::warning('HeroSMS availability failed: no price', [
                     'user_id' => Auth::id(),
                     'country' => $request->country,
                     'service' => $request->service,
                 ]);
+
                 return response()->json(['status' => 'error', 'message' => 'Service not available']);
             }
             $rate = verification_server_rate('world_hero');
             $margin = verification_server_margin('world_hero');
-            $ngnPrice = ($rate * (float) $cost) + $margin;
+            $priceOptions = [];
+            foreach ($opts as $opt) {
+                $apiCost = (float) $opt['cost'];
+                $ratePortion = $rate * $apiCost;
+                $ngnTotal = $ratePortion + $margin;
+                $priceOptions[] = [
+                    'label' => (string) $opt['label'],
+                    'api_cost' => $apiCost,
+                    'api_cost_formatted' => number_format($apiCost, 4, '.', ''),
+                    'rate_multiplier' => (float) $rate,
+                    'margin_ngn' => (float) $margin,
+                    'margin_ngn_formatted' => number_format((float) $margin, 2, '.', ''),
+                    'rate_amount_ngn' => (float) $ratePortion,
+                    'rate_amount_ngn_formatted' => number_format((float) $ratePortion, 2, '.', ''),
+                    'ngn_total' => (float) $ngnTotal,
+                    'ngn_total_formatted' => number_format((float) $ngnTotal, 2, '.', ''),
+                ];
+            }
+            $firstNgn = $priceOptions[0]['ngn_total_formatted'];
+
             return response()->json([
                 'status' => 'success',
-                'price' => number_format($ngnPrice, 2),
+                'price' => $firstNgn,
                 'rate' => 0,
+                'price_options' => $priceOptions,
             ]);
         }
         if (!verification_server_flags()['world']) {
@@ -456,10 +477,13 @@ class WorldNumberController extends Controller
         } elseif (!verification_server_flags()['world']) {
             return response()->json(['status' => 'error', 'message' => 'World server disabled'], 403);
         }
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), array_merge([
             'country' => 'required',
             'service' => 'required',
-        ]);
+            'service_name' => 'nullable|string|max:255',
+        ], $provider === 'herosms' ? [
+            'hero_api_cost' => 'required|numeric|min:0.0000001',
+        ] : []));
 
         if ($validator->fails()) {
             return response()->json([
@@ -480,7 +504,25 @@ class WorldNumberController extends Controller
             $countryToken = (string) $countryRow->short_name;
         }
 
-        $gcost = pool_cost($request->service, $countryToken, $provider);
+        if ($provider === 'herosms') {
+            $picked = (float) $request->input('hero_api_cost');
+            if (!hero_sms_api_cost_is_allowed($picked, (string) $request->service, $countryToken)) {
+                Log::warning('HeroSMS order rejected: api cost not in live price list', [
+                    'user_id' => Auth::id(),
+                    'country' => $request->country,
+                    'service' => $request->service,
+                    'hero_api_cost' => $picked,
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'That price tier is no longer available. Please refresh and choose again.',
+                ], 400);
+            }
+            $gcost = $picked;
+        } else {
+            $gcost = pool_cost($request->service, $countryToken, $provider);
+        }
         if ($gcost === null || (float) $gcost <= 0) {
             if ($provider === 'herosms') {
                 Log::warning('HeroSMS order failed at cost lookup', [
@@ -531,7 +573,15 @@ class WorldNumberController extends Controller
                 'required' => $required,
             ]);
         }
-        $order = create_world_order($request->country, $request->service, $provider);
+        $serviceName = trim((string) $request->input('service_name', ''));
+
+        $order = create_world_order(
+            $request->country,
+            $request->service,
+            $provider,
+            $provider === 'herosms' ? (float) $gcost : null,
+            $serviceName !== '' ? $serviceName : null
+        );
 
         if ($provider === 'herosms') {
             Log::info('HeroSMS order result', [

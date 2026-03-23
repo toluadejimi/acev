@@ -128,7 +128,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <h5 class="mb-1">All Countries (HeroSMS)</h5>
+                                    <h5 class="mb-1">All Countries (Sv2)</h5>
                                     <p class="text-muted small mb-0">HeroSMS integration · <code>/world-hero</code></p>
                                 </div>
                                 <div class="form-check form-switch">
