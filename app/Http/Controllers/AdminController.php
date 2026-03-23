@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountDetail;
+use App\Models\AppConfig;
 use App\Models\Item;
 use App\Models\MainItem;
 use App\Models\ManualPayment;
@@ -15,6 +16,7 @@ use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 
 class AdminController extends Controller
@@ -36,8 +38,127 @@ class AdminController extends Controller
         $data['set1'] = Setting::where('id', 1)->first();
         $data['set2'] = Setting::where('id', 2)->first();
         $data['set3'] = Setting::where('id', 3)->first();
+        $data['verificationServerFlags'] = verification_server_flags();
+        $data['verificationServerKeys'] = [
+            'us1' => verification_server_api_key('us1'),
+            'us2' => verification_server_api_key('us2'),
+            'world' => verification_server_api_key('world'),
+            'world_hero' => verification_server_api_key('world_hero'),
+        ];
+        $data['verificationServerRates'] = [
+            'world_hero' => verification_server_rate('world_hero'),
+        ];
+        $data['verificationServerMargins'] = [
+            'world_hero' => verification_server_margin('world_hero'),
+        ];
         return view('admin-price-setting', $data);
 
+    }
+
+    public function save_sms_server_config(Request $request)
+    {
+        $request->validate([
+            'sms_server_name' => 'required|string|in:daisysms,herosms,custom',
+            'sms_server_base_url' => 'required|url',
+            'sms_server_api_key' => 'required|string|max:255',
+        ]);
+
+        AppConfig::updateOrCreate(
+            ['config_key' => 'sms_server_name'],
+            ['config_value' => strtolower($request->input('sms_server_name'))]
+        );
+        AppConfig::updateOrCreate(
+            ['config_key' => 'sms_server_base_url'],
+            ['config_value' => rtrim((string) $request->input('sms_server_base_url'), '/')]
+        );
+        AppConfig::updateOrCreate(
+            ['config_key' => 'sms_server_api_key'],
+            ['config_value' => trim((string) $request->input('sms_server_api_key'))]
+        );
+
+        Cache::forget('app_config:sms_server_name');
+        Cache::forget('app_config:sms_server_base_url');
+        Cache::forget('app_config:sms_server_api_key');
+
+        return back()->with('message', 'SMS server configuration updated successfully');
+    }
+
+    public function save_verification_servers_config(Request $request)
+    {
+        AppConfig::updateOrCreate(
+            ['config_key' => 'verification_server_us1_enabled'],
+            ['config_value' => $request->has('verification_server_us1_enabled') ? '1' : '0']
+        );
+        AppConfig::updateOrCreate(
+            ['config_key' => 'verification_server_us2_enabled'],
+            ['config_value' => $request->has('verification_server_us2_enabled') ? '1' : '0']
+        );
+        AppConfig::updateOrCreate(
+            ['config_key' => 'verification_server_world_enabled'],
+            ['config_value' => $request->has('verification_server_world_enabled') ? '1' : '0']
+        );
+
+        Cache::forget('app_config:verification_server_us1_enabled');
+        Cache::forget('app_config:verification_server_us2_enabled');
+        Cache::forget('app_config:verification_server_world_enabled');
+
+        return back()->with('message', 'Verification server visibility updated successfully');
+    }
+
+    public function save_verification_server_card_config(Request $request, string $server)
+    {
+        $server = strtolower($server);
+        $map = [
+            'us1' => ['setting_id' => 1, 'enabled_key' => 'verification_server_us1_enabled', 'api_key' => 'verification_server_us1_api_key'],
+            'us2' => ['setting_id' => 3, 'enabled_key' => 'verification_server_us2_enabled', 'api_key' => 'verification_server_us2_api_key'],
+            'world' => ['setting_id' => 2, 'enabled_key' => 'verification_server_world_enabled', 'api_key' => 'verification_server_world_api_key'],
+            'world_hero' => ['setting_id' => null, 'enabled_key' => 'verification_server_world_hero_enabled', 'api_key' => 'verification_server_world_hero_api_key'],
+        ];
+
+        if (!isset($map[$server])) {
+            return back()->with('error', 'Invalid server selected');
+        }
+
+        $request->validate([
+            'rate' => 'required|numeric|min:0',
+            'margin' => 'required|numeric|min:0',
+            'api_key' => 'nullable|string|max:255',
+            'world_hero_rate' => 'nullable|numeric|min:0',
+            'world_hero_margin' => 'nullable|numeric|min:0',
+        ]);
+
+        $cfg = $map[$server];
+
+        if (!empty($cfg['setting_id'])) {
+            Setting::where('id', $cfg['setting_id'])->update([
+                'rate' => $request->input('rate'),
+                'margin' => $request->input('margin'),
+            ]);
+        } else {
+            AppConfig::updateOrCreate(
+                ['config_key' => 'verification_server_world_hero_rate'],
+                ['config_value' => (string) $request->input('world_hero_rate', $request->input('rate', 0))]
+            );
+            AppConfig::updateOrCreate(
+                ['config_key' => 'verification_server_world_hero_margin'],
+                ['config_value' => (string) $request->input('world_hero_margin', $request->input('margin', 0))]
+            );
+            Cache::forget('app_config:verification_server_world_hero_rate');
+            Cache::forget('app_config:verification_server_world_hero_margin');
+        }
+
+        AppConfig::updateOrCreate(
+            ['config_key' => $cfg['enabled_key']],
+            ['config_value' => $request->has('enabled') ? '1' : '0']
+        );
+        AppConfig::updateOrCreate(
+            ['config_key' => $cfg['api_key']],
+            ['config_value' => trim((string) $request->input('api_key', ''))]
+        );
+        Cache::forget('app_config:' . $cfg['enabled_key']);
+        Cache::forget('app_config:' . $cfg['api_key']);
+
+        return back()->with('message', 'Server settings updated successfully');
     }
 
 

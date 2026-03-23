@@ -298,30 +298,108 @@ use App\Models\Verification;
 use App\Models\WalletCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class WorldNumberController extends Controller
 {
     public function home()
     {
+        $flags = verification_server_flags();
+        if (empty($flags['world'])) {
+            if (!empty($flags['us1'])) {
+                return redirect()->route('verification.index')->with('topMessage', 'World server is currently unavailable.');
+            }
+            if (!empty($flags['us2'])) {
+                return redirect('/usa2')->with('topMessage', 'World server is currently unavailable.');
+            }
+            return redirect('/home')->with('topMessage', 'Verification service is currently unavailable.');
+        }
+
         $countries = get_world_countries();
         $data['countries'] = $countries;
         $data['services'] = []; // initially empty
         $data['product'] = null;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->get();
+        $data['verificationServers'] = $flags;
+        $data['worldServer'] = 'world';
 
+
+        return view('world', $data);
+    }
+
+    public function heroHome()
+    {
+        $flags = verification_server_flags();
+        if (empty($flags['world_hero'])) {
+            if (!empty($flags['us1'])) {
+                return redirect()->route('verification.index')->with('topMessage', 'HeroSMS World server is currently unavailable.');
+            }
+            if (!empty($flags['us2'])) {
+                return redirect('/usa2')->with('topMessage', 'HeroSMS World server is currently unavailable.');
+            }
+            if (!empty($flags['world'])) {
+                return redirect('/world')->with('topMessage', 'HeroSMS World server is currently unavailable.');
+            }
+            return redirect('/home')->with('topMessage', 'Verification service is currently unavailable.');
+        }
+
+        $countries = $this->getHeroCountries();
+        $data['countries'] = $countries;
+        $data['services'] = [];
+        $data['product'] = null;
+        $data['verification'] = Verification::latest()->where('user_id', Auth::id())->get();
+        $data['verificationServers'] = $flags;
+        $data['worldServer'] = 'world_hero';
 
         return view('world', $data);
     }
 
     public function getServices($countryID)
     {
+        $provider = (string) request()->query('provider', 'smspool');
+        if ($provider === 'herosms') {
+            if (!verification_server_flags()['world_hero']) {
+                return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
+            }
+            return response()->json($this->getHeroServices());
+        }
+        if (!verification_server_flags()['world']) {
+            return response()->json(['status' => 'error', 'message' => 'World server disabled'], 403);
+        }
         $services = get_world_services();
         return response()->json($services);
     }
 
     public function checkAvailability(Request $request)
     {
+        $provider = (string) $request->input('provider', 'smspool');
+        if ($provider === 'herosms') {
+            if (!verification_server_flags()['world_hero']) {
+                return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
+            }
+            $cost = pool_cost((string) $request->service, (string) $request->country, 'herosms');
+            if ($cost === null) {
+                Log::warning('HeroSMS availability failed: no price', [
+                    'user_id' => Auth::id(),
+                    'country' => $request->country,
+                    'service' => $request->service,
+                ]);
+                return response()->json(['status' => 'error', 'message' => 'Service not available']);
+            }
+            $rate = verification_server_rate('world_hero');
+            $margin = verification_server_margin('world_hero');
+            $ngnPrice = ($rate * (float) $cost) + $margin;
+            return response()->json([
+                'status' => 'success',
+                'price' => number_format($ngnPrice, 2),
+                'rate' => 0,
+            ]);
+        }
+        if (!verification_server_flags()['world']) {
+            return response()->json(['status' => 'error', 'message' => 'World server disabled'], 403);
+        }
         $key = env('WKEY');
 
         $databody = [
@@ -350,7 +428,7 @@ class WorldNumberController extends Controller
 
         $price = $res->price < 4 ? $res->price * 1.3 : $res->price;
 
-        $setting =  Setting::find(1);
+        $setting =  Setting::find(2);
         $rate = $setting->rate;
         $margin = $setting->margin;
         $count_id = Country::where('country_id', $request->country)->first()->short_name ?? null;
@@ -370,6 +448,14 @@ class WorldNumberController extends Controller
 
     public function orderNumber(Request $request)
     {
+        $provider = (string) $request->input('provider', 'smspool');
+        if ($provider === 'herosms') {
+            if (!verification_server_flags()['world_hero']) {
+                return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
+            }
+        } elseif (!verification_server_flags()['world']) {
+            return response()->json(['status' => 'error', 'message' => 'World server disabled'], 403);
+        }
         $validator = Validator::make($request->all(), [
             'country' => 'required',
             'service' => 'required',
@@ -382,31 +468,49 @@ class WorldNumberController extends Controller
             ], 422);
         }
 
-        $countryRow = Country::where('country_id', $request->country)->first();
-        if (!$countryRow || !$countryRow->short_name) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid country',
-            ], 400);
+        $countryToken = (string) $request->country;
+        if ($provider !== 'herosms') {
+            $countryRow = Country::where('country_id', $request->country)->first();
+            if (!$countryRow || !$countryRow->short_name) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid country',
+                ], 400);
+            }
+            $countryToken = (string) $countryRow->short_name;
         }
 
-        $gcost = pool_cost($request->service, $countryRow->short_name);
+        $gcost = pool_cost($request->service, $countryToken, $provider);
         if ($gcost === null || (float) $gcost <= 0) {
+            if ($provider === 'herosms') {
+                Log::warning('HeroSMS order failed at cost lookup', [
+                    'user_id' => Auth::id(),
+                    'country' => $request->country,
+                    'country_token' => $countryToken,
+                    'service' => $request->service,
+                ]);
+            }
             return response()->json([
                 'status' => 'error',
                 'message' => 'Service not available',
             ], 400);
         }
 
-        $setting = Setting::find(1);
-        if (!$setting) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Settings not configured',
-            ], 500);
+        if ($provider === 'herosms') {
+            $rate = verification_server_rate('world_hero');
+            $margin = verification_server_margin('world_hero');
+        } else {
+            $setting = Setting::find(2);
+            if (!$setting) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Settings not configured',
+                ], 500);
+            }
+            $rate = (float) $setting->rate;
+            $margin = (float) $setting->margin;
         }
-
-        $required = ((float) $setting->rate * (float) $gcost) + (float) $setting->margin;
+        $required = ($rate * (float) $gcost) + $margin;
         $wallet = (float) Auth::user()->wallet;
 
         if ($wallet < $required) {
@@ -418,10 +522,25 @@ class WorldNumberController extends Controller
             ], 400);
         }
 
-        $order = create_world_order(
-            $request->country,
-            $request->service
-        );
+        if ($provider === 'herosms') {
+            Log::info('HeroSMS order attempt', [
+                'user_id' => Auth::id(),
+                'country' => $request->country,
+                'service' => $request->service,
+                'gcost' => $gcost,
+                'required' => $required,
+            ]);
+        }
+        $order = create_world_order($request->country, $request->service, $provider);
+
+        if ($provider === 'herosms') {
+            Log::info('HeroSMS order result', [
+                'user_id' => Auth::id(),
+                'country' => $request->country,
+                'service' => $request->service,
+                'result' => $order,
+            ]);
+        }
 
 
         if ($order == 3) {
@@ -449,5 +568,37 @@ class WorldNumberController extends Controller
             'status' => 'error',
             'message' => 'Unable to complete purchase'
         ], 400);
+    }
+
+    private function getHeroCountries(): array
+    {
+        $resp = Http::timeout(50)->get(world_sms_handler_url(['action' => 'getCountries']));
+        $json = $resp->json();
+        if (!is_array($json)) {
+            return [];
+        }
+        $mapped = [];
+        foreach ($json as $row) {
+            if (!is_array($row) || !isset($row['id'])) {
+                continue;
+            }
+            $mapped[] = ['ID' => $row['id'], 'name' => ($row['eng'] ?? $row['name'] ?? 'Unknown')];
+        }
+        return $mapped;
+    }
+
+    private function getHeroServices(): array
+    {
+        $resp = Http::timeout(50)->get(world_sms_handler_url(['action' => 'getServicesList', 'lang' => 'en']));
+        $json = $resp->json();
+        $rows = is_array($json) ? ($json['services'] ?? []) : [];
+        $mapped = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !isset($row['code'])) {
+                continue;
+            }
+            $mapped[] = ['ID' => $row['code'], 'name' => ($row['name'] ?? $row['code'])];
+        }
+        return $mapped;
     }
 }

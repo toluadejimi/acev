@@ -14,7 +14,7 @@
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-shield-check" aria-hidden="true"></i> Verification hub</span>
                 <h1 class="vf-hero__title">SMS verification</h1>
-                <p class="vf-hero__text">Rent US numbers (Server 1 / 2) or open <a href="{{ url('/world') }}">all countries</a>. Pick a service, then track OTP codes in your active requests.</p>
+                <p class="vf-hero__text">Rent verification numbers and track OTP codes in your active requests.</p>
             </div>
             <div class="vf-hero__stats">
                 <p class="vf-hero__user">{{ Auth::user()->username }}</p>
@@ -25,20 +25,35 @@
         </div>
     </header>
 
+    @php
+        $vfServers = $verificationServers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+    @endphp
     <nav class="vf-servers" aria-label="Number pools">
-        <a href="{{ route('verification.index') }}" class="vf-server vf-server--active">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 1</span>
-            <span class="vf-server__hint">Current panel</span>
-        </a>
-        <a href="{{ url('/usa2') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 2</span>
-        </a>
-        <a href="{{ url('/world') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🌎</span>
-            <span class="vf-server__name">All countries</span>
-        </a>
+        @if(!empty($vfServers['us1']))
+            <a href="{{ route('verification.index') }}" class="vf-server vf-server--active">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 1</span>
+                <span class="vf-server__hint">Current panel</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['us2']))
+            <a href="{{ url('/usa2') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 2</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world']))
+            <a href="{{ url('/world') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🌎</span>
+                <span class="vf-server__name">All countries · SMS Pool</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world_hero']))
+            <a href="{{ url('/world-hero') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🌍</span>
+                <span class="vf-server__name">All countries · HeroSMS</span>
+            </a>
+        @endif
     </nav>
 
             <div class="vf-alerts">

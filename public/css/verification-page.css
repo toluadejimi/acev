@@ -218,31 +218,40 @@
 
 /* Server region picker */
 .vf-servers {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
-    margin-bottom: 1.25rem;
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 0.9rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 0.2rem;
 }
 
-@media (max-width: 720px) {
-    .vf-servers {
-        grid-template-columns: 1fr;
-    }
+.vf-servers::-webkit-scrollbar {
+    height: 6px;
+}
+
+.vf-servers::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 999px;
 }
 
 .vf-server {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.2rem;
-    padding: 0.85rem 1rem;
-    border-radius: var(--vf-radius-sm);
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.52rem 0.66rem;
+    border-radius: 10px;
     text-decoration: none !important;
     border: 1px solid var(--vf-line);
     background: var(--vf-surface);
-    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 1px 8px rgba(15, 23, 42, 0.04);
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     color: var(--vf-ink) !important;
+    min-height: 44px;
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 .vf-server:hover {
@@ -258,22 +267,27 @@
 }
 
 .vf-server__flag {
-    font-size: 1.35rem;
+    font-size: 1rem;
     line-height: 1;
 }
 
 .vf-server__name {
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    font-weight: 600;
     color: var(--vf-ink);
+    line-height: 1.15;
 }
 
 .vf-server__hint {
-    font-size: 0.7rem;
-    font-weight: 600;
+    margin-left: auto;
+    font-size: 0.62rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.045em;
     color: var(--vf-blue-d);
+    background: rgba(37, 99, 235, 0.12);
+    border-radius: 999px;
+    padding: 0.14rem 0.38rem;
 }
 
 /* Alerts */

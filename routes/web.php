@@ -119,6 +119,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::controller(WorldNumberController::class)->group(function () {
 
         Route::get('/world',  'home');
+        Route::get('/world-hero',  'heroHome');
         Route::get('/get-world-services/{country}',  'getServices');
         Route::post('/check-world-availability',  'checkAvailability');
         Route::post('/order-world-number',  'orderNumber');
@@ -249,6 +250,9 @@ Route::post('set_rate_3',  [AdminController::class,'set_rate_3']);
 Route::post('set_margin_1',  [AdminController::class,'set_margin_1']);
 Route::post('set_margin_2',  [AdminController::class,'set_margin_2']);
 Route::post('set_margin_3',  [AdminController::class,'set_margin_3']);
+Route::post('set-sms-server-config',  [AdminController::class,'save_sms_server_config']);
+Route::post('set-verification-servers-config',  [AdminController::class,'save_verification_servers_config']);
+Route::post('set-verification-server-card/{server}',  [AdminController::class,'save_verification_server_card_config']);
 
 
 

@@ -171,8 +171,8 @@ class HomeController extends Controller
     {
         $data['services'] = get_services();
 
-        $data['get_rate'] = Setting::where('id', 1)->first()->rate;
-        $data['margin'] = Setting::where('id', 1)->first()->margin;
+        $data['get_rate'] = Setting::where('id', 3)->first()->rate;
+        $data['margin'] = Setting::where('id', 3)->first()->margin;
         $data['verification'] = Verification::where('user_id', Auth::id())->paginate('10');
         $data['order'] = 0;
         return view('welcome', $data);
@@ -215,19 +215,38 @@ class HomeController extends Controller
 
     public function verification_index(Request $request)
     {
+        $flags = verification_server_flags();
+        if (empty($flags['us1'])) {
+            if (!empty($flags['us2'])) {
+                return redirect('/usa2')->with('topMessage', 'USA Server 1 is currently unavailable.');
+            }
+            if (!empty($flags['world'])) {
+                return redirect('/world')->with('topMessage', 'USA Server 1 is currently unavailable.');
+            }
+            return redirect('/home')->with('topMessage', 'Verification service is currently unavailable.');
+        }
+
         $services = get_services();
 
         $allServices = [];
-        foreach ($services as $provider => $items) {
-            foreach ($items as $id => $service) {
-                $allServices[] = (object) array_merge((array) $service, ['provider' => $provider]);
+        if (is_array($services) || $services instanceof \Traversable) {
+            foreach ($services as $provider => $items) {
+                if (!(is_array($items) || $items instanceof \Traversable)) {
+                    continue;
+                }
+                foreach ($items as $id => $service) {
+                    $allServices[] = (object) array_merge((array) $service, ['provider' => (string) $provider]);
+                }
             }
+        } else {
+            $request->session()->flash('topMessage', 'Server 1 services are temporarily unavailable. Please try again shortly.');
         }
 
         $data['allServices'] = $allServices;
         $data['get_rate'] = Setting::where('id', 1)->first()->rate;
         $data['margin'] = Setting::where('id', 1)->first()->margin;
         $data['verification'] = Verification::latest()->where('user_id', Auth::id())->take(10)->get();
+        $data['verificationServers'] = $flags;
 
         return view('verification-index', $data);
     }
@@ -259,6 +278,16 @@ class HomeController extends Controller
 
     public function usaserver2(request $request)
     {
+        $flags = verification_server_flags();
+        if (empty($flags['us2'])) {
+            if (!empty($flags['us1'])) {
+                return redirect()->route('verification.index')->with('topMessage', 'USA Server 2 is currently unavailable.');
+            }
+            if (!empty($flags['world'])) {
+                return redirect('/world')->with('topMessage', 'USA Server 2 is currently unavailable.');
+            }
+            return redirect('/home')->with('topMessage', 'Verification service is currently unavailable.');
+        }
 
 
         $result = get_services_usa_server_2(); // Or dynamically pass ZIP
@@ -277,6 +306,7 @@ class HomeController extends Controller
         $data['pend'] = 0;
         $data['product'] = null;
         $data['orders'] = Verification::where('user_id', Auth::id())->get();
+        $data['verificationServers'] = $flags;
 
 
         return view('usaserver2', $data);

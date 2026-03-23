@@ -13,8 +13,9 @@
         <div class="vf-hero__row">
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-globe2" aria-hidden="true"></i> International</span>
-                <h1 class="vf-hero__title">All countries</h1>
-                <p class="vf-hero__text">Choose a country and service, confirm price, then buy a number. US pools are on <a href="{{ route('verification.index') }}">Server 1</a> or <a href="{{ url('/usa2') }}">Server 2</a>.</p>
+                @php $isHero = ($worldServer ?? 'world') === 'world_hero'; @endphp
+                <h1 class="vf-hero__title">{{ $isHero ? 'All countries (HeroSMS)' : 'All countries (SMS Pool)' }}</h1>
+                <p class="vf-hero__text">Choose a country and service, confirm price, then buy a number.</p>
             </div>
             <div class="vf-hero__stats">
                 <p class="vf-hero__user">{{ Auth::user()->username }}</p>
@@ -25,20 +26,36 @@
         </div>
     </header>
 
+    @php
+        $vfServers = $verificationServers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+    @endphp
     <nav class="vf-servers" aria-label="Number pools">
-        <a href="{{ route('verification.index') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 1</span>
-        </a>
-        <a href="{{ url('/usa2') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 2</span>
-        </a>
-        <a href="{{ url('/world') }}" class="vf-server vf-server--active">
-            <span class="vf-server__flag" aria-hidden="true">🌎</span>
-            <span class="vf-server__name">All countries</span>
-            <span class="vf-server__hint">Current panel</span>
-        </a>
+        @if(!empty($vfServers['us1']))
+            <a href="{{ route('verification.index') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 1</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['us2']))
+            <a href="{{ url('/usa2') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 2</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world']))
+            <a href="{{ url('/world') }}" class="vf-server {{ !$isHero ? 'vf-server--active' : '' }}">
+                <span class="vf-server__flag" aria-hidden="true">🌎</span>
+                <span class="vf-server__name">All countries · SMS Pool</span>
+                @if(!$isHero)<span class="vf-server__hint">Current panel</span>@endif
+            </a>
+        @endif
+        @if(!empty($vfServers['world_hero']))
+            <a href="{{ url('/world-hero') }}" class="vf-server {{ $isHero ? 'vf-server--active' : '' }}">
+                <span class="vf-server__flag" aria-hidden="true">🌍</span>
+                <span class="vf-server__name">All countries · HeroSMS</span>
+                @if($isHero)<span class="vf-server__hint">Current panel</span>@endif
+            </a>
+        @endif
     </nav>
 
     @if (session('topMessage'))
@@ -72,6 +89,7 @@
             <div class="vf-panel__body vf-world-form">
                 <form id="worldForm" method="POST">
                     @csrf
+                    <input type="hidden" id="worldProvider" value="{{ $isHero ? 'herosms' : 'smspool' }}">
 
                     <label class="vf-label" for="countrySelect">Country</label>
                     <select id="countrySelect" name="country" class="form-control">
@@ -122,20 +140,42 @@
                     </thead>
                     <tbody>
                     @forelse($verification as $data)
+                        @php
+                            $vfDigits = preg_replace('/\D/', '', (string) $data->phone);
+                            if (strlen($vfDigits) === 11 && str_starts_with($vfDigits, '1')) {
+                                $vfDigits = substr($vfDigits, 1);
+                            }
+                            $vfPhoneDisplay = (string) $data->phone;
+                            if (strlen($vfDigits) === 10) {
+                                $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
+                            }
+                        @endphp
                         <tr class="verify-row"
                             data-id="{{ $data->id }}"
                             data-status="{{ $data->status }}"
                             data-phone="{{ $data->phone }}"
                             data-type="{{ $data->type }}">
                             <td>{{ $data->service }}</td>
-                            <td class="vf-mono">{{ $data->phone }}</td>
+                            <td class="vf-phone-cell">
+                                <div class="vf-copy-row">
+                                    <span class="vf-mono vf-phone-display">{{ $vfPhoneDisplay }}</span>
+                                    <button type="button" class="vf-btn-copy" data-copy="{{ e($data->phone) }}" title="Copy full number" aria-label="Copy phone number">
+                                        <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>
-                                <div id="smsContainer{{ $data->id }}">
+                                <div id="smsContainer{{ $data->id }}" class="vf-sms-cell">
                                     <div class="vf-code-loader" id="loader{{ $data->id }}">
                                         <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
                                         <span class="vf-code-loading-text">Waiting for SMS…</span>
                                     </div>
-                                    <span id="data-sm{{ $data->id }}" class="vf-sms-code d-none" title="Click to copy"></span>
+                                    <div id="vf-sms-wrap{{ $data->id }}" class="vf-sms-wrap d-none">
+                                        <span id="data-sm{{ $data->id }}" class="vf-sms-code" title="Tap to copy"></span>
+                                        <button type="button" class="vf-btn-copy vf-btn-copy--sms" id="vf-copy-sms{{ $data->id }}" hidden aria-label="Copy SMS">
+                                            <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
                                     <div id="extraSmsList{{ $data->id }}" class="vf-extra-codes d-none"></div>
                                 </div>
                             </td>
@@ -156,7 +196,7 @@
                                     <span class="vf-status vf-status--done">Completed</span>
                                 @endif
                             </td>
-                            <td>{{ $data->created_at }}</td>
+                            <td class="vf-date-cell" data-label="Date">{{ $data->created_at?->format('M j, Y g:i A') ?? $data->created_at }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -174,6 +214,15 @@
 
 @push('scripts')
 <script>
+    function vfFlashCopy(btn) {
+        if (!btn) return;
+        var ic = btn.querySelector('i');
+        if (!ic) return;
+        var prev = ic.className;
+        ic.className = 'bi bi-check2';
+        setTimeout(function () { ic.className = prev; }, 1100);
+    }
+
     function confirmDeleteWorld(event, form) {
         event.preventDefault();
         Swal.fire({
@@ -193,6 +242,14 @@
         var el = document.getElementById('vf-requests-filter');
         var table = document.getElementById('vf-requests-table');
         if (!el || !table) return;
+        table.addEventListener('click', function (e) {
+            var btn = e.target.closest('.vf-btn-copy[data-copy]');
+            if (!btn || btn.hasAttribute('disabled')) return;
+            var t = btn.getAttribute('data-copy');
+            if (!t) return;
+            e.preventDefault();
+            navigator.clipboard.writeText(t).then(function () { vfFlashCopy(btn); });
+        });
         el.addEventListener('input', function () {
             var filter = el.value.toLowerCase().trim();
             table.querySelectorAll('tbody tr').forEach(function (row) {
@@ -215,6 +272,8 @@
 
             var smsSpan = document.getElementById('data-sm' + id);
             var loader = document.getElementById('loader' + id);
+            var wrap = document.getElementById('vf-sms-wrap' + id);
+            var copySmsBtn = document.getElementById('vf-copy-sms' + id);
             var extraList = document.getElementById('extraSmsList' + id);
 
             var countdownTimer = null;
@@ -233,8 +292,12 @@
                         if (msg.length > 0) {
                             if (loader) loader.classList.add('d-none');
                             if (smsSpan) {
-                                smsSpan.classList.remove('d-none');
+                                if (wrap) wrap.classList.remove('d-none');
                                 smsSpan.textContent = msg;
+                                if (copySmsBtn) {
+                                    copySmsBtn.hidden = false;
+                                    copySmsBtn.setAttribute('data-copy', msg);
+                                }
                                 smsSpan.onclick = function () {
                                     navigator.clipboard.writeText(msg).then(function () {
                                         smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
@@ -255,6 +318,7 @@
                         var messages = Array.isArray(result) ? result : (result.codes || []);
                         if (messages.length > 0) {
                             if (loader) loader.classList.add('d-none');
+                            if (wrap) wrap.classList.remove('d-none');
                             if (extraList) extraList.classList.remove('d-none');
                             if (countdownTimer) clearInterval(countdownTimer);
 
@@ -317,11 +381,12 @@
 
         $('#countrySelect').on('change', function () {
             var countryID = $(this).val();
+            var provider = $('#worldProvider').val() || 'smspool';
             $('#serviceSelect').html('<option value="">Loading…</option>').prop('disabled', true);
 
             if (countryID) {
                 $.ajax({
-                    url: '{{ url('/get-world-services') }}/' + countryID,
+                    url: '{{ url('/get-world-services') }}/' + countryID + '?provider=' + encodeURIComponent(provider),
                     type: 'GET',
                     success: function (res) {
                         $('#serviceSelect').empty().append('<option value="">Select service</option>');
@@ -337,6 +402,7 @@
         $('#serviceSelect').on('change', function () {
             var country = $('#countrySelect').val();
             var service = $(this).val();
+            var provider = $('#worldProvider').val() || 'smspool';
 
             if (country && service) {
                 $.ajax({
@@ -345,7 +411,8 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         country: country,
-                        service: service
+                        service: service,
+                        provider: provider
                     },
                     beforeSend: function () {
                         $('#priceSection').hide();
@@ -379,6 +446,7 @@
             var country = btn.data('country');
             var service = btn.data('service');
             var price = btn.data('price');
+            var provider = $('#worldProvider').val() || 'smspool';
 
             Swal.fire({
                 title: 'Confirm purchase',
@@ -399,7 +467,8 @@
                         _token: '{{ csrf_token() }}',
                         country: country,
                         service: service,
-                        price: price
+                        price: price,
+                        provider: provider
                     },
                     success: function (resp) {
                         try { resp = JSON.parse(resp); } catch (e) {}

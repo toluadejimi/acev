@@ -47,102 +47,105 @@
 
 
         <section class="my-5">
-
-            <div class="row">
-
-
-                <div class="col-4">
-
-                    <div class="card">
-
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <form action="{{ url('set-verification-server-card/us1') }}" method="post" class="card h-100 border-0 shadow-sm">
+                        @csrf
                         <div class="card-body">
-
-                            <form action="set_rate_1" method="post">
-                                @csrf
-                                <label>Diasy Rate Setting</label>
-                                <input name="rate" class="form-control my-3" value={{$set1->rate}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Rate </button>
-
-                            </form>
-
-
-                            <form action="set_margin_1" method="post" class="my-3">
-                                @csrf
-                                <label>Diasy Margin Setting</label>
-                                <input name="margin" class="form-control my-3" value={{$set1->margin}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Margin </button>
-
-                            </form>
-
-
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">USA Server 1</h5>
+                                    <p class="text-muted small mb-0">Daisy integration · <code>/verification</code></p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="us1-enabled" name="enabled" {{ !empty($verificationServerFlags['us1']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="us1-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <label class="form-label mt-3">Daisy Rate Setting</label>
+                            <input name="rate" class="form-control" type="number" step="0.0001" min="0" value="{{ $set1->rate }}" required>
+                            <label class="form-label mt-3">Daisy Margin Setting</label>
+                            <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $set1->margin }}" required>
+                            <label class="form-label mt-3">API Key</label>
+                            <input name="api_key" class="form-control" value="{{ $verificationServerKeys['us1'] ?? '' }}" placeholder="Enter Daisy/Hero key">
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save USA Server 1</button>
                         </div>
-                    </div>
-
-
-
+                    </form>
                 </div>
 
-                <div class="col-4">
-
-
-                    <div class="card">
-
+                <div class="col-lg-4">
+                    <form action="{{ url('set-verification-server-card/us2') }}" method="post" class="card h-100 border-0 shadow-sm">
+                        @csrf
                         <div class="card-body">
-
-                            <form action="set_rate_2" method="post">
-                                @csrf
-                                <label>SMS POOL Rate Setting</label>
-                                <input name="rate" class="form-control my-3" value={{$set2->rate}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Rate </button>
-
-                            </form>
-
-
-                            <form action="set_margin_2" method="post" class="my-3">
-                                @csrf
-                                <label>SMS POOL Margin Setting</label>
-                                <input name="margin" class="form-control my-3" value={{$set2->margin}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Margin </button>
-
-                            </form>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">USA Server 2</h5>
+                                    <p class="text-muted small mb-0">Unlimited integration · <code>/usa2</code></p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="us2-enabled" name="enabled" {{ !empty($verificationServerFlags['us2']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="us2-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <label class="form-label mt-3">Unlimited Rate Setting</label>
+                            <input name="rate" class="form-control" type="number" step="0.0001" min="0" value="{{ $set3->rate }}" required>
+                            <label class="form-label mt-3">Unlimited Margin Setting</label>
+                            <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $set3->margin }}" required>
+                            <label class="form-label mt-3">API Key</label>
+                            <input name="api_key" class="form-control" value="{{ $verificationServerKeys['us2'] ?? '' }}" placeholder="Enter Unlimited API key">
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save USA Server 2</button>
                         </div>
-                    </div>
-
-
-
+                    </form>
                 </div>
 
-                <div class="col-4">
-
-
-                    <div class="card">
-
+                <div class="col-lg-4">
+                    <form action="{{ url('set-verification-server-card/world') }}" method="post" class="card h-100 border-0 shadow-sm">
+                        @csrf
                         <div class="card-body">
-
-                            <form action="set_rate_3" method="post">
-                                @csrf
-                                <label>Unlimited Rate Setting</label>
-                                <input name="rate" class="form-control my-3" value={{$set3->rate}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Rate </button>
-
-                            </form>
-
-
-                            <form action="set_margin_3" method="post" class="my-3">
-                                @csrf
-                                <label>Unlimited Margin Setting</label>
-                                <input name="margin" class="form-control my-3" value={{$set3->margin}} required>
-                                <button class="form-control btn btn-sm btn-primary" type="submit"> Set Margin </button>
-
-                            </form>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">All Countries (World)</h5>
+                                    <p class="text-muted small mb-0">SMS Pool integration · <code>/world</code></p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="world-enabled" name="enabled" {{ !empty($verificationServerFlags['world']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="world-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <label class="form-label mt-3">SMS Pool Rate Setting</label>
+                            <input name="rate" class="form-control" type="number" step="0.0001" min="0" value="{{ $set2->rate }}" required>
+                            <label class="form-label mt-3">SMS Pool Margin Setting</label>
+                            <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $set2->margin }}" required>
+                            <label class="form-label mt-3">API Key</label>
+                            <input name="api_key" class="form-control" value="{{ $verificationServerKeys['world'] ?? '' }}" placeholder="Enter SMS Pool API key">
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save World Server</button>
                         </div>
-                    </div>
-
-
-
+                    </form>
                 </div>
-
-
+                <div class="col-lg-4">
+                    <form action="{{ url('set-verification-server-card/world_hero') }}" method="post" class="card h-100 border-0 shadow-sm">
+                        @csrf
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">All Countries (HeroSMS)</h5>
+                                    <p class="text-muted small mb-0">HeroSMS integration · <code>/world-hero</code></p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="world-hero-enabled" name="enabled" {{ !empty($verificationServerFlags['world_hero']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="world-hero-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <label class="form-label mt-3">HeroSMS Rate Setting</label>
+                            <input name="rate" class="form-control" type="number" step="0.0001" min="0" value="{{ $verificationServerRates['world_hero'] ?? 0 }}" required>
+                            <label class="form-label mt-3">HeroSMS Margin Setting</label>
+                            <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $verificationServerMargins['world_hero'] ?? 0 }}" required>
+                            <label class="form-label mt-3">API Key</label>
+                            <input name="api_key" class="form-control" value="{{ $verificationServerKeys['world_hero'] ?? '' }}" placeholder="Enter HeroSMS API key">
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save HeroSMS Server</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
 

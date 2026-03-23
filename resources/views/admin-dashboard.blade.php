@@ -9,7 +9,6 @@
                 <div class="admin-role">Administrator</div>
             </div>
             <div class="header-right">
-
                 <a href="users"  class="header-btn">
                         <i class="fas fa-users"></i>
                         Manage Users
@@ -25,7 +24,6 @@
                     <i class="fas fa-bullhorn"></i>
                     User announcement
                 </a>
-
             </div>
         </header>
 
@@ -50,7 +48,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Total Users</div>
-                    <div class="stat-value">{{number_format($user, 2)}}</div>
+                    <div class="stat-value">{{number_format($user)}}</div>
                     <div class="stat-status active">
                         <i class="fas fa-arrow-up"></i>
                         Active users
@@ -78,7 +76,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Total Orders</div>
-                    <div class="stat-value">{{number_format($total_verified_message, 2)}}</div>
+                    <div class="stat-value">{{number_format($total_verified_message)}}</div>
                     <div class="stat-status complete">
                         <i class="fas fa-check-circle"></i>
                         Complete
@@ -92,7 +90,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Pending Deposits</div>
-                    <div class="stat-value">{{number_format($manual_payment, 2)}}</div>
+                    <div class="stat-value">{{number_format($manual_payment)}}</div>
                     <div class="stat-status requires-action">
                         <i class="fas fa-exclamation-triangle"></i>
                         Requires action
@@ -119,7 +117,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Today's Orders</div>
-                    <div class="stat-value">{{number_format($today_order, 2)}}</div>
+                    <div class="stat-value">{{number_format($today_order)}}</div>
                     <div class="stat-description">Today</div>
                     <div class="stat-status active-green">Active</div>
                 </div>
@@ -131,7 +129,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Today's New Users</div>
-                    <div class="stat-value">{{number_format($new_user_today, 2)}}</div>
+                    <div class="stat-value">{{number_format($new_user_today)}}</div>
                     <div class="stat-description">New registrations</div>
                     <div class="stat-status growth">Growth</div>
                 </div>

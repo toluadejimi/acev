@@ -4,6 +4,7 @@ use App\Constants\Status;
 use App\Lib\GoogleAuthenticator;
 use App\Models\Country;
 use App\Models\Extension;
+use App\Models\AppConfig;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
@@ -17,6 +18,147 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
+
+function sms_server_config_value(string $key, ?string $default = null): ?string
+{
+    $cacheKey = "app_config:$key";
+
+    return Cache::remember($cacheKey, 600, function () use ($key, $default) {
+        $row = AppConfig::query()->where('config_key', $key)->first();
+        if (!$row || $row->config_value === null || trim((string) $row->config_value) === '') {
+            return $default;
+        }
+
+        return trim((string) $row->config_value);
+    });
+}
+
+function app_config_bool(string $key, bool $default = false): bool
+{
+    $fallback = $default ? '1' : '0';
+    $raw = sms_server_config_value($key, $fallback);
+    if ($raw === null) {
+        return $default;
+    }
+
+    $val = strtolower(trim((string) $raw));
+    return in_array($val, ['1', 'true', 'yes', 'on'], true);
+}
+
+function verification_server_flags(): array
+{
+    return [
+        'us1' => app_config_bool('verification_server_us1_enabled', true),
+        'us2' => app_config_bool('verification_server_us2_enabled', true),
+        'world' => app_config_bool('verification_server_world_enabled', true), // SMS Pool world
+        'world_hero' => app_config_bool('verification_server_world_hero_enabled', true),
+    ];
+}
+
+function verification_server_api_key(string $server): string
+{
+    $server = strtolower($server);
+    if ($server === 'us2') {
+        return (string) (sms_server_config_value('verification_server_us2_api_key', env('TRUVER_API_KEY', '')) ?? '');
+    }
+    if ($server === 'world_hero') {
+        return (string) (sms_server_config_value('verification_server_world_hero_api_key', env('SMS_SERVER_HERO_API_KEY', '')) ?? '');
+    }
+    if ($server === 'world') {
+        return (string) (sms_server_config_value('verification_server_world_api_key', env('WKEY', '')) ?? '');
+    }
+
+    $us1 = sms_server_config_value('verification_server_us1_api_key', env('KEY', ''));
+    if (is_string($us1) && trim($us1) !== '') {
+        return trim($us1);
+    }
+
+    $legacy = sms_server_config_value('sms_server_api_key', null);
+    if (is_string($legacy) && trim($legacy) !== '') {
+        return trim($legacy);
+    }
+
+    return (string) env('KEY', '');
+}
+
+function verification_server_rate(string $server): float
+{
+    $server = strtolower($server);
+    if ($server === 'world_hero') {
+        $raw = sms_server_config_value('verification_server_world_hero_rate', (string) (Setting::find(2)->rate ?? 0));
+        return (float) $raw;
+    }
+    if ($server === 'us2') {
+        return (float) (Setting::find(3)->rate ?? 0);
+    }
+    if ($server === 'world') {
+        return (float) (Setting::find(2)->rate ?? 0);
+    }
+    return (float) (Setting::find(1)->rate ?? 0);
+}
+
+function verification_server_margin(string $server): float
+{
+    $server = strtolower($server);
+    if ($server === 'world_hero') {
+        $raw = sms_server_config_value('verification_server_world_hero_margin', (string) (Setting::find(2)->margin ?? 0));
+        return (float) $raw;
+    }
+    if ($server === 'us2') {
+        return (float) (Setting::find(3)->margin ?? 0);
+    }
+    if ($server === 'world') {
+        return (float) (Setting::find(2)->margin ?? 0);
+    }
+    return (float) (Setting::find(1)->margin ?? 0);
+}
+
+function world_sms_handler_url(array $query): string
+{
+    $base = rtrim((string) env('SMS_SERVER_HERO_BASE_URL', 'https://hero-sms.com'), '/');
+    $query = array_merge(['api_key' => verification_server_api_key('world_hero')], $query);
+
+    return $base . '/stubs/handler_api.php?' . http_build_query($query);
+}
+
+function sms_server_name(): string
+{
+    return strtolower((string) sms_server_config_value('sms_server_name', env('SMS_SERVER_NAME', 'daisysms')));
+}
+
+function sms_server_base_url(): string
+{
+    // USA Server 1 is Daisy-based. Keep this path fixed so Hero world config
+    // cannot accidentally switch the US1 transport endpoint.
+    $fallback = env('SMS_SERVER_DAISY_BASE_URL', 'https://daisysms.com');
+    $raw = sms_server_config_value('verification_server_us1_base_url', $fallback)
+        ?? sms_server_config_value('sms_server_base_url', $fallback)
+        ?? $fallback;
+
+    return rtrim($raw, '/');
+}
+
+function sms_server_api_key(): string
+{
+    $fallback = sms_server_name() === 'herosms'
+        ? env('SMS_SERVER_HERO_API_KEY', env('KEY', ''))
+        : env('KEY', '');
+
+    $us1 = verification_server_api_key('us1');
+    if ($us1 !== '') {
+        return $us1;
+    }
+
+    return (string) (sms_server_config_value('sms_server_api_key', $fallback) ?? $fallback);
+}
+
+function sms_server_handler_url(array $query): string
+{
+    $base = sms_server_base_url() . '/stubs/handler_api.php';
+    $query = array_merge(['api_key' => sms_server_api_key()], $query);
+
+    return $base . '?' . http_build_query($query);
+}
 
 function resolve_complete($order_id)
 {
@@ -150,14 +292,13 @@ function session_resolve($session_id, $ref)
 
 function get_services_api()
 {
-    $APIKEY = env('KEY');
     $settings = Setting::find(1);
     $rate = $settings->rate;
     $extraCharge = $settings->margin;
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPricesVerification",
+        CURLOPT_URL => sms_server_handler_url(['action' => 'getPricesVerification']),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -205,11 +346,9 @@ function get_services_api()
 function get_services()
 {
 
-    $APIKEY = env('KEY');
-
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPricesVerification",
+        CURLOPT_URL => sms_server_handler_url(['action' => 'getPricesVerification']),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -226,7 +365,7 @@ function get_services()
     $var = curl_exec($curl);
 
     curl_close($curl);
-    $var = json_decode($var);
+    $var = json_decode($var, true);
 
 
     $services = $var ?? null;
@@ -241,8 +380,6 @@ function get_services()
 
 function create_order($service, $price, $cost, $service_name, $gcost, $area_code, $carrier)
 {
-    $APIKEY = env('KEY');
-
     $hasArea = $area_code !== null && trim((string) $area_code) !== '';
     $hasCarrier = $carrier !== null && trim((string) $carrier) !== '';
     $finalCostPreview = ($hasArea || $hasCarrier) ? $price * 1.2 : $price;
@@ -258,13 +395,33 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     $maxPrice = (float) $maxPrice;
 
     if ($hasArea && $hasCarrier) {
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&areas=$area_code&carriers=$carrier";
+        $url = sms_server_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'max_price' => $maxPrice,
+            'areas' => $area_code,
+            'carriers' => $carrier,
+        ]);
     } elseif ($hasArea) {
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&areas=$area_code";
+        $url = sms_server_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'max_price' => $maxPrice,
+            'areas' => $area_code,
+        ]);
     } elseif ($hasCarrier) {
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice&carriers=$carrier";
+        $url = sms_server_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'max_price' => $maxPrice,
+            'carriers' => $carrier,
+        ]);
     } else {
-        $url = "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service&max_price=$maxPrice";
+        $url = sms_server_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'max_price' => $maxPrice,
+        ]);
     }
 
     $curl = curl_init();
@@ -379,11 +536,14 @@ function cancel_order($orderID)
 
     } else {
 
-        $APIKEY = env('KEY');
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=setStatus&id=$orderID&status=8",
+            CURLOPT_URL => sms_server_handler_url([
+                'action' => 'setStatus',
+                'id' => $orderID,
+                'status' => 8,
+            ]),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -420,11 +580,13 @@ function check_sms($orderID)
 {
 
 
-    $APIKEY = env('KEY');
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getStatus&id=$orderID",
+        CURLOPT_URL => sms_server_handler_url([
+            'action' => 'getStatus',
+            'id' => $orderID,
+        ]),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -511,11 +673,35 @@ function check_sms($orderID)
 
 function get_world_countries()
 {
+    $provider = 'smspool';
+    $key = verification_server_api_key('world');
 
-    $key = env('WKEY');
-
-    $countries = Cache::remember('smspool_countries', 3600, function () use ($key) {
-        Log::info('Requesting countriees from SMS Pool API', ['key' => $key]);
+    $cacheKey = $provider === 'herosms' ? 'world_countries_herosms' : 'smspool_countries';
+    $countries = Cache::remember($cacheKey, 3600, function () use ($provider, $key) {
+        if ($provider === 'herosms') {
+            $response = Http::timeout(50)->get(world_sms_handler_url(['action' => 'getCountries']));
+            if (!$response->successful()) {
+                Log::error('HeroSMS countries API call failed', ['response' => $response->body()]);
+                return null;
+            }
+            $json = $response->json();
+            if (!is_array($json)) {
+                return null;
+            }
+            $mapped = [];
+            foreach ($json as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                $id = $row['id'] ?? null;
+                $name = $row['eng'] ?? $row['name'] ?? $row['rus'] ?? null;
+                if ($id === null || $name === null) {
+                    continue;
+                }
+                $mapped[] = ['ID' => $id, 'name' => $name];
+            }
+            return $mapped;
+        }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -525,29 +711,50 @@ function get_world_countries()
                 'key' => $key,
             ]);
 
-
         if ($response->successful()) {
             return $response->json() ?? null;
         }
 
-        Log::error('API call failed', ['response' => $response->body()]);
+        Log::error('SMS Pool countries API call failed', ['response' => $response->body()]);
         return null;
     });
 
-
     return $countries;
-
-
 }
 
 
 function get_world_services()
 {
+    $provider = 'smspool';
+    $key = verification_server_api_key('world');
 
-
-    $key = env('WKEY');
-
-    $services = Cache::remember('smspool_services', 3600, function () use ($key) {
+    $cacheKey = $provider === 'herosms' ? 'world_services_herosms' : 'smspool_services';
+    $services = Cache::remember($cacheKey, 3600, function () use ($provider, $key) {
+        if ($provider === 'herosms') {
+            $response = Http::timeout(50)->get(world_sms_handler_url(['action' => 'getServicesList', 'lang' => 'en']));
+            if (!$response->successful()) {
+                Log::error('HeroSMS services API call failed', ['response' => $response->body()]);
+                return null;
+            }
+            $json = $response->json();
+            $arr = is_array($json) ? ($json['services'] ?? []) : [];
+            if (!is_array($arr)) {
+                return null;
+            }
+            $mapped = [];
+            foreach ($arr as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                $id = $row['code'] ?? null;
+                $name = $row['name'] ?? null;
+                if ($id === null || $name === null) {
+                    continue;
+                }
+                $mapped[] = ['ID' => $id, 'name' => $name];
+            }
+            return $mapped;
+        }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -557,43 +764,56 @@ function get_world_services()
                 'key' => $key,
             ]);
 
-
         if ($response->successful()) {
             return $response->json() ?? null;
         }
 
-        Log::error('API call failed', ['response' => $response->body()]);
+        Log::error('SMS Pool services API call failed', ['response' => $response->body()]);
         return null;
     });
 
-
     return $services;
-
-
 }
 
 
 
-function create_world_order($country, $service)
+function create_world_order($country, $service, string $provider = 'smspool')
 {
     $user = Auth::user();
-    $setting = Setting::find(1);
+    $provider = strtolower(trim($provider));
+    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+        $provider = 'smspool';
+    }
+    $setting = Setting::find(2);
 
     if (!$setting) {
         return 98;
     }
 
-    $shortName = Country::where('country_id', $country)->value('short_name');
-    if (!$shortName) {
-        return 97;
+    $countryToken = (string) $country;
+    if ($provider !== 'herosms') {
+        $shortName = Country::where('country_id', $country)->value('short_name');
+        if (!$shortName) {
+            return 97;
+        }
+        $countryToken = (string) $shortName;
     }
 
-    $gcost = pool_cost($service, $shortName);
+    $gcost = pool_cost($service, $countryToken, $provider);
     if ($gcost === null || (float) $gcost <= 0) {
+        Log::warning('create_world_order unavailable cost', [
+            'provider' => $provider,
+            'country' => $country,
+            'country_token' => $countryToken,
+            'service' => $service,
+            'gcost' => $gcost,
+        ]);
         return 5;
     }
 
-    $calculatedCost = ((float) $setting->rate * (float) $gcost) + (float) $setting->margin;
+    $rate = $provider === 'herosms' ? verification_server_rate('world_hero') : (float) $setting->rate;
+    $margin = $provider === 'herosms' ? verification_server_margin('world_hero') : (float) $setting->margin;
+    $calculatedCost = ($rate * (float) $gcost) + $margin;
 
     $wallet_check = WalletCheck::where('user_id', $user->id)->first();
     if (!$wallet_check) {
@@ -604,26 +824,87 @@ function create_world_order($country, $service)
         return 99;
     }
 
-    $key = env('WKEY');
+    $key = $provider === 'herosms'
+        ? verification_server_api_key('world_hero')
+        : verification_server_api_key('world');
 
-    $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
-        'country' => $country,
-        'service' => $service,
-        'key' => $key,
-    ]);
+    if ($provider === 'herosms') {
+        Log::info('HeroSMS purchase request', [
+            'user_id' => $user->id,
+            'country' => $country,
+            'service' => $service,
+            'rate' => $rate,
+            'margin' => $margin,
+            'api_cost' => $gcost,
+            'calculated_cost' => $calculatedCost,
+        ]);
+        $response = Http::timeout(50)->get(world_sms_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'country' => $country,
+        ]));
+    } else {
+        $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
+            'country' => $country,
+            'service' => $service,
+            'key' => $key,
+        ]);
+    }
 
 
     if ($response->failed()) {
+        Log::error('create_world_order request failed', [
+            'provider' => $provider,
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'country' => $country,
+            'service' => $service,
+            'user_id' => $user->id,
+        ]);
         return 2;
     }
 
-    $data = $response->json();
+    if ($provider === 'herosms') {
+        $raw = trim((string) $response->body());
+        Log::info('HeroSMS purchase response', [
+            'user_id' => $user->id,
+            'country' => $country,
+            'service' => $service,
+            'raw' => $raw,
+        ]);
+        if (str_starts_with($raw, 'ACCESS_NUMBER:')) {
+            $parts = explode(':', $raw);
+            if (count($parts) >= 3) {
+                $data = [
+                    'success' => 1,
+                    'order_id' => $parts[1],
+                    'cc' => '',
+                    'phonenumber' => $parts[2],
+                    'country' => $country,
+                    'service' => $service,
+                    'cost' => (float) $gcost,
+                ];
+            } else {
+                $data = ['success' => 0];
+            }
+        } else {
+            $data = ['success' => 0];
+        }
+    } else {
+        $data = $response->json();
+    }
 
     if (!isset($data['success'])) {
         return 2;
     }
 
     if ($data['success'] == 0) {
+        Log::warning('create_world_order provider returned unavailable', [
+            'provider' => $provider,
+            'country' => $country,
+            'service' => $service,
+            'payload' => $data,
+        ]);
         return 5;
     }
 
@@ -683,6 +964,9 @@ function create_world_order($country, $service)
                 $cost2 = number_format($calculatedCost, 2);
                 $bal = number_format((float) $locked->wallet, 2);
                 $message = "{$locked->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
+                if ($provider === 'herosms') {
+                    $message = "{$locked->email} just ordered a number on HEROSMS — NGN {$cost2} | Balance: NGN {$bal}";
+                }
                 send_notification($message);
                 send_notification2($message);
             }
@@ -699,19 +983,37 @@ function create_world_order($country, $service)
     return 2;
 }
 
-function cancel_world_order($orderID)
+function cancel_world_order($orderID, string $provider = 'smspool')
 {
+    $provider = strtolower(trim($provider));
+    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+        $provider = 'smspool';
+    }
 
 
-    $ck_world = check_world_sms($orderID);
+    $ck_world = check_world_sms($orderID, $provider);
     if ($ck_world == 3) {
         return 5;
     }
 
 
-    $key = env('WKEY');
-    $curl = curl_init();
+    $key = $provider === 'herosms'
+        ? verification_server_api_key('world_hero')
+        : verification_server_api_key('world');
+    if ($provider === 'herosms') {
+        $resp = Http::timeout(30)->get(world_sms_handler_url([
+            'action' => 'setStatus',
+            'id' => $orderID,
+            'status' => 8,
+        ]));
+        $raw = trim((string) $resp->body());
+        if (str_contains($raw, 'ACCESS_CANCEL')) {
+            return 1;
+        }
+        return 0;
+    }
 
+    $curl = curl_init();
     $databody = array(
         'orderid' => $orderID,
         'key' => $key,
@@ -732,7 +1034,6 @@ function cancel_world_order($orderID)
     curl_close($curl);
     $var = json_decode($var);
 
-
     $status = $var->success ?? null;
     $message = $var->message ?? null;
 
@@ -752,10 +1053,40 @@ function cancel_world_order($orderID)
 
 }
 
-function check_world_sms($orderID)
+function check_world_sms($orderID, string $provider = 'smspool')
 {
+    $provider = strtolower(trim($provider));
+    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+        $provider = 'smspool';
+    }
+    $key = $provider === 'herosms'
+        ? verification_server_api_key('world_hero')
+        : verification_server_api_key('world');
+    if ($provider === 'herosms') {
+        $resp = Http::timeout(30)->get(world_sms_handler_url([
+            'action' => 'getStatus',
+            'id' => $orderID,
+        ]));
+        $raw = trim((string) $resp->body());
+        if (str_contains($raw, 'STATUS_WAIT_CODE')) {
+            return 1;
+        }
+        if (str_contains($raw, 'STATUS_CANCEL')) {
+            return 6;
+        }
+        if (str_contains($raw, 'STATUS_OK:')) {
+            $parts = explode(':', $raw, 2);
+            $sms = $parts[1] ?? null;
+            Verification::where('order_id', $orderID)->update([
+                'status' => 2,
+                'sms' => $sms,
+                'full_sms' => $sms,
+            ]);
+            return 3;
+        }
+        return 1;
+    }
 
-    $key = env('KEY');
     $curl = curl_init();
 
     $databody = array(
@@ -815,10 +1146,36 @@ function check_world_sms($orderID)
 }
 
 
-function pool_cost($service, $country)
+function pool_cost($service, $country, string $provider = 'smspool')
 {
-
-    $key = env('WKEY');
+    $provider = strtolower(trim($provider));
+    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+        $provider = 'smspool';
+    }
+    $key = $provider === 'herosms'
+        ? verification_server_api_key('world_hero')
+        : verification_server_api_key('world');
+    if ($provider === 'herosms') {
+        $resp = Http::timeout(30)->get(world_sms_handler_url([
+            'action' => 'getPrices',
+            'service' => $service,
+            'country' => $country,
+        ]));
+        $json = $resp->json();
+        if (is_array($json)) {
+            foreach ($json as $countryRow) {
+                if (!is_array($countryRow)) {
+                    continue;
+                }
+                foreach ($countryRow as $serviceRow) {
+                    if (is_array($serviceRow) && isset($serviceRow['cost'])) {
+                        return (float) $serviceRow['cost'];
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     $databody = array(
         "key" => $key,
@@ -868,10 +1225,12 @@ function pool_cost($service, $country)
 
 function get_d_price($service)
 {
-    $APIKEY = env('KEY');
     $curl = curl_init();
     curl_setopt_array($curl, [
-        CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPrices&service=$service",
+        CURLOPT_URL => sms_server_handler_url([
+            'action' => 'getPrices',
+            'service' => $service,
+        ]),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 10,
     ]);
@@ -957,7 +1316,7 @@ function get_services_usa_server_2(array $services = [], $zip = null)
     $response = Http::withHeaders([
         'Accept' => 'application/json',
         'Content-Type' => 'application/json',
-        'X-API-Key' => env('TRUVER_API_KEY'),
+        'X-API-Key' => verification_server_api_key('us2'),
     ])->post($url, $payload);
 
 

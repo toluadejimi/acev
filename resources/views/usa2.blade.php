@@ -14,7 +14,7 @@
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-telephone" aria-hidden="true"></i> USA pool</span>
                 <h1 class="vf-hero__title">USA Server 2</h1>
-                <p class="vf-hero__text">Second US number pool — same flow as Server 1. Need another region? Use <a href="{{ route('verification.index') }}">Server 1</a> or <a href="{{ url('/world') }}">all countries</a>.</p>
+                <p class="vf-hero__text">Second US number pool — same flow as Server 1.</p>
             </div>
             <div class="vf-hero__stats">
                 <p class="vf-hero__user">{{ Auth::user()->username }}</p>
@@ -25,20 +25,35 @@
         </div>
     </header>
 
+    @php
+        $vfServers = $verificationServers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+    @endphp
     <nav class="vf-servers" aria-label="Number pools">
-        <a href="{{ route('verification.index') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 1</span>
-        </a>
-        <a href="{{ url('/usa2') }}" class="vf-server vf-server--active">
-            <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-            <span class="vf-server__name">USA · Server 2</span>
-            <span class="vf-server__hint">Current panel</span>
-        </a>
-        <a href="{{ url('/world') }}" class="vf-server">
-            <span class="vf-server__flag" aria-hidden="true">🌎</span>
-            <span class="vf-server__name">All countries</span>
-        </a>
+        @if(!empty($vfServers['us1']))
+            <a href="{{ route('verification.index') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 1</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['us2']))
+            <a href="{{ url('/usa2') }}" class="vf-server vf-server--active">
+                <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
+                <span class="vf-server__name">USA · Server 2</span>
+                <span class="vf-server__hint">Current panel</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world']))
+            <a href="{{ url('/world') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🌎</span>
+                <span class="vf-server__name">All countries · SMS Pool</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world_hero']))
+            <a href="{{ url('/world-hero') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🌍</span>
+                <span class="vf-server__name">All countries · HeroSMS</span>
+            </a>
+        @endif
     </nav>
 
             <div class="vf-alerts">
@@ -404,19 +419,39 @@
                                                     </thead>
                                                     <tbody>
                                                     @forelse($verification as $data)
+                                                        @php
+                                                            $vfDigits = preg_replace('/\D/', '', (string) $data->phone);
+                                                            if (strlen($vfDigits) === 11 && str_starts_with($vfDigits, '1')) {
+                                                                $vfDigits = substr($vfDigits, 1);
+                                                            }
+                                                            $vfPhoneDisplay = (string) $data->phone;
+                                                            if (strlen($vfDigits) === 10) {
+                                                                $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
+                                                            }
+                                                        @endphp
                                                         <tr>
                                                             <td>{{ $data->service }}</td>
-                                                            <td class="vf-mono">{{ $data->phone }}</td>
+                                                            <td class="vf-phone-cell">
+                                                                <div class="vf-copy-row">
+                                                                    <span class="vf-mono vf-phone-display">{{ $vfPhoneDisplay }}</span>
+                                                                    <button type="button" class="vf-btn-copy" data-copy="{{ e($data->phone) }}" title="Copy full number" aria-label="Copy phone number">
+                                                                        <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
 
                                                             <td>
-                                                                <div id="smsContainer{{ $data->id }}">
+                                                                <div id="smsContainer{{ $data->id }}" class="vf-sms-cell">
                                                                     <div class="vf-code-loader" id="loader{{ $data->id }}">
                                                                         <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
                                                                         <span class="vf-code-loading-text">Waiting for SMS…</span>
                                                                     </div>
-
-                                                                    <span id="data-sm{{ $data->id }}" class="vf-sms-code d-none"
-                                                                          title="Click to copy"></span>
+                                                                    <div id="vf-sms-wrap{{ $data->id }}" class="vf-sms-wrap d-none">
+                                                                        <span id="data-sm{{ $data->id }}" class="vf-sms-code" title="Tap to copy"></span>
+                                                                        <button type="button" class="vf-btn-copy vf-btn-copy--sms" id="vf-copy-sms{{ $data->id }}" hidden aria-label="Copy SMS">
+                                                                            <i class="bi bi-clipboard" aria-hidden="true"></i>
+                                                                        </button>
+                                                                    </div>
 
                                                                     <div id="extraSmsList{{ $data->id }}" class="vf-extra-codes d-none"></div>
                                                                 </div>
@@ -429,6 +464,8 @@
                                                                         const type = {{ $data->type }};
                                                                         const smsSpan = document.getElementById(`data-sm${id}`);
                                                                         const loader = document.getElementById(`loader${id}`);
+                                                                        const wrap = document.getElementById(`vf-sms-wrap${id}`);
+                                                                        const copySmsBtn = document.getElementById(`vf-copy-sms${id}`);
                                                                         const extraList = document.getElementById(`extraSmsList${id}`);
                                                                         let countdownTimer = null;
                                                                         let lastCodes = [];
@@ -470,8 +507,12 @@
 
                                                                                 if (msg && msg.length > 0) {
                                                                                     loader.classList.add('d-none');
-                                                                                    smsSpan.classList.remove('d-none');
+                                                                                    if (wrap) wrap.classList.remove('d-none');
                                                                                     smsSpan.textContent = msg;
+                                                                                    if (copySmsBtn) {
+                                                                                        copySmsBtn.hidden = false;
+                                                                                        copySmsBtn.setAttribute('data-copy', msg);
+                                                                                    }
                                                                                     smsSpan.addEventListener('click', () => {
                                                                                         navigator.clipboard.writeText(msg).then(() => {
                                                                                             smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
@@ -494,6 +535,7 @@
 
                                                                                 if (messages.length > 0) {
                                                                                     loader.classList.add('d-none');
+                                                                                    if (wrap) wrap.classList.remove('d-none');
                                                                                     extraList.classList.remove('d-none');
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
 
@@ -557,7 +599,7 @@
 
 
 
-                                                            <td>{{ $data->created_at }}</td>
+                                                            <td class="vf-date-cell" data-label="Date">{{ $data->created_at?->format('M j, Y g:i A') ?? $data->created_at }}</td>
                                                         </tr>
                                                     @empty
                                                         <tr>
@@ -570,6 +612,15 @@
                     </article>
 
                                         <script>
+                                            function vfFlashCopy(btn) {
+                                                if (!btn) return;
+                                                var ic = btn.querySelector('i');
+                                                if (!ic) return;
+                                                var prev = ic.className;
+                                                ic.className = 'bi bi-check2';
+                                                setTimeout(function () { ic.className = prev; }, 1100);
+                                            }
+
                                             function confirmDelete(event, form) {
                                                 event.preventDefault();
                                                 Swal.fire({
@@ -591,6 +642,14 @@
                                                 var el = document.getElementById("vf-requests-filter");
                                                 var table = document.getElementById("vf-requests-table");
                                                 if (!el || !table) return;
+                                                table.addEventListener('click', function (e) {
+                                                    var btn = e.target.closest('.vf-btn-copy[data-copy]');
+                                                    if (!btn || btn.hasAttribute('disabled')) return;
+                                                    var t = btn.getAttribute('data-copy');
+                                                    if (!t) return;
+                                                    e.preventDefault();
+                                                    navigator.clipboard.writeText(t).then(function () { vfFlashCopy(btn); });
+                                                });
                                                 el.addEventListener("input", function () {
                                                     var filter = el.value.toLowerCase().trim();
                                                     table.querySelectorAll("tbody tr").forEach(function (row) {
