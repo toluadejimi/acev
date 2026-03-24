@@ -52,6 +52,7 @@
             <a href="{{ url('/world-hero') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
+                <span class="vf-server__tag-recommended">Recommended</span>
             </a>
         @endif
     </nav>

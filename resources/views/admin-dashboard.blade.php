@@ -182,10 +182,14 @@
                             <td>{{$trx->service}}</td>
                             <td>@if($trx->type == 1)
                                     <span style="color: #014473" class="badge badge-success">DIASY SMS</span>
-                                @elseif($trx->type == 2)
+                                @elseif($trx->type == 8)
+                                    <span style="color: #014473" class="badge badge-success">SMS POOL</span>
+                                @elseif($trx->type == 9)
                                     <span style="color: #014473" class="badge badge-success">HERO SMS</span>
                                 @elseif($trx->type == 3)
                                     <span style="color: #014473" class="badge badge-success">UNLIMITED SMS</span>
+                                @else
+                                    <span style="color: #64748b" class="badge badge-secondary">UNKNOWN</span>
                                 @endif
                             </td>
 

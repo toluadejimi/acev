@@ -53,6 +53,7 @@
             <a href="{{ url('/world-hero') }}" class="vf-server {{ $isHero ? 'vf-server--active' : '' }}">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
+                <span class="vf-server__tag-recommended">Recommended</span>
                 @if($isHero)<span class="vf-server__hint">Current panel</span>@endif
             </a>
         @endif

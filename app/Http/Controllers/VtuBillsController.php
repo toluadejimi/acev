@@ -232,11 +232,17 @@ class VtuBillsController extends Controller
             'amount' => $amount,
         ];
 
+        $endpoint = rtrim(SprintPayVasClient::baseUrl(), '/') . '/merchant/vas/buy-data';
         $resp = SprintPayVasClient::postMerchantVas('merchant/vas/buy-data', $body);
 
         if (!SprintPayVasClient::responseIndicatesSuccess($resp)) {
             $this->refundVas($userId, $amount);
-            Log::warning('SprintPay buy-data failed', ['status' => $resp->status(), 'body' => $resp->body()]);
+            Log::warning('SprintPay buy-data failed', [
+                'endpoint' => $endpoint,
+                'request' => $body,
+                'status' => $resp->status(),
+                'body' => $resp->body(),
+            ]);
 
             return back()->with('error', SprintPayVasClient::extractMessage($resp));
         }
