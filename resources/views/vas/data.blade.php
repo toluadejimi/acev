@@ -80,7 +80,7 @@
                                 <button type="button" class="vb-chip" data-cat="yearly">Yearly</button>
                             </div>
                             <div id="vb-data-bundle-list" class="vb-bundle-grid" aria-live="polite"></div>
-                            <select id="vb-data-bundle" class="fw-select d-none" required disabled>
+                            <select id="vb-data-bundle" class="fw-select d-none" disabled>
                                 <option value="">Load bundles first</option>
                             </select>
                             <input type="hidden" name="variation_code" id="vb-data-variation-code" value="" required>
