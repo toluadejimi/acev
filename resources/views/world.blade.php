@@ -50,7 +50,7 @@
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
-            <a href="{{ url('/world-hero') }}" class="vf-server {{ $isHero ? 'vf-server--active' : '' }}">
+            <a href="{{ url('/world-sv2') }}" class="vf-server {{ $isHero ? 'vf-server--active' : '' }}">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
                 <span class="vf-server__tag-recommended">Recommended</span>
@@ -193,7 +193,7 @@
                                 </div>
                             </td>
                             <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
-                            <td data-label="Status">
+                            <td data-label="Status" id="vf-status-cell-{{ $data->id }}">
                                 @if ($data->status == 1)
                                     <div class="vf-status-row">
                                         <span class="vf-status vf-status--pending">Pending</span>
@@ -324,6 +324,18 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        function vfIsWaitingSmsMessage(msg) {
+            return /waiting\s*for\s*sms/i.test(String(msg || ''));
+        }
+        function vfMarkVerificationRowCompleted(row, id) {
+            if (!row || !id) return;
+            row.setAttribute('data-status', '2');
+            var cell = document.getElementById('vf-status-cell-' + id);
+            if (cell) {
+                cell.innerHTML = '<span class="vf-status vf-status--done">Completed</span>';
+            }
+        }
+
         document.querySelectorAll('tr.vf-req-row').forEach(function (row) {
             var id = row.dataset.id;
             var status = parseInt(row.dataset.status || '0', 10);
@@ -349,7 +361,9 @@
                     .then(function (res) { return res.json(); })
                     .then(function (data) {
                         var msg = (data && data.message) ? String(data.message).trim() : '';
-                        if (msg.length > 0) {
+                        var st = (data && data.status !== undefined && data.status !== null)
+                            ? parseInt(data.status, 10) : NaN;
+                        if (!vfIsWaitingSmsMessage(msg) && msg.length > 0) {
                             if (loader) loader.classList.add('d-none');
                             if (smsSpan) {
                                 if (wrap) wrap.classList.remove('d-none');
@@ -366,6 +380,9 @@
                                 };
                             }
                             if (countdownTimer) clearInterval(countdownTimer);
+                            vfMarkVerificationRowCompleted(row, id);
+                        } else if (st === 2) {
+                            vfMarkVerificationRowCompleted(row, id);
                         }
                     })
                     .catch(function (err) { console.error('[MAIN FETCH ERROR]', err); });
@@ -381,6 +398,7 @@
                             if (wrap) wrap.classList.remove('d-none');
                             if (extraList) extraList.classList.remove('d-none');
                             if (countdownTimer) clearInterval(countdownTimer);
+                            vfMarkVerificationRowCompleted(row, id);
 
                             if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
                                 extraList.innerHTML = '';
@@ -432,6 +450,9 @@
                 updateAll();
             }
 
+            if (status === 2) {
+                vfMarkVerificationRowCompleted(row, id);
+            }
             if (status === 1) {
                 startCountdown();
                 updateAll();

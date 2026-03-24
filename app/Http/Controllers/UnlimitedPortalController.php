@@ -239,31 +239,42 @@ class UnlimitedPortalController extends Controller
 
     public function check_sms_usa2(Request $request)
     {
-        $sms = Verification::where('phone', $request->num)->first()->sms ?? null;
-        $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
+        $request->validate([
+            'num' => 'required|string',
+        ]);
 
+        $ver = Verification::query()
+            ->where('phone', $request->input('num'))
+            ->where('user_id', Auth::id())
+            ->orderByDesc('id')
+            ->first();
 
-        $ck_sms = $this->check_sms($order_id);
-
-
-        $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
-
-
-        $originalString = 'waiting for sms';
-        $processedString = str_replace('"', '', $originalString);
-
-
-        if ($sms == null) {
+        if (! $ver) {
             return response()->json([
-                'message' => $processedString
-            ]);
-        } else {
-
-            return response()->json([
-                'message' => $sms
+                'message' => 'waiting for sms',
+                'status' => null,
             ]);
         }
 
+        if ($ver->order_id !== null && $ver->order_id !== '') {
+            $this->check_sms($ver->order_id);
+            $ver->refresh();
+        }
+
+        $waiting = 'waiting for sms';
+        $sms = $ver->sms;
+
+        if ($sms === null || $sms === '') {
+            return response()->json([
+                'message' => $waiting,
+                'status' => (int) $ver->status,
+            ]);
+        }
+
+        return response()->json([
+            'message' => $sms,
+            'status' => (int) $ver->status,
+        ]);
     }
 
     public function delete_order(Request $request)
@@ -390,10 +401,10 @@ class UnlimitedPortalController extends Controller
 
             $finalCost = $hasArea ? $price + ($price * 0.20) : $price;
 
-            Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+                    purge_existing_verifications_for_phone($phone);
 
-            try {
-                return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
+                    try {
+                        return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
                     $user = User::where('id', Auth::id())->lockForUpdate()->first();
                     if (!$user || (float) $user->wallet < $finalCost) {
                         return 8;
@@ -451,8 +462,16 @@ class UnlimitedPortalController extends Controller
     }
     private function check_sms($id)
     {
+        if ($id === null || $id === '') {
+            return 0;
+        }
 
-        $ph = Verification::where('order_id', $id)->first()->phone;
+        $row = Verification::where('order_id', $id)->first();
+        if (! $row) {
+            return 0;
+        }
+
+        $ph = $row->phone;
 
         $res = $this->sendRequest('read_sms', [
             'mdn' => $ph,

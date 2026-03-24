@@ -314,9 +314,12 @@ class ApiController extends Controller
                     User::where('id', $user->id)->decrement('wallet', $ngnprice);
                     $balance = $old_balance - $ngnprice;
 
+                    $rentPhone = ($var['cc'] ?? '') . ($var['phonenumber'] ?? ($var['number'] ?? ''));
+                    purge_existing_verifications_for_phone($rentPhone);
+
                     $ver = Verification::create([
                         'user_id'    => $user->id,
-                        'phone'      => ($var['cc'] ?? '') . ($var['phonenumber'] ?? ($var['number'] ?? '')),
+                        'phone'      => $rentPhone,
                         'order_id'   => $var['order_id'] ?? null,
                         'country'    => $var['country'] ?? $request->country,
                         'service'    => $var['service'] ?? $request->service,
@@ -647,7 +650,7 @@ class ApiController extends Controller
         $id    = $parts[1];
         $phone = $parts[2];
 
-        Verification::where('phone', $phone)->where('status', 2)->delete();
+        purge_existing_verifications_for_phone($phone);
 
         try {
             $ver = DB::transaction(function () use ($user, $nairaCost, $id, $phone, $service, $cost) {

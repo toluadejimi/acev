@@ -119,7 +119,8 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::controller(WorldNumberController::class)->group(function () {
 
         Route::get('/world',  'home');
-        Route::get('/world-hero',  'heroHome');
+        Route::get('/world-sv2', 'heroHome');
+        Route::redirect('/world-hero', '/world-sv2', 301);
         Route::get('/get-world-services/{country}',  'getServices');
         Route::post('/check-world-availability',  'checkAvailability');
         Route::post('/order-world-number',  'orderNumber');

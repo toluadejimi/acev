@@ -49,7 +49,7 @@
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
-            <a href="{{ url('/world-hero') }}" class="vf-server">
+            <a href="{{ url('/world-sv2') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
                 <span class="vf-server__tag-recommended">Recommended</span>
@@ -471,6 +471,15 @@
                                                                         const status = {{ $data->status }};
                                                                         const phone = `{{ $data->phone }}`;
                                                                         const type = {{ $data->type }};
+                                                                        function vfIsWaitingSmsMessage(msg) {
+                                                                            return /waiting\s*for\s*sms/i.test(String(msg || ''));
+                                                                        }
+                                                                        function vfMarkUsa2RowCompleted() {
+                                                                            const cell = document.getElementById('vf-status-cell-' + id);
+                                                                            if (cell) {
+                                                                                cell.innerHTML = '<span class="vf-status vf-status--done">Completed</span>';
+                                                                            }
+                                                                        }
                                                                         const smsSpan = document.getElementById(`data-sm${id}`);
                                                                         const loader = document.getElementById(`loader${id}`);
                                                                         const wrap = document.getElementById(`vf-sms-wrap${id}`);
@@ -512,9 +521,11 @@
                                                                             try {
                                                                                 const res = await fetch(mainUrl);
                                                                                 const data = await res.json();
-                                                                                const msg = data?.message?.trim();
+                                                                                const msg = data?.message != null ? String(data.message).trim() : '';
+                                                                                const st = (data && data.status !== undefined && data.status !== null)
+                                                                                    ? parseInt(data.status, 10) : NaN;
 
-                                                                                if (msg && msg.length > 0) {
+                                                                                if (msg && msg.length > 0 && !vfIsWaitingSmsMessage(msg)) {
                                                                                     loader.classList.add('d-none');
                                                                                     if (wrap) wrap.classList.remove('d-none');
                                                                                     smsSpan.textContent = msg;
@@ -530,6 +541,9 @@
                                                                                     });
 
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
+                                                                                    vfMarkUsa2RowCompleted();
+                                                                                } else if (st === 2) {
+                                                                                    vfMarkUsa2RowCompleted();
                                                                                 }
                                                                             } catch (err) {
                                                                                 console.error('[MAIN FETCH ERROR]', err);
@@ -547,6 +561,7 @@
                                                                                     if (wrap) wrap.classList.remove('d-none');
                                                                                     extraList.classList.remove('d-none');
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
+                                                                                    vfMarkUsa2RowCompleted();
 
                                                                                     if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
                                                                                         extraList.innerHTML = '';
@@ -577,6 +592,9 @@
                                                                             updateAll();
                                                                         }
 
+                                                                        if (status === 2) {
+                                                                            vfMarkUsa2RowCompleted();
+                                                                        }
                                                                         if (status === 1) {
                                                                             startCountdown();
                                                                             updateAll();
@@ -595,7 +613,7 @@
 
                                                             <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
 
-                                                            <td data-label="Status">
+                                                            <td data-label="Status" id="vf-status-cell-{{ $data->id }}">
                                                                 @if ($data->status == 1)
                                                                     <div class="vf-status-row">
                                                                         <span class="vf-status vf-status--pending">Pending</span>

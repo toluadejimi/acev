@@ -129,11 +129,11 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h5 class="mb-1">All Countries (Sv2)</h5>
-                                    <p class="text-muted small mb-0">HeroSMS integration · <code>/world-hero</code></p>
+                                    <p class="text-muted small mb-0">World SV2 · <code>/world-sv2</code></p>
                                 </div>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="world-hero-enabled" name="enabled" {{ !empty($verificationServerFlags['world_hero']) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="world-hero-enabled">Enabled</label>
+                                    <input class="form-check-input" type="checkbox" id="world-sv2-enabled" name="enabled" {{ !empty($verificationServerFlags['world_hero']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="world-sv2-enabled">Enabled</label>
                                 </div>
                             </div>
                             <label class="form-label mt-3">HeroSMS Rate Setting</label>

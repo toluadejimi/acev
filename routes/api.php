@@ -14,6 +14,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::any('w-webhook', [HomeController::class, 'world_webhook']);
+Route::any('world-sms-webhook', [HomeController::class, 'world_webhook']);
+/** @deprecated Use world-sms-webhook; kept so old provider URLs still work */
 Route::any('hero-sms-webhook', [HomeController::class, 'world_webhook']);
 Route::any('d-webhook',  [HomeController::class,'diasy_webhook']);
 

@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\VerificationSms;
 use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,32 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+
+/**
+ * Delete any existing verification row(s) for this phone (any status) before assigning a new number.
+ * Also removes related VerificationSms rows when present.
+ */
+function purge_existing_verifications_for_phone(string $phone): void
+{
+    $phone = trim($phone);
+    if ($phone === '') {
+        return;
+    }
+
+    $ids = Verification::where('phone', $phone)->pluck('id');
+    if ($ids->isEmpty()) {
+        return;
+    }
+
+    $idList = $ids->all();
+    try {
+        VerificationSms::whereIn('verification_id', $idList)->delete();
+    } catch (\Throwable $e) {
+        // ignore if table/column missing on older DBs
+    }
+
+    Verification::whereIn('id', $idList)->delete();
+}
 
 
 function sms_server_config_value(string $key, ?string $default = null): ?string
@@ -466,7 +493,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
         $finalCost = ($hasArea || $hasCarrier) ? $price + ($price * 0.20) : $price;
 
-        Verification::where('phone', $phone)->where('status', 2)->delete() ?? null;
+        purge_existing_verifications_for_phone($phone);
 
         try {
             return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
@@ -926,9 +953,7 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
     if ($data['success'] == 1) {
 
-        Verification::where('phone', $data['cc'] . $data['phonenumber'])
-            ->where('status', 2)
-            ->delete();
+        purge_existing_verifications_for_phone($data['cc'] . $data['phonenumber']);
 
         $displayService = ($serviceLabel !== null && trim($serviceLabel) !== '')
             ? trim($serviceLabel)

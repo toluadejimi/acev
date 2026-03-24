@@ -49,7 +49,7 @@
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
-            <a href="{{ url('/world-hero') }}" class="vf-server">
+            <a href="{{ url('/world-sv2') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
                 <span class="vf-server__tag-recommended">Recommended</span>
@@ -513,7 +513,7 @@
 
                                                             <td data-label="Price">₦{{ number_format($data->cost, 2) }}</td>
 
-                                                            <td data-label="Status">
+                                                            <td data-label="Status" id="vf-status-cell-{{ $data->id }}">
                                                                 @if ($data->status == 1)
                                                                     <div class="vf-status-row">
                                                                         <span class="vf-status vf-status--pending">Pending</span>
@@ -617,6 +617,19 @@
 
                                                 vfInitHeroCancelCooldown();
 
+                                                function vfIsWaitingSmsMessage(msg) {
+                                                    return /waiting\s*for\s*sms/i.test(String(msg || ''));
+                                                }
+
+                                                function vfMarkVerificationRowCompleted(row, id) {
+                                                    if (!row || !id) return;
+                                                    row.setAttribute('data-vf-status', '2');
+                                                    var cell = document.getElementById('vf-status-cell-' + id);
+                                                    if (cell) {
+                                                        cell.innerHTML = '<span class="vf-status vf-status--done">Completed</span>';
+                                                    }
+                                                }
+
                                                 function vfFlashCopy(btn) {
                                                     if (!btn) return;
                                                     var ic = btn.querySelector('i');
@@ -666,7 +679,7 @@
                                                     }
 
                                                     function showMainSms(msg) {
-                                                        if (!msg) return;
+                                                        if (!msg || vfIsWaitingSmsMessage(msg)) return;
                                                         loader.classList.add('d-none');
                                                         wrap.classList.remove('d-none');
                                                         smsSpan.textContent = msg;
@@ -682,6 +695,7 @@
                                                             clearInterval(countdownTimer);
                                                             countdownTimer = null;
                                                         }
+                                                        vfMarkVerificationRowCompleted(row, id);
                                                     }
 
                                                     async function startCountdown() {
@@ -711,7 +725,13 @@
                                                             var res = await fetch(mainUrl);
                                                             var data = await res.json();
                                                             var msg = (data && data.message) ? String(data.message).trim() : '';
-                                                            if (msg.length > 0) showMainSms(msg);
+                                                            var st = (data && data.status !== undefined && data.status !== null)
+                                                                ? parseInt(data.status, 10) : NaN;
+                                                            if (!vfIsWaitingSmsMessage(msg) && msg.length > 0) {
+                                                                showMainSms(msg);
+                                                            } else if (st === 2) {
+                                                                vfMarkVerificationRowCompleted(row, id);
+                                                            }
                                                         } catch (err) { console.error(err); }
                                                     }
 
@@ -728,6 +748,7 @@
                                                                     clearInterval(countdownTimer);
                                                                     countdownTimer = null;
                                                                 }
+                                                                vfMarkVerificationRowCompleted(row, id);
 
                                                                 if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
                                                                     extraList.innerHTML = '';
@@ -767,8 +788,11 @@
                                                     }
 
                                                     var initialSms = (row.getAttribute('data-vf-initial-sms') || '').trim();
-                                                    if (initialSms) {
+                                                    if (initialSms && !vfIsWaitingSmsMessage(initialSms)) {
                                                         showMainSms(initialSms);
+                                                    }
+                                                    if (status === 2) {
+                                                        vfMarkVerificationRowCompleted(row, id);
                                                     }
 
                                                     if (status === 1) {

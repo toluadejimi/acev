@@ -1139,34 +1139,44 @@ class HomeController extends Controller
     public
     function get_smscode(request $request)
     {
+        $request->validate([
+            'num' => 'required|string',
+        ]);
 
+        $q = Verification::query()
+            ->where('phone', $request->input('num'))
+            ->orderByDesc('id');
+        if (Auth::check()) {
+            $q->where('user_id', Auth::id());
+        }
+        $ver = $q->first();
 
-        $sms = Verification::where('phone', $request->num)->first()->sms ?? null;
-        $order_id = Verification::where('phone', $request->num)->first()->order_id ?? null;
-
-
-        $ck_order = check_sms($order_id);
-
-
-        $ck_phone = Verification::where('phone', $request->num)->first()->type ?? null;
-
-
-        $originalString = 'waiting for sms';
-        $processedString = str_replace('"', '', $originalString);
-
-
-        if ($sms == null) {
+        if (! $ver) {
             return response()->json([
-                'message' => $processedString
-            ]);
-        } else {
-
-            return response()->json([
-                'message' => $sms
+                'message' => 'waiting for sms',
+                'status' => null,
             ]);
         }
 
+        if ($ver->order_id !== null && $ver->order_id !== '') {
+            check_sms($ver->order_id);
+            $ver->refresh();
+        }
 
+        $waiting = 'waiting for sms';
+        $sms = $ver->sms;
+
+        if ($sms === null || $sms === '') {
+            return response()->json([
+                'message' => $waiting,
+                'status' => (int) $ver->status,
+            ]);
+        }
+
+        return response()->json([
+            'message' => $sms,
+            'status' => (int) $ver->status,
+        ]);
     }
 
 

@@ -293,7 +293,7 @@
             <h2 class="api-section__title">World · Server 2</h2>
         </div>
         <p class="api-section__note">
-            World server 2 numbers are managed in the dashboard (<a href="{{ url('/world-hero') }}">/world-hero</a>). There is <strong>no separate REST bundle</strong> here yet.
+            World server 2 numbers are managed in the dashboard (<a href="{{ url('/world-sv2') }}">/world-sv2</a>). There is <strong>no separate REST bundle</strong> here yet.
             Configure your provider to POST incoming SMS to our inbound webhook (below); we update your order and optional outbound webhook.
         </p>
     </section>
@@ -308,8 +308,8 @@
             <h3 class="api-endpoint__name">Inbound webhook → your app</h3>
             <p class="api-section__note mb-2">Set this URL in your provider dashboard so we receive OTP payloads.</p>
             <div class="api-pre-wrap">
-                <button type="button" class="api-copy" data-copy="{{ $b }}/api/hero-sms-webhook">Copy</button>
-                <pre><code>POST {{ $b }}/api/hero-sms-webhook
+                <button type="button" class="api-copy" data-copy="{{ $b }}/api/world-sms-webhook">Copy</button>
+                <pre><code>POST {{ $b }}/api/world-sms-webhook
 Content-Type: application/json</code></pre>
             </div>
             <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
