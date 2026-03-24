@@ -54,7 +54,7 @@
                             <td>@if($trx->type == 1)
                                     <span style="color: #014473" class="badge badge-success">DIASY SMS</span>
                                 @elseif($trx->type == 2)
-                                    <span style="color: #014473" class="badge badge-success">SMS POOL</span>
+                                    <span style="color: #014473" class="badge badge-success">HERO SMS</span>
                                 @elseif($trx->type == 3)
                                     <span style="color: #014473" class="badge badge-success">UNLIMITED SMS</span>
                                 @endif
