@@ -328,8 +328,16 @@
         })();
 
 
+        var receivePollMs = 15000;
+        function makeRequestIfVisible() {
+            if (document.visibilityState === 'hidden') return;
+            makeRequest();
+        }
         makeRequest();
-        setInterval(makeRequest, 5000);
+        setInterval(makeRequestIfVisible, receivePollMs);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') makeRequest();
+        });
 
         function makeRequest() {
             fetch('{{ url('') }}/get-smscode?num={{ $sms_order->phone }}')

@@ -138,8 +138,18 @@
 
 
                                                             <script>
-                                                                makeRequest{{$data->id}}();
-                                                                setInterval(makeRequest{{$data->id}}, 5000);
+                                                                (function () {
+                                                                    var pollMs = 15000;
+                                                                    function tick() {
+                                                                        if (document.visibilityState === 'hidden') return;
+                                                                        makeRequest{{$data->id}}();
+                                                                    }
+                                                                    tick();
+                                                                    setInterval(tick, pollMs);
+                                                                    document.addEventListener('visibilitychange', function () {
+                                                                        if (document.visibilityState === 'visible') makeRequest{{$data->id}}();
+                                                                    });
+                                                                })();
 
                                                                 function makeRequest{{$data->id}}() {
                                                                     fetch('{{ url('') }}/get-smscode?num={{ $data->phone }}')
@@ -259,8 +269,8 @@
                                                                     // Update displayed seconds
                                                                     updateDisplay{{$data->id}}(seconds);
 
-                                                                    // Update database every 5 seconds
-                                                                    if (seconds % 5 === 0) {
+                                                                    // Update database every 15 seconds (lighter on shared hosting)
+                                                                    if (seconds % 15 === 0) {
                                                                         updateDatabase{{$data->id}}(seconds);
                                                                     }
 

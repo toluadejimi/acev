@@ -758,6 +758,12 @@
                                                         fetchExtraCodes();
                                                     }
 
+                                                    var vfPollMs = 60000;
+                                                    function updateAllIfVisible() {
+                                                        if (document.visibilityState === 'hidden') return;
+                                                        updateAll();
+                                                    }
+
                                                     var initialSms = (row.getAttribute('data-vf-initial-sms') || '').trim();
                                                     if (initialSms) {
                                                         showMainSms(initialSms);
@@ -766,7 +772,10 @@
                                                     if (status === 1) {
                                                         startCountdown();
                                                         updateAll();
-                                                        setInterval(updateAll, 30000);
+                                                        setInterval(updateAllIfVisible, vfPollMs);
+                                                        document.addEventListener('visibilitychange', function () {
+                                                            if (document.visibilityState === 'visible') updateAll();
+                                                        });
                                                     } else {
                                                         updateAll();
                                                     }

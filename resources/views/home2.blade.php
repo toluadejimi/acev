@@ -1281,8 +1281,16 @@ $('.input_copy .icon').click(function() {
 
 
 
+        var home2PollMs = 15000;
+        function makeRequestIfVisible() {
+            if (document.visibilityState === 'hidden') return;
+            makeRequest();
+        }
         makeRequest();
-        setInterval(makeRequest, 5000);
+        setInterval(makeRequestIfVisible, home2PollMs);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') makeRequest();
+        });
 
         function makeRequest() {
             fetch('{{ url('') }}/get-smscode?num={{$number}}')
@@ -1311,10 +1319,11 @@ $('.input_copy .icon').click(function() {
 
 
         function reloadPage() {
+            if (document.visibilityState === 'hidden') return;
             location.reload();
         }
 
-        setInterval(reloadPage, 40000);
+        setInterval(reloadPage, 120000);
 
 
 
