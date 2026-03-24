@@ -18,7 +18,7 @@
         <p class="api-hero__eyebrow">Developers</p>
         <h1 class="api-hero__title">REST API reference</h1>
         <p class="api-hero__lead">
-            Integrate wallet balance, USA numbers, and international (SMS Pool) numbers using your account API key.
+            Integrate wallet balance, USA numbers, and international numbers using your account API key.
             All endpoints accept <code style="opacity:.85">api_key</code> and <code style="opacity:.85">action</code> as query parameters unless noted.
         </p>
         <div class="api-base">
@@ -39,11 +39,11 @@
         </span>
         <span class="api-badge {{ !empty($vf['world']) ? 'api-badge--on' : 'api-badge--off' }}">
             <i class="bi bi-{{ !empty($vf['world']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
-            World · SMS Pool (SV1)
+            World · Server 1
         </span>
         <span class="api-badge {{ !empty($vf['world_hero']) ? 'api-badge--on' : 'api-badge--off' }}">
             <i class="bi bi-{{ !empty($vf['world_hero']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
-            World · HeroSMS (SV2)
+            World · Server 2
         </span>
     </div>
 
@@ -54,7 +54,7 @@
             <a href="#api-usa">USA · Server 1</a>
         @endif
         @if(!empty($vf['world']))
-            <a href="#api-world">World (SMS Pool)</a>
+            <a href="#api-world">World · Server 1</a>
         @endif
         <a href="#api-webhooks">Webhooks</a>
     </nav>
@@ -212,10 +212,10 @@
     @if(!empty($vf['world']))
     <section id="api-world" class="api-section">
         <div class="api-section__head">
-            <h2 class="api-section__title">World numbers (SMS Pool)</h2>
+            <h2 class="api-section__title">World numbers · Server 1</h2>
         </div>
         <p class="api-section__note">
-            These routes use the <strong>SMS Pool</strong> world backend. Country is the short code (e.g. <code>US</code>); <code>service</code> is the service ID from the list.
+            These routes use the <strong>world server 1</strong> backend. Country is the short code (e.g. <code>US</code>); <code>service</code> is the service ID from the list.
         </p>
 
         <div class="api-endpoint">
@@ -282,7 +282,7 @@
     @else
     <section class="api-section">
         <div class="api-callout api-callout--amber">
-            <strong>World (SMS Pool)</strong> is disabled. Enable it in admin settings to use these endpoints.
+            <strong>World · Server 1</strong> is disabled. Enable it in admin settings to use these endpoints.
         </div>
     </section>
     @endif
@@ -290,11 +290,11 @@
     @if(!empty($vf['world_hero']))
     <section class="api-section">
         <div class="api-section__head">
-            <h2 class="api-section__title">World · HeroSMS (SV2)</h2>
+            <h2 class="api-section__title">World · Server 2</h2>
         </div>
         <p class="api-section__note">
-            HeroSMS world numbers are managed in the dashboard (<a href="{{ url('/world-hero') }}">/world-hero</a>). There is <strong>no separate REST bundle</strong> here yet.
-            Configure Hero to POST incoming SMS to our inbound webhook (below); we update your order and optional outbound webhook.
+            World server 2 numbers are managed in the dashboard (<a href="{{ url('/world-hero') }}">/world-hero</a>). There is <strong>no separate REST bundle</strong> here yet.
+            Configure your provider to POST incoming SMS to our inbound webhook (below); we update your order and optional outbound webhook.
         </p>
     </section>
     @endif
@@ -305,8 +305,8 @@
         </div>
 
         <div class="api-endpoint">
-            <h3 class="api-endpoint__name">Inbound — HeroSMS → your app</h3>
-            <p class="api-section__note mb-2">Set this URL in the HeroSMS dashboard so we receive OTP payloads.</p>
+            <h3 class="api-endpoint__name">Inbound webhook → your app</h3>
+            <p class="api-section__note mb-2">Set this URL in your provider dashboard so we receive OTP payloads.</p>
             <div class="api-pre-wrap">
                 <button type="button" class="api-copy" data-copy="{{ $b }}/api/hero-sms-webhook">Copy</button>
                 <pre><code>POST {{ $b }}/api/hero-sms-webhook
@@ -322,7 +322,7 @@ Content-Type: application/json</code></pre>
   "receivedAt": "2025-12-16T10:30:00.000000Z"
 }</code></pre>
             </div>
-            <p class="api-callout"><code>activationId</code> must match the Hero activation id stored as <code>order_id</code> on the verification row.</p>
+            <p class="api-callout"><code>activationId</code> must match the provider activation id stored as <code>order_id</code> on the verification row.</p>
         </div>
 
         <div class="api-endpoint">

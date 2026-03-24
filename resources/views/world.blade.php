@@ -109,7 +109,7 @@
                         <p class="vf-price-panel__amount" id="priceDisplay">—</p>
                         <div id="heroPriceOptionsWrap" class="vf-hero-price-wrap d-none">
                             <p class="vf-hero-price-wrap__title">Choose a price tier</p>
-                            <div id="heroPriceOptions" class="vf-hero-price-options" role="radiogroup" aria-label="HeroSMS price options"></div>
+                            <div id="heroPriceOptions" class="vf-hero-price-options" role="radiogroup" aria-label="World server 2 price options"></div>
                         </div>
                         <button type="button" id="buyNowBtn" class="vf-btn-buy">Buy number</button>
                     </div>
