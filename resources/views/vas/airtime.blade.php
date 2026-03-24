@@ -67,12 +67,6 @@
                                 <option value="{{ $n['value'] }}">{{ $n['label'] }}</option>
                             @endforeach
                         </select>
-                        <div class="vb-operators" aria-label="Supported mobile operators">
-                            <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/mtn.png" alt="MTN logo" loading="lazy"></span>
-                            <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/glo.png" alt="Glo logo" loading="lazy"></span>
-                            <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/airtel.png" alt="Airtel logo" loading="lazy"></span>
-                            <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/9mobile.png" alt="9mobile logo" loading="lazy"></span>
-                        </div>
                     </div>
                     <div>
                         <label class="fw-label" for="vb-air-phone">Phone</label>

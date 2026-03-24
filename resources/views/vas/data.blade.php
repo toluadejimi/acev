@@ -68,12 +68,6 @@
                                     <option value="{{ $n['value'] }}">{{ $n['label'] }}</option>
                                 @endforeach
                             </select>
-                            <div class="vb-operators" aria-label="Supported mobile operators">
-                                <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/mtn.png" alt="MTN logo" loading="lazy"></span>
-                                <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/glo.png" alt="Glo logo" loading="lazy"></span>
-                                <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/airtel.png" alt="Airtel logo" loading="lazy"></span>
-                                <span class="vb-operator"><img src="{{ url('') }}/public/images/operators/9mobile.png" alt="9mobile logo" loading="lazy"></span>
-                            </div>
                         </div>
                         <div>
                             <label class="fw-label" for="vb-data-bundle">Bundle</label>
@@ -274,9 +268,16 @@
                     }).finally(function () { setLoading(false); });
                 }
 
-                net.addEventListener('change', function () {
+                function onNetworkChanged() {
+                    hidCode.value = '';
                     loadBundlesForNetwork(net.value);
-                });
+                }
+
+                if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
+                    jQuery(net).on('select2:select', onNetworkChanged);
+                } else {
+                    net.addEventListener('change', onNetworkChanged);
+                }
 
                 filters.addEventListener('click', function (e) {
                     var btn = e.target.closest('.vb-chip[data-cat]');
