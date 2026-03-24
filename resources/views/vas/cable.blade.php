@@ -463,6 +463,12 @@
                 document.getElementById('vb-cable-form').addEventListener('submit', function () {
                     syncServiceId();
                     syncVariationHidden();
+                    var submitBtn = document.getElementById('vb-cable-submit');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('vb-submit-loading');
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+                    }
                 });
             })();
         </script>

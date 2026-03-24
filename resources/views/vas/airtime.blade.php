@@ -58,7 +58,7 @@
                 <p class="fw-card__sub">Network, phone number, and amount in NGN</p>
             </div>
             <div class="fw-card__body">
-                <form action="{{ route('vas.airtime.buy') }}" method="POST" class="vb-stack">
+                <form action="{{ route('vas.airtime.buy') }}" method="POST" class="vb-stack" id="vb-airtime-form">
                     @csrf
                     <div>
                         <label class="fw-label" for="vb-air-network">Network</label>
@@ -79,9 +79,24 @@
                                placeholder="500" required {{ $vasConfigured ? '' : 'disabled' }}>
                         <p class="vb-muted">Minimum ₦50. Must not exceed your available wallet balance.</p>
                     </div>
-                    <button type="submit" class="fw-submit" {{ $vasConfigured ? '' : 'disabled' }}>Buy airtime</button>
+                    <button type="submit" class="fw-submit" id="vb-airtime-submit" {{ $vasConfigured ? '' : 'disabled' }}>Buy airtime</button>
                 </form>
             </div>
         </article>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            var form = document.getElementById('vb-airtime-form');
+            var btn = document.getElementById('vb-airtime-submit');
+            if (!form || !btn) return;
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.classList.add('vb-submit-loading');
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+            });
+        })();
+    </script>
+@endpush

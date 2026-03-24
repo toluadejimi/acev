@@ -353,16 +353,17 @@ class HomeController extends Controller
 
     public function getInitialCountdown(request $request)
     {
-
-        $ver = Verification::where('id', $request->id)->first()->status;
-        if ($ver == 1) {
-            $secs = Verification::where('id', $request->id)->first()->expires_in;
-            return response()->json([
-                'seconds' => $secs
-            ]);
+        $row = Verification::where('id', $request->id)->first();
+        if ($row === null) {
+            return response()->json(['seconds' => 0]);
+        }
+        if ((int) $row->status !== 1) {
+            return response()->json(['seconds' => 0]);
         }
 
-
+        return response()->json([
+            'seconds' => (int) $row->expires_in,
+        ]);
     }
 
 

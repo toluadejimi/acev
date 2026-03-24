@@ -113,3 +113,15 @@
     font-size: 0.8125rem;
     color: #64748b;
 }
+
+/* VTU pages: slightly cleaner balance typography */
+.vb-page .fw-hero__bal {
+    font-family: "Outfit", "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.vb-submit-loading {
+    pointer-events: none;
+    opacity: 0.82;
+}

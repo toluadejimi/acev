@@ -132,7 +132,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="fw-submit" {{ $vasConfigured ? '' : 'disabled' }}>Buy electricity</button>
+                    <button type="submit" class="fw-submit" id="vb-el-submit" {{ $vasConfigured ? '' : 'disabled' }}>Buy electricity</button>
                 </form>
             </div>
         </article>
@@ -247,6 +247,12 @@
                 document.getElementById('vb-el-form').addEventListener('submit', function () {
                     syncServiceId();
                     syncVariation();
+                    var submitBtn = document.getElementById('vb-el-submit');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('vb-submit-loading');
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+                    }
                 });
             })();
         </script>
