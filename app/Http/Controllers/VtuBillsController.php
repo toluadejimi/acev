@@ -182,15 +182,22 @@ class VtuBillsController extends Controller
             return back()->with('error', 'Insufficient wallet balance. Fund your wallet first.');
         }
 
-        $resp = SprintPayVasClient::postMerchantVas('merchant/vas/buy-ng-airtime', [
+        $body = [
             'service_id' => strtolower($request->input('service_id')),
             'amount' => $amount,
             'phone' => $phone,
-        ]);
+        ];
+        $endpoint = rtrim(SprintPayVasClient::baseUrl(), '/') . '/merchant/vas/buy-ng-airtime';
+        $resp = SprintPayVasClient::postMerchantVas('merchant/vas/buy-ng-airtime', $body);
 
         if (!SprintPayVasClient::responseIndicatesSuccess($resp)) {
             $this->refundVas($userId, $amount);
-            Log::warning('SprintPay buy-ng-airtime failed', ['status' => $resp->status(), 'body' => $resp->body()]);
+            Log::warning('SprintPay buy-ng-airtime failed', [
+                'endpoint' => $endpoint,
+                'request' => $body,
+                'status' => $resp->status(),
+                'body' => $resp->body(),
+            ]);
 
             return back()->with('error', SprintPayVasClient::extractMessage($resp));
         }
