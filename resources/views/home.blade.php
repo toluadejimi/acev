@@ -2,7 +2,7 @@
 @section('title', 'Dashboard')
 
 @push('styles')
-<link rel="stylesheet" href="{{ url('') }}/public/css/home-dashboard.css?v=5">
+<link rel="stylesheet" href="{{ url('') }}/public/css/home-dashboard.css?v=6">
 @endpush
 
 @section('content')

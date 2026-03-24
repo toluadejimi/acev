@@ -16,6 +16,8 @@
     --radius-lg: 20px;
     --font-serif: "Cormorant Garamond", Georgia, serif;
     --font-sans: "Outfit", system-ui, sans-serif;
+    /* Balances & money: clear tabular figures */
+    --font-balance: "DM Sans", "Outfit", system-ui, sans-serif;
     --max: 1200px;
 }
 
@@ -686,10 +688,12 @@ body.dashboard-app .swal2-timer-progress-bar {
 
 .dash-wallet__balance {
     margin: 0;
-    font-family: var(--font-serif);
+    font-family: var(--font-balance);
     font-size: 2rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .dash-wallet__label {

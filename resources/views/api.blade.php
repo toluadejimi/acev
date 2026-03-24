@@ -1,352 +1,361 @@
-@extends('layout.main')
+@extends('layout.dashboard-modern')
+
+@section('title', 'API reference')
+
+@php
+    $b = rtrim(url(''), '/');
+    $key = $api_key ?? '';
+    $vf = $verification_servers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+@endphp
+
+@push('styles')
+    <link rel="stylesheet" href="{{ url('') }}/public/css/api-docs.css?v=1">
+@endpush
 
 @section('content')
-    <section id="api-docs" class="my-5">
-        <div class="container">
+<div class="api-shell">
+    <header class="api-hero">
+        <p class="api-hero__eyebrow">Developers</p>
+        <h1 class="api-hero__title">REST API reference</h1>
+        <p class="api-hero__lead">
+            Integrate wallet balance, USA numbers, and international (SMS Pool) numbers using your account API key.
+            All endpoints accept <code style="opacity:.85">api_key</code> and <code style="opacity:.85">action</code> as query parameters unless noted.
+        </p>
+        <div class="api-base">
+            <span class="api-base__label">Base URL</span>
+            <code class="api-base__url" id="api-base-url">{{ $b }}/api</code>
+            <button type="button" class="api-btn api-btn--dark api-copy" style="position:static" data-copy="{{ $b }}/api">Copy</button>
+        </div>
+    </header>
 
-            <!-- Greeting Section -->
-            <div class="row justify-content-center text-center mb-5">
-                <div class="col-md-8 col-xl-6">
-                    <h4 class="text-danger mb-3">Hi {{ Auth::user()->username }},</h4>
-                    <p class="text-muted">Easily integrate our services into your application with our RESTful API.</p>
-                </div>
+    <div class="api-badges" aria-label="Verification servers available on the website">
+        <span class="api-badge {{ !empty($vf['us1']) ? 'api-badge--on' : 'api-badge--off' }}">
+            <i class="bi bi-{{ !empty($vf['us1']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
+            USA · Server 1
+        </span>
+        <span class="api-badge {{ !empty($vf['us2']) ? 'api-badge--on' : 'api-badge--off' }}">
+            <i class="bi bi-{{ !empty($vf['us2']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
+            USA · Server 2
+        </span>
+        <span class="api-badge {{ !empty($vf['world']) ? 'api-badge--on' : 'api-badge--off' }}">
+            <i class="bi bi-{{ !empty($vf['world']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
+            World · SMS Pool (SV1)
+        </span>
+        <span class="api-badge {{ !empty($vf['world_hero']) ? 'api-badge--on' : 'api-badge--off' }}">
+            <i class="bi bi-{{ !empty($vf['world_hero']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
+            World · HeroSMS (SV2)
+        </span>
+    </div>
+
+    <nav class="api-toc" aria-label="On this page">
+        <a href="#api-credentials">Credentials</a>
+        <a href="#api-balance">Balance</a>
+        @if(!empty($vf['us1']))
+            <a href="#api-usa">USA · Server 1</a>
+        @endif
+        @if(!empty($vf['world']))
+            <a href="#api-world">World (SMS Pool)</a>
+        @endif
+        <a href="#api-webhooks">Webhooks</a>
+    </nav>
+
+    <section id="api-credentials" class="api-card api-section">
+        <h2 class="api-card__title">Credentials</h2>
+
+        @if ($errors->any())
+            <div class="alert alert-danger" role="alert">
+                <ul class="mb-0 ps-3">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
             </div>
+        @endif
+        @if (session('message'))
+            <div class="alert alert-success" role="alert">{{ session('message') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+        @endif
 
-            <!-- API Key & Webhook Settings -->
-            <div class="card border-0 shadow-lg p-4 mb-5 rounded-4">
-                <div class="card-body">
+        <label class="api-field-label" for="api-key-field">API key</label>
+        <div class="api-key-row">
+            <input id="api-key-field" type="text" value="{{ $key }}" disabled readonly aria-label="Your API key">
+            <a href="{{ url('/generate-token') }}" class="api-btn api-btn--dark">Generate new key</a>
+        </div>
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if (session('message'))
-                        <div class="alert alert-success">{{ session('message') }}</div>
-                    @endif
-
-                    @if (session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
-
-                    <h5 class="fw-bold mb-3">API Key</h5>
-                    <div class="row align-items-center mb-4">
-                        <div class="col-md-8 mb-2">
-                            <input type="text" class="form-control" value="{{ $api_key }}" disabled>
-                        </div>
-                        <div class="col-md-4">
-                            <a href="/generate-token" class="btn btn-dark w-100">Generate API Key</a>
-                        </div>
-                    </div>
-
-                    <form action="set-webhook" method="POST" class="mt-4">
-                        @csrf
-                        <h5 class="fw-bold mb-3">Webhook URL</h5>
-                        <div class="row align-items-center">
-                            <div class="col-md-8 mb-2">
-                                <input type="text" name="webhook" class="form-control" value="{{ $webhook_url }}"
-                                       placeholder="https://yourdomain.com/webhook">
-                            </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary w-100">Set Webhook</button>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
+        <form action="{{ url('/set-webhook') }}" method="POST">
+            @csrf
+            <label class="api-field-label" for="api-webhook-in">Your webhook URL (optional)</label>
+            <div class="api-key-row">
+                <input id="api-webhook-in" type="url" name="webhook" class="form-control" style="flex:1 1 240px;border-radius:12px;padding:0.65rem 0.85rem;"
+                       value="{{ $webhook_url }}" placeholder="https://yourdomain.com/your-webhook" autocomplete="url">
+                <button type="submit" class="api-btn api-btn--primary">Save webhook</button>
             </div>
+            <p class="api-callout mb-0">
+                <strong>Outbound:</strong> When an SMS is received on a supported pool, we may POST a JSON payload to this URL (see <a href="#api-webhooks">Webhooks</a>).
+            </p>
+        </form>
+    </section>
 
+    <section id="api-balance" class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">Wallet balance</h2>
+        </div>
+        <p class="api-section__note">Always available. <code>order_id</code> values returned from rent endpoints are your <strong>internal</strong> verification row IDs.</p>
 
-            <div class="card border-0 shadow-lg p-4 rounded-4">
-                <div class="card-body">
-
-                    <h3 class="fw-bold text-center mb-4">USA Numbers only Api Documentation</h3>
-                    <p class="text-muted">
-                        All requests must include your API key, either in the <code>ApiKey</code> as
-                        <code>api_key</code> in the query string.
-                    </p>
-
-                    @php
-                        $baseUrl = url('');
-                    @endphp
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">1. Get Wallet Balance</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/balance?api_key={{ $api_key }}&action=balance"
-
-# Success Response
-{
-    "status": true,
-    "main_balance": 200
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">2. Get USA Only Services</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/usa-services?api_key={{ $api_key }}&action=get-usa-services"
-
-# Success Response
-{
-    "status": true,
-    "data":"status": true,
-    "data": {
-        "2redbeans": {
-            "name": "2RedBeans",
-            "count": 100,
-            "repeatable": true,
-            "service_key": "auw",
-            "cost_ngn": 1275
-        }
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">3. Rent USA Number</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/rent-usa-number?api_key={{ $api_key }}&action=rent-usa-number&service=2RedBeans&service_key=2redbeans"
-
-# Success Response
-{
-    "status":true,
-    "order_id":34941,
-    "phone_no":"12178062080",
-    "country":"USA",
-    "service":"2RedBeans",
-    "expires":300
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">4. Get USA SMS</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-usa-sms?api_key={{ $api_key }}&action=get-usa-sms&order_id=389"
-
-# Success Response
-{
-    "status": true,
-    "sms_status": "COMPLETED",
-    "full_sms": "Do not send code 123456 to anyone",
-    "code": "123456",
-    "country": "United States",
-    "service": "WhatsApp"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">5. Cancel USA SMS</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/cancel-usa-sms?api_key={{ $api_key }}&action=cancel-usa-sms&order_id=389"
-
-# Success Response
-{
-    "status": true,
-    "message": "ORDER CANCELLED"
-}
-
-# Error
-"Wrong or Bad Api key"
-
-                    </pre>
-                    </div>
-
-                    <div>
-                        <h5 class="fw-bold">Webhook Notification</h5>
-                        <pre class="bg-light p-3 rounded">
-
-
-
-# Webhook Sample
-{
-    "phone": 1287665455,
-    "code": "23554",
-    "service": "Aliexpress",
-    "order_id": "2217",
-    "full_sms": "Your code is 2233344",
-    "country": "United State"
-}
-
-                    </pre>
-                    </div>
-
-
-                </div>
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name"><span class="api-method">GET</span> Balance</h3>
+            <div class="api-pre-wrap">
+                <button type="button" class="api-copy" data-copy="{{ $b }}/api/balance?api_key={{ urlencode($key) }}&amp;action=balance">Copy</button>
+                <pre><code>GET {{ $b }}/api/balance?api_key=YOUR_KEY&amp;action=balance</code></pre>
             </div>
-
-
-            <!-- API Documentation -->
-            <div class="card border-0 shadow-lg p-4 rounded-4">
-                <div class="card-body">
-
-                    <h3 class="fw-bold text-center mb-4">World Numbers API Documentation</h3>
-                    <p class="text-muted">
-                        All requests must include your API key, either in the <code>X-ApiKey</code> header or as <code>api_key</code>
-                        in the query string.
-                    </p>
-
-                    @php
-                        $baseUrl = url('');
-                    @endphp
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">1. Get Wallet Balance</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/balance?api_key={{ $api_key }}&action=balance"
-
-# Success Response
-{
-    "status": true,
-    "main_balance": 200
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">2. Get World Countries</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-countries?api_key={{ $api_key }}&action=get-world-countries"
-
-# Success Response
-{
-    "status": true,
-    "data": [
-        {
-            "ID": 1,
-            "name": "United States",
-            "short_name": "US",
-            "cc": "1",
-            "region": "North America"
-        }
-    ]
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">3. Get World Services</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-services?api_key={{ $api_key }}&action=get-world-services"
-
-# Success Response
-{
-    "status": true,
-    "data": [
-        { "ID": 1, "name": "1688", "favourite": 0 }
-    ]
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">4. Check Number Availability</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/check-world-number-availability?api_key={{ $api_key }}&action=check-availability&country=US&service=1"
-
-# Success Response
-{
-    "status": true,
-    "cost": 500,
-    "stock": 8444,
-    "country": "US",
-    "service": "1"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">5. Rent World Number</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/rent-world-number?api_key={{ $api_key }}&action=rent-world-number&country=US&service=1"
-
-# Success Response
-{
-    "status": true,
-    "order_id": 389,
-    "phone_no": "19362441517",
-    "country": "US",
-    "service": "1012"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                    <div class="mb-5">
-                        <h5 class="fw-bold">6. Get World SMS</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/get-world-sms?api_key={{ $api_key }}&action=get-world-sms&order_id=389"
-
-# Success Response
-{
-    "status": true,
-    "sms_status": "COMPLETED",
-    "full_sms": "Do not send code 123456 to anyone",
-    "code": "123456",
-    "country": "United States",
-    "service": "WhatsApp"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-
-                    <div>
-                        <h5 class="fw-bold">7. Cancel World SMS</h5>
-                        <pre class="bg-light p-3 rounded">
-GET "{{ $baseUrl }}/api/cancel-world-sms?api_key={{ $api_key }}&action=cancel-world-sms&order_id=389"
-
-# Success Response
-{
-    "status": true,
-    "message": "CANCELLED SUCCESSFULLY"
-}
-
-# Error
-"Wrong or Bad Api key"
-                    </pre>
-                    </div>
-
-                </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "main_balance": 12500.5
+}</code></pre>
             </div>
-
         </div>
     </section>
+
+    @if(!empty($vf['us1']))
+    <section id="api-usa" class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">USA · Server 1</h2>
+        </div>
+        <p class="api-section__note">DaisySMS-backed USA pool. Use <code>service</code> display name and <code>service_key</code> from the services list.</p>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">1. List services</h3>
+            <div class="api-pre-wrap">
+                <button type="button" class="api-copy" data-copy="{{ $b }}/api/usa-services?api_key={{ urlencode($key) }}&amp;action=get-usa-services">Copy</button>
+                <pre><code>GET {{ $b }}/api/usa-services?api_key=YOUR_KEY&amp;action=get-usa-services</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "data": {
+    "whatsapp": {
+      "name": "WhatsApp",
+      "count": 100,
+      "repeatable": true,
+      "service_key": "wa",
+      "cost_ngn": 3950
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">2. Rent number</h3>
+            <div class="api-pre-wrap">
+                <button type="button" class="api-copy" data-copy="{{ $b }}/api/rent-usa-number?api_key={{ urlencode($key) }}&amp;action=rent-usa-number&amp;service=WhatsApp&amp;service_key=wa">Copy</button>
+                <pre><code>GET {{ $b }}/api/rent-usa-number?api_key=YOUR_KEY&amp;action=rent-usa-number&amp;service=WhatsApp&amp;service_key=wa</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "order_id": 34941,
+  "phone_no": "12178062080",
+  "country": "USA",
+  "service": "WhatsApp",
+  "expires": 300
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">3. Poll SMS</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/get-usa-sms?api_key=YOUR_KEY&amp;action=get-usa-sms&amp;order_id=INTERNAL_ID</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "sms_status": "COMPLETED",
+  "full_sms": "Your code is 123456",
+  "code": "123456",
+  "country": "USA",
+  "service": "WhatsApp",
+  "phone": "+12178062080"
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">4. Cancel</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/cancel-usa-sms?api_key=YOUR_KEY&amp;action=cancel-usa-sms&amp;order_id=INTERNAL_ID</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{ "status": true, "message": "ORDER CANCELLED AND REFUNDED" }</code></pre>
+            </div>
+        </div>
+    </section>
+    @else
+    <section class="api-section">
+        <div class="api-callout api-callout--amber">
+            <strong>USA · Server 1</strong> is disabled for your installation. These endpoints are documented for when the server is enabled in admin settings.
+        </div>
+    </section>
+    @endif
+
+    @if(!empty($vf['us2']))
+    <section class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">USA · Server 2</h2>
+        </div>
+        <p class="api-section__note">
+            There are <strong>no public REST routes</strong> for USA · Server 2 in this API. Use the web panel at <a href="{{ url('/usa2') }}">/usa2</a> to order numbers and receive SMS.
+        </p>
+    </section>
+    @endif
+
+    @if(!empty($vf['world']))
+    <section id="api-world" class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">World numbers (SMS Pool)</h2>
+        </div>
+        <p class="api-section__note">
+            These routes use the <strong>SMS Pool</strong> world backend. Country is the short code (e.g. <code>US</code>); <code>service</code> is the service ID from the list.
+        </p>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">1. Countries</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/get-world-countries?api_key=YOUR_KEY&amp;action=get-world-countries</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">2. Services</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/get-world-services?api_key=YOUR_KEY&amp;action=get-world-services</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">3. Check availability &amp; price</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/check-world-number-availability?api_key=YOUR_KEY&amp;action=check-availability&amp;country=US&amp;service=1012</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "cost": 500,
+  "stock": 8444,
+  "country": "US",
+  "service": "1012"
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">4. Rent number</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/rent-world-number?api_key=YOUR_KEY&amp;action=rent-world-number&amp;country=US&amp;service=1012</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "status": true,
+  "order_id": 389,
+  "phone_no": "19362441517",
+  "country": "US",
+  "service": "1012",
+  "expires": 300
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">5. Poll SMS</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/get-world-sms?api_key=YOUR_KEY&amp;action=get-world-sms&amp;order_id=INTERNAL_ID</code></pre>
+            </div>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">6. Cancel</h3>
+            <div class="api-pre-wrap">
+                <pre><code>GET {{ $b }}/api/cancel-world-sms?api_key=YOUR_KEY&amp;action=cancel-world-sms&amp;order_id=INTERNAL_ID</code></pre>
+            </div>
+        </div>
+    </section>
+    @else
+    <section class="api-section">
+        <div class="api-callout api-callout--amber">
+            <strong>World (SMS Pool)</strong> is disabled. Enable it in admin settings to use these endpoints.
+        </div>
+    </section>
+    @endif
+
+    @if(!empty($vf['world_hero']))
+    <section class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">World · HeroSMS (SV2)</h2>
+        </div>
+        <p class="api-section__note">
+            HeroSMS world numbers are managed in the dashboard (<a href="{{ url('/world-hero') }}">/world-hero</a>). There is <strong>no separate REST bundle</strong> here yet.
+            Configure Hero to POST incoming SMS to our inbound webhook (below); we update your order and optional outbound webhook.
+        </p>
+    </section>
+    @endif
+
+    <section id="api-webhooks" class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">Webhooks</h2>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">Inbound — HeroSMS → your app</h3>
+            <p class="api-section__note mb-2">Set this URL in the HeroSMS dashboard so we receive OTP payloads.</p>
+            <div class="api-pre-wrap">
+                <button type="button" class="api-copy" data-copy="{{ $b }}/api/hero-sms-webhook">Copy</button>
+                <pre><code>POST {{ $b }}/api/hero-sms-webhook
+Content-Type: application/json</code></pre>
+            </div>
+            <div class="api-pre-wrap" style="margin-top:0.75rem;background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "activationId": "123456",
+  "service": "tg",
+  "text": "Your code is 12345",
+  "code": "12345",
+  "country": 2,
+  "receivedAt": "2025-12-16T10:30:00.000000Z"
+}</code></pre>
+            </div>
+            <p class="api-callout"><code>activationId</code> must match the Hero activation id stored as <code>order_id</code> on the verification row.</p>
+        </div>
+
+        <div class="api-endpoint">
+            <h3 class="api-endpoint__name">Outbound — us → your server</h3>
+            <p class="api-section__note mb-2">When you save a webhook URL above, we may notify you with:</p>
+            <div class="api-pre-wrap" style="background:#1e293b;border-color:#334155">
+                <pre><code>{
+  "phone": "+1234567890",
+  "code": "12345",
+  "service": "WhatsApp",
+  "order_id": 2217,
+  "full_sms": "Your code is 12345",
+  "country": "US"
+}</code></pre>
+            </div>
+        </div>
+    </section>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.querySelector('.api-shell')?.addEventListener('click', function (e) {
+    var btn = e.target.closest('.api-copy[data-copy]');
+    if (!btn) return;
+    var t = btn.getAttribute('data-copy');
+    if (!t) return;
+    e.preventDefault();
+    navigator.clipboard.writeText(t).then(function () {
+        var prev = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = prev; }, 1600);
+    });
+});
+</script>
+@endpush

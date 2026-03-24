@@ -38,6 +38,8 @@ class HomeController extends Controller
 
         $data['api_key'] = Auth::user()->api_key ?? null;
         $data['webhook_url'] = Auth::user()->webhook_url ?? null;
+        $data['verification_servers'] = verification_server_flags();
+
         return view('api', $data);
 
     }

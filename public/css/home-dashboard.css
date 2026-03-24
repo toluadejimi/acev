@@ -17,6 +17,7 @@
     --hm-radius-sm: 14px;
     --hm-font: "Outfit", system-ui, sans-serif;
     --hm-display: "Cormorant Garamond", Georgia, serif;
+    --hm-balance: "DM Sans", "Outfit", system-ui, sans-serif;
 }
 
 .hm-shell {
@@ -178,13 +179,14 @@
 }
 
 .hm-hero__bal {
-    font-family: var(--hm-display);
+    font-family: var(--hm-balance);
     font-size: clamp(2rem, 6vw, 2.75rem);
     font-weight: 700;
     color: #ffffff;
     margin: 0;
     letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
