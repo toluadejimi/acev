@@ -95,8 +95,37 @@
 @push('scripts')
     <script>
         (function () {
+            var network = document.getElementById('vb-air-network');
             var form = document.getElementById('vb-airtime-form');
             var btn = document.getElementById('vb-airtime-submit');
+
+            var logoMap = {
+                mtn: @json(url('') . '/public/images/operators/mtn.png'),
+                glo: @json(url('') . '/public/images/operators/glo.png'),
+                airtel: @json(url('') . '/public/images/operators/airtel.png'),
+                '9mobile': @json(url('') . '/public/images/operators/9mobile.png')
+            };
+
+            if (network && window.jQuery && jQuery.fn && jQuery.fn.select2) {
+                jQuery(network).select2({
+                    width: '100%',
+                    templateResult: function (state) {
+                        if (!state.id) return state.text;
+                        var key = String(state.id || '').toLowerCase();
+                        var src = logoMap[key] || null;
+                        if (!src) return state.text;
+                        var $row = jQuery('<span class="vb-net-opt"></span>');
+                        $row.append(jQuery('<img class="vb-net-opt__img" alt="">').attr('src', src));
+                        $row.append(jQuery('<span class="vb-net-opt__txt"></span>').text(state.text));
+                        return $row;
+                    },
+                    templateSelection: function (state) {
+                        return state.text || '';
+                    },
+                    minimumResultsForSearch: Infinity
+                });
+            }
+
             if (!form || !btn) return;
             form.addEventListener('submit', function () {
                 btn.disabled = true;

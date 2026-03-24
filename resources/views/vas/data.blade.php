@@ -77,16 +77,24 @@
                         </div>
                         <div>
                             <label class="fw-label" for="vb-data-bundle">Bundle</label>
-                            <select id="vb-data-bundle" class="fw-select" required disabled>
+                            <input id="vb-data-search" type="search" class="fw-input" placeholder="Search bundles..." autocomplete="off" {{ $vasConfigured ? '' : 'disabled' }}>
+                            <div class="vb-chip-row" id="vb-data-filters">
+                                <button type="button" class="vb-chip vb-chip--on" data-cat="all">All</button>
+                                <button type="button" class="vb-chip" data-cat="daily">Daily</button>
+                                <button type="button" class="vb-chip" data-cat="weekly">Weekly</button>
+                                <button type="button" class="vb-chip" data-cat="monthly">Monthly</button>
+                                <button type="button" class="vb-chip" data-cat="yearly">Yearly</button>
+                            </div>
+                            <div id="vb-data-bundle-list" class="vb-bundle-grid" aria-live="polite"></div>
+                            <select id="vb-data-bundle" class="fw-select d-none" required disabled>
                                 <option value="">Load bundles first</option>
                             </select>
                             <input type="hidden" name="variation_code" id="vb-data-variation-code" value="" required>
-                            <p id="vb-data-bundle-hint" class="vb-muted mb-0">Choose network, then click “Load bundles”.</p>
+                            <p id="vb-data-bundle-hint" class="vb-muted mb-0">Choose network to load bundles automatically.</p>
                         </div>
                     </div>
                     <div class="vb-actions">
-                        <button type="button" class="vb-btn-ghost" id="vb-data-load" {{ $vasConfigured ? '' : 'disabled' }}>Load bundles</button>
-                        <span class="vb-loading d-none" id="vb-data-loading" aria-live="polite">Loading…</span>
+                        <span class="vb-loading d-none" id="vb-data-loading" aria-live="polite">Loading bundles…</span>
                     </div>
                     <div>
                         <label class="fw-label" for="vb-data-amount">Amount to debit (₦)</label>
@@ -130,21 +138,105 @@
                 const bundle = document.getElementById('vb-data-bundle');
                 const hidCode = document.getElementById('vb-data-variation-code');
                 const amtEl = document.getElementById('vb-data-amount');
-                const loadBtn = document.getElementById('vb-data-load');
                 const loading = document.getElementById('vb-data-loading');
                 const hint = document.getElementById('vb-data-bundle-hint');
+                const filters = document.getElementById('vb-data-filters');
+                const searchEl = document.getElementById('vb-data-search');
+                const grid = document.getElementById('vb-data-bundle-list');
+
+                const logoMap = {
+                    mtn: @json(url('') . '/public/images/operators/mtn.png'),
+                    glo: @json(url('') . '/public/images/operators/glo.png'),
+                    airtel: @json(url('') . '/public/images/operators/airtel.png'),
+                    '9mobile': @json(url('') . '/public/images/operators/9mobile.png')
+                };
+
+                if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
+                    jQuery(net).select2({
+                        width: '100%',
+                        templateResult: function (state) {
+                            if (!state.id) return state.text;
+                            var key = String(state.id || '').toLowerCase();
+                            var src = logoMap[key] || null;
+                            if (!src) return state.text;
+                            var $row = jQuery('<span class="vb-net-opt"></span>');
+                            $row.append(jQuery('<img class="vb-net-opt__img" alt="">').attr('src', src));
+                            $row.append(jQuery('<span class="vb-net-opt__txt"></span>').text(state.text));
+                            return $row;
+                        },
+                        templateSelection: function (state) {
+                            return state.text || '';
+                        },
+                        minimumResultsForSearch: Infinity
+                    });
+                }
+
+                var allRows = [];
+                var activeCat = 'all';
+
+                function classifyBundle(name, code) {
+                    var txt = ((name || '') + ' ' + (code || '')).toLowerCase();
+                    if (txt.indexOf('year') !== -1 || txt.indexOf('annual') !== -1 || txt.indexOf('365') !== -1) return 'yearly';
+                    if (txt.indexOf('month') !== -1 || txt.indexOf('30 day') !== -1) return 'monthly';
+                    if (txt.indexOf('week') !== -1 || txt.indexOf('7 day') !== -1) return 'weekly';
+                    if (txt.indexOf('day') !== -1 || txt.indexOf('daily') !== -1 || txt.indexOf('24h') !== -1) return 'daily';
+                    return 'all';
+                }
+
+                function pickBundle(code, amount, name) {
+                    hidCode.value = code || '';
+                    if (amtEl && amount > 0) {
+                        amtEl.value = String(Math.round(amount));
+                    }
+                    Array.prototype.forEach.call(grid.querySelectorAll('.vb-bundle-card'), function (card) {
+                        card.classList.toggle('vb-bundle-card--active', card.getAttribute('data-code') === code);
+                    });
+                    hint.textContent = 'Selected: ' + (name || code || 'bundle');
+                }
+
+                function renderBundles() {
+                    var q = (searchEl.value || '').trim().toLowerCase();
+                    var rows = allRows.filter(function (row) {
+                        var byCat = activeCat === 'all' ? true : row.category === activeCat;
+                        if (!byCat) return false;
+                        if (!q) return true;
+                        return (row.name + ' ' + row.code + ' ' + row.amount).toLowerCase().indexOf(q) !== -1;
+                    });
+
+                    grid.innerHTML = '';
+                    if (!rows.length) {
+                        grid.innerHTML = '<p class="vb-muted mb-0">No bundle matches this filter.</p>';
+                        return;
+                    }
+
+                    rows.forEach(function (row) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'vb-bundle-card';
+                        btn.setAttribute('data-code', row.code);
+                        btn.innerHTML =
+                            '<span class="vb-bundle-card__name">' + row.name + '</span>' +
+                            '<span class="vb-bundle-card__meta">' + (row.category === 'all' ? 'Bundle' : row.category.charAt(0).toUpperCase() + row.category.slice(1)) + '</span>' +
+                            '<span class="vb-bundle-card__amt">' + (row.amount ? ('₦' + Number(row.amount).toLocaleString()) : 'Set amount') + '</span>';
+                        btn.addEventListener('click', function () {
+                            pickBundle(row.code, row.amount, row.name);
+                        });
+                        grid.appendChild(btn);
+                    });
+                }
 
                 function setLoading(on) {
-                    loadBtn.disabled = on;
                     loading.classList.toggle('d-none', !on);
                 }
 
-                loadBtn.addEventListener('click', function () {
-                    const n = net.value;
+                function loadBundlesForNetwork(networkValue) {
+                    const n = networkValue || net.value;
                     bundle.innerHTML = '<option value="">Loading…</option>';
                     bundle.disabled = true;
                     hidCode.value = '';
                     if (amtEl) amtEl.value = '';
+                    allRows = [];
+                    grid.innerHTML = '';
                     hint.textContent = 'Fetching catalogue…';
                     setLoading(true);
                     fetch(urlTpl + encodeURIComponent(n), {
@@ -160,18 +252,43 @@
                             opt.dataset.amount = row.amount || '';
                             bundle.appendChild(opt);
                         });
+                        allRows = rows.map(function (row) {
+                            return {
+                                code: row.code,
+                                name: row.name,
+                                amount: row.amount || 0,
+                                category: classifyBundle(row.name, row.code)
+                            };
+                        });
                         if (!rows.length) {
                             bundle.innerHTML = '<option value="">No bundles (check API response)</option>';
                             hint.textContent = 'SprintPay returned no bundles for this network. Try another or check service_id names.';
                         } else {
                             bundle.disabled = false;
-                            hint.textContent = 'Select a bundle; amount is set from the catalogue when available.';
+                            hint.textContent = 'Select a bundle below; amount is set from the catalogue when available.';
+                            renderBundles();
                         }
                     }).catch(function () {
                         bundle.innerHTML = '<option value="">Failed to load</option>';
                         hint.textContent = 'Network error loading bundles.';
                     }).finally(function () { setLoading(false); });
+                }
+
+                net.addEventListener('change', function () {
+                    loadBundlesForNetwork(net.value);
                 });
+
+                filters.addEventListener('click', function (e) {
+                    var btn = e.target.closest('.vb-chip[data-cat]');
+                    if (!btn) return;
+                    activeCat = btn.getAttribute('data-cat') || 'all';
+                    Array.prototype.forEach.call(filters.querySelectorAll('.vb-chip'), function (x) {
+                        x.classList.toggle('vb-chip--on', x === btn);
+                    });
+                    renderBundles();
+                });
+
+                searchEl.addEventListener('input', renderBundles);
 
                 bundle.addEventListener('change', function () {
                     const opt = bundle.selectedOptions[0];
@@ -194,7 +311,7 @@
                 document.getElementById('vb-data-form').addEventListener('submit', function (e) {
                     if (!hidCode.value) {
                         e.preventDefault();
-                        alert('Choose a bundle (load bundles and select one).');
+                        alert('Choose a bundle before buying.');
                         return;
                     }
                     const submitBtn = document.getElementById('vb-data-submit');
@@ -204,6 +321,8 @@
                         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
                     }
                 });
+
+                loadBundlesForNetwork(net.value);
             })();
         </script>
     @endpush
