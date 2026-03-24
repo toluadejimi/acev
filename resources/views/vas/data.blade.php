@@ -99,7 +99,7 @@
                     <div>
                         <label class="fw-label" for="vb-data-phone">Phone</label>
                         <input id="vb-data-phone" type="text" name="phone" class="fw-input" inputmode="tel" autocomplete="tel"
-                               placeholder="08012345678" required {{ $vasConfigured ? '' : 'disabled' }}>
+                               placeholder="08012345678" minlength="11" maxlength="11" pattern="\d{11}" required {{ $vasConfigured ? '' : 'disabled' }}>
                     </div>
                     <button type="submit" class="fw-submit" id="vb-data-submit" {{ $vasConfigured ? '' : 'disabled' }}>Buy data</button>
                 </form>
@@ -137,6 +137,7 @@
                 const filters = document.getElementById('vb-data-filters');
                 const searchEl = document.getElementById('vb-data-search');
                 const grid = document.getElementById('vb-data-bundle-list');
+                const phoneEl = document.getElementById('vb-data-phone');
 
                 const logoMap = {
                     mtn: @json(url('') . '/public/images/operators/mtn.png'),
@@ -261,6 +262,10 @@
                             bundle.disabled = false;
                             hint.textContent = 'Select a bundle below; amount is set from the catalogue when available.';
                             renderBundles();
+                            var first = allRows[0];
+                            if (first) {
+                                pickBundle(first.code, first.amount, first.name);
+                            }
                         }
                     }).catch(function () {
                         bundle.innerHTML = '<option value="">Failed to load</option>';
@@ -290,6 +295,11 @@
                 });
 
                 searchEl.addEventListener('input', renderBundles);
+                if (phoneEl) {
+                    phoneEl.addEventListener('input', function () {
+                        phoneEl.value = String(phoneEl.value || '').replace(/\D/g, '').slice(0, 11);
+                    });
+                }
 
                 bundle.addEventListener('change', function () {
                     const opt = bundle.selectedOptions[0];

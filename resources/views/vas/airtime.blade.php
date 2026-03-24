@@ -71,7 +71,7 @@
                     <div>
                         <label class="fw-label" for="vb-air-phone">Phone</label>
                         <input id="vb-air-phone" type="text" name="phone" class="fw-input" inputmode="tel" autocomplete="tel"
-                               placeholder="08012345678" required {{ $vasConfigured ? '' : 'disabled' }}>
+                               placeholder="08012345678" minlength="11" maxlength="11" pattern="\d{11}" required {{ $vasConfigured ? '' : 'disabled' }}>
                     </div>
                     <div>
                         <label class="fw-label" for="vb-air-amt">Amount (₦)</label>
@@ -121,6 +121,12 @@
             }
 
             if (!form || !btn) return;
+            var phone = document.getElementById('vb-air-phone');
+            if (phone) {
+                phone.addEventListener('input', function () {
+                    phone.value = String(phone.value || '').replace(/\D/g, '').slice(0, 11);
+                });
+            }
             form.addEventListener('submit', function () {
                 btn.disabled = true;
                 btn.classList.add('vb-submit-loading');

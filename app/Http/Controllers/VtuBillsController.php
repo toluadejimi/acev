@@ -166,7 +166,7 @@ class VtuBillsController extends Controller
 
         $request->validate([
             'service_id' => 'required|string|max:64',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'max:20', 'regex:/^\d{11}$/'],
             'amount' => 'required|numeric|min:50|max:100000',
         ]);
 
@@ -177,8 +177,8 @@ class VtuBillsController extends Controller
         }
         $userId = (int) Auth::id();
         $phone = preg_replace('/\D/', '', (string) $request->input('phone'));
-        if (strlen($phone) < 10) {
-            return back()->with('error', 'Enter a valid phone number.');
+        if (strlen($phone) !== 11) {
+            return back()->with('error', 'Phone number must be exactly 11 digits.');
         }
 
         $debit = $this->tryDebitForVas($userId, $amount);
@@ -219,7 +219,7 @@ class VtuBillsController extends Controller
 
         $request->validate([
             'service_id' => 'required|string|max:64',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'max:20', 'regex:/^\d{11}$/'],
             'variation_code' => 'required|string|max:160',
             'amount' => 'required|numeric|min:1|max:500000',
         ]);
@@ -227,8 +227,8 @@ class VtuBillsController extends Controller
         $amount = round((float) $request->input('amount'), 2);
         $userId = (int) Auth::id();
         $phone = preg_replace('/\D/', '', (string) $request->input('phone'));
-        if (strlen($phone) < 10) {
-            return back()->with('error', 'Enter a valid phone number.');
+        if (strlen($phone) !== 11) {
+            return back()->with('error', 'Phone number must be exactly 11 digits.');
         }
 
         $debit = $this->tryDebitForVas($userId, $amount);
