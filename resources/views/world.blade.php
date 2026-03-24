@@ -58,6 +58,7 @@
             </a>
         @endif
     </nav>
+    <p class="vf-servers-mobile-note"><i class="bi bi-arrow-right-short" aria-hidden="true"></i> Swipe right to see more servers</p>
 
     @if (session('topMessage'))
         <div class="vf-alert vf-alert--info" role="status">{{ session('topMessage') }}</div>

@@ -56,6 +56,7 @@
             </a>
         @endif
     </nav>
+    <p class="vf-servers-mobile-note"><i class="bi bi-arrow-right-short" aria-hidden="true"></i> Swipe right to see more servers</p>
 
             <div class="vf-alerts">
             @if ($errors->any())
