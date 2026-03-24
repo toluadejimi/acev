@@ -171,6 +171,10 @@ class VtuBillsController extends Controller
         ]);
 
         $amount = round((float) $request->input('amount'), 2);
+        $serviceId = strtolower((string) $request->input('service_id'));
+        if ($serviceId === 'airtel' && $amount > 10000) {
+            return back()->with('error', 'Airtel airtime purchase is limited to ₦10,000 per transaction.');
+        }
         $userId = (int) Auth::id();
         $phone = preg_replace('/\D/', '', (string) $request->input('phone'));
         if (strlen($phone) < 10) {
@@ -183,7 +187,7 @@ class VtuBillsController extends Controller
         }
 
         $body = [
-            'service_id' => strtolower($request->input('service_id')),
+            'service_id' => $serviceId,
             'amount' => $amount,
             'phone' => $phone,
         ];
