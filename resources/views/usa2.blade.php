@@ -430,11 +430,11 @@
                                                             if (strlen($vfDigits) === 10) {
                                                                 $vfPhoneDisplay = '(' . substr($vfDigits, 0, 3) . ') ' . substr($vfDigits, 3, 3) . '-' . substr($vfDigits, 6);
                                                             }
-                                                            $heroCooldownEndMs = null;
-                                                            if ((int) ($data->type ?? 0) === 9 && (int) ($data->status ?? 0) === 1 && $data->created_at) {
-                                                                $heroCoolEnd = $data->created_at->copy()->addSeconds(120);
-                                                                if ($heroCoolEnd->isFuture()) {
-                                                                    $heroCooldownEndMs = (int) round($heroCoolEnd->timestamp * 1000);
+                                                            $cancelCooldownEndMs = null;
+                                                            if (in_array((int) ($data->type ?? 0), [3, 9], true) && (int) ($data->status ?? 0) === 1 && $data->created_at) {
+                                                                $coolEnd = $data->created_at->copy()->addSeconds(120);
+                                                                if ($coolEnd->isFuture()) {
+                                                                    $cancelCooldownEndMs = (int) round($coolEnd->timestamp * 1000);
                                                                 }
                                                             }
                                                         @endphp
@@ -630,12 +630,12 @@
                                                                         <form method="POST"
                                                                               action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
                                                                               class="d-inline vf-cancel-form"
-                                                                              @if($heroCooldownEndMs) data-hero-cooldown-end="{{ $heroCooldownEndMs }}" @endif
+                                                                              @if($cancelCooldownEndMs) data-hero-cooldown-end="{{ $cancelCooldownEndMs }}" @endif
                                                                               onsubmit="return confirmDelete(event, this);">
                                                                             @csrf
                                                                             <span class="vf-cancel-inline">
-                                                                                <button type="submit" class="vf-btn-del @if($heroCooldownEndMs) vf-btn-del--locked @endif" @if($heroCooldownEndMs) disabled aria-disabled="true" @endif>Cancel</button>
-                                                                                @if($heroCooldownEndMs)
+                                                                                <button type="submit" class="vf-btn-del @if($cancelCooldownEndMs) vf-btn-del--locked @endif" @if($cancelCooldownEndMs) disabled aria-disabled="true" @endif>Cancel</button>
+                                                                                @if($cancelCooldownEndMs)
                                                                                     <span class="vf-hero-cancel-hint" role="status" aria-live="polite"></span>
                                                                                 @endif
                                                                             </span>

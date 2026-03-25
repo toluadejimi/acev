@@ -290,6 +290,13 @@ class UnlimitedPortalController extends Controller
             return redirect()->back()->with('message', "Order already processed or canceled");
         }
 
+        // Apply cancel lock window for USA2 before allowing reject/refund.
+        if ($ver->created_at && $ver->created_at->copy()->addSeconds(120)->isFuture()) {
+            $left = now()->diffInSeconds($ver->created_at->copy()->addSeconds(120), false);
+            $left = max(1, (int) $left);
+            return redirect()->back()->with('error', "Please wait {$left}s before canceling this order.");
+        }
+
         // If SMS already arrived, don't allow cancel/refund.
         $ck_sms = $this->check_sms($ver->order_id);
         if ($ck_sms !== 0) {
