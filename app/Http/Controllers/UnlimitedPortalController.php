@@ -281,81 +281,93 @@ class UnlimitedPortalController extends Controller
     {
 
         $id = $request->id;
-       $ver =  Verification::where('id', $id)->first();
-       if($ver){
-           if($ver->status == 1){
-               $ck_sms = $this->check_sms($ver->order_id);
-               if($ck_sms === 0){
+        $ver = Verification::where('id', $id)->first();
+        if (!$ver) {
+            return redirect()->back()->with('error', "Order not found");
+        }
 
-                   $res2 =  $this->sendRequest('reject', [
-                       'id' => $id,
-                   ]);
+        if ((int) $ver->status !== 1) {
+            return redirect()->back()->with('topMessage', "Order already processed or canceled");
+        }
 
+        // If SMS already arrived, don't allow cancel/refund.
+        $ck_sms = $this->check_sms($ver->order_id);
+        if ($ck_sms !== 0) {
+            return redirect()->back()->with('topMessage', "Order already processed or canceled");
+        }
 
-                   $result = $res2['status'];
-                   if (strstr($result, "ok") !== false){
+        // IMPORTANT: UnlimitedPortal expects the provider activation/rental id, not our local DB row id.
+        $providerId = (string) ($ver->order_id ?? '');
+        if ($providerId === '') {
+            return redirect()->back()->with('error', "Provider order id missing");
+        }
 
+        $res2 = $this->sendRequest('reject', [
+            'id' => $providerId,
+        ]);
 
-                       DB::beginTransaction();
+        if (!is_array($res2)) {
+            return redirect()->back()->with('error', "Cancel failed (provider unreachable). Try again.");
+        }
 
-                       try {
-                           $order = Verification::where('id', $request->id)->lockForUpdate()->first();
+        $result = (string) ($res2['status'] ?? '');
+        if (strstr($result, "ok") === false) {
+            $details = is_scalar($res2['message'] ?? null) ? (string) $res2['message'] : json_encode($res2['message'] ?? $res2);
+            return redirect()->back()->with('error', "Cancel failed: {$details}");
+        }
 
-                           if (!$order) {
-                               DB::rollBack();
-                               return back()->with('error', "Order not found");
-                           }
+        DB::beginTransaction();
 
-                           if ($order->status != 1) {
-                               DB::rollBack();
-                               return back()->with('error', "Order already processed or canceled");
-                           }
+        try {
+            $order = Verification::where('id', $request->id)->lockForUpdate()->first();
 
+            if (!$order) {
+                DB::rollBack();
+                return back()->with('error', "Order not found");
+            }
 
-                           $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+            if ((int) $order->status !== 1) {
+                DB::rollBack();
+                return back()->with('error', "Order already processed or canceled");
+            }
 
-                           $old_balance = $user->wallet;
-                           $user->increment('wallet', $order->cost);
-                           $new_balance = $old_balance + $order->cost;
+            $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+            if (!$user) {
+                DB::rollBack();
+                return back()->with('error', "User not found");
+            }
 
-                           WalletCheck::where('user_id', $order->user_id)
-                               ->increment('wallet_amount', $order->cost);
+            $old_balance = (float) $user->wallet;
+            $user->increment('wallet', $order->cost);
+            $new_balance = $old_balance + (float) $order->cost;
 
-                           $bb = number_format($new_balance, 2);
-                           $message = $user->email . " | just canceled | $order->service | type is $order->type | NGN{$order->cost} refunded | Balance is $bb";
-                           send_notification($message);
-                           send_notification2($message);
+            WalletCheck::where('user_id', $order->user_id)
+                ->increment('wallet_amount', $order->cost);
 
-                           $trx = new Transaction();
-                           $trx->ref_id      = "Order Cancel " . $order->id;
-                           $trx->user_id     = $order->user_id;
-                           $trx->status      = 2;
-                           $trx->amount      = $order->cost;
-                           $trx->balance     = $new_balance;
-                           $trx->old_balance = $old_balance;
-                           $trx->type        = 3;
-                           $trx->save();
+            $bb = number_format($new_balance, 2);
+            $message = $user->email . " | just canceled | $order->service | type is $order->type | NGN{$order->cost} refunded | Balance is $bb";
+            send_notification($message);
+            send_notification2($message);
 
-                           $order->delete();
+            $trx = new Transaction();
+            $trx->ref_id      = "Order Cancel " . $order->id;
+            $trx->user_id     = $order->user_id;
+            $trx->status      = 2;
+            $trx->amount      = $order->cost;
+            $trx->balance     = $new_balance;
+            $trx->old_balance = $old_balance;
+            $trx->type        = 3;
+            $trx->save();
 
-                           DB::commit();
+            $order->delete();
 
-                           return redirect()->back()->with('topMessage', "Order canceled, NGN{$order->cost} refunded");
-                       } catch (\Exception $e) {
-                           DB::rollBack();
-                           return back()->with('error', "Error: " . $e->getMessage());
-                       }
+            DB::commit();
 
-                   }
-
-               }
-           }
-
-           return redirect()->back()->with('topMessage', "Order already processed or canceled");
-
-       }
-
-
+            return redirect()->back()->with('topMessage', "Order canceled, NGN{$order->cost} refunded");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', "Error: " . $e->getMessage());
+        }
     }
 
     private function create_order_usa2($service, $price, $cost, $service_name, $gcost, $area_code)
