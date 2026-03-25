@@ -287,13 +287,13 @@ class UnlimitedPortalController extends Controller
         }
 
         if ((int) $ver->status !== 1) {
-            return redirect()->back()->with('topMessage', "Order already processed or canceled");
+            return redirect()->back()->with('message', "Order already processed or canceled");
         }
 
         // If SMS already arrived, don't allow cancel/refund.
         $ck_sms = $this->check_sms($ver->order_id);
         if ($ck_sms !== 0) {
-            return redirect()->back()->with('topMessage', "Order already processed or canceled");
+            return redirect()->back()->with('message', "Order already processed or canceled");
         }
 
         // IMPORTANT: UnlimitedPortal expects the provider activation/rental id, not our local DB row id.
@@ -302,8 +302,17 @@ class UnlimitedPortalController extends Controller
             return redirect()->back()->with('error', "Provider order id missing");
         }
 
+        Log::info('usa2 cancel: attempting reject', [
+            'verification_id' => (int) $ver->id,
+            'user_id' => (int) $ver->user_id,
+            'provider_order_id' => $providerId,
+            'phone' => (string) $ver->phone,
+        ]);
+
         $res2 = $this->sendRequest('reject', [
             'id' => $providerId,
+            // Some UnlimitedPortal accounts accept mdn instead of id; send both for compatibility.
+            'mdn' => (string) $ver->phone,
         ]);
 
         if (!is_array($res2)) {
@@ -313,8 +322,19 @@ class UnlimitedPortalController extends Controller
         $result = (string) ($res2['status'] ?? '');
         if (strstr($result, "ok") === false) {
             $details = is_scalar($res2['message'] ?? null) ? (string) $res2['message'] : json_encode($res2['message'] ?? $res2);
+            Log::warning('usa2 cancel: reject failed', [
+                'verification_id' => (int) $ver->id,
+                'provider_order_id' => $providerId,
+                'provider_response' => $res2,
+            ]);
             return redirect()->back()->with('error', "Cancel failed: {$details}");
         }
+
+        Log::info('usa2 cancel: reject ok', [
+            'verification_id' => (int) $ver->id,
+            'provider_order_id' => $providerId,
+            'provider_response' => $res2,
+        ]);
 
         DB::beginTransaction();
 
@@ -363,7 +383,7 @@ class UnlimitedPortalController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('topMessage', "Order canceled, NGN{$order->cost} refunded");
+            return redirect()->back()->with('message', "Order canceled, NGN{$order->cost} refunded");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', "Error: " . $e->getMessage());
