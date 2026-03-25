@@ -485,8 +485,14 @@ class UnlimitedPortalController extends Controller
 
             $status = Verification::where('order_id', $id)->first() ?? null;
             if ($status) {
-                $sms = $res['message'][0]['pin'];
-                $fullsms = $res['message'][0]['reply'];
+                $sms = trim((string) ($res['message'][0]['pin'] ?? ''));
+                $fullsms = (string) ($res['message'][0]['reply'] ?? '');
+
+                // Some providers may respond "ok" with an empty pin before the real OTP arrives.
+                // Do not mark orders completed unless we have a real code to store.
+                if ($sms === '') {
+                    return 0;
+                }
 
 
                 $data['sms'] = $sms;

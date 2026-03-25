@@ -474,6 +474,11 @@
                                                                         function vfIsWaitingSmsMessage(msg) {
                                                                             return /waiting\s*for\s*sms/i.test(String(msg || ''));
                                                                         }
+                                                                        function vfExtractOtp(msg) {
+                                                                            const s = String(msg || '');
+                                                                            const m = s.match(/\b(\d{4,8})\b/);
+                                                                            return m ? m[1] : '';
+                                                                        }
                                                                         function vfMarkUsa2RowCompleted() {
                                                                             const cell = document.getElementById('vf-status-cell-' + id);
                                                                             if (cell) {
@@ -525,24 +530,25 @@
                                                                                 const st = (data && data.status !== undefined && data.status !== null)
                                                                                     ? parseInt(data.status, 10) : NaN;
 
-                                                                                if (msg && msg.length > 0 && !vfIsWaitingSmsMessage(msg)) {
+                                                                                const otp = vfExtractOtp(msg);
+                                                                                if (otp && !vfIsWaitingSmsMessage(msg)) {
                                                                                     loader.classList.add('d-none');
                                                                                     if (wrap) wrap.classList.remove('d-none');
-                                                                                    smsSpan.textContent = msg;
+                                                                                    smsSpan.textContent = otp;
                                                                                     if (copySmsBtn) {
                                                                                         copySmsBtn.hidden = false;
-                                                                                        copySmsBtn.setAttribute('data-copy', msg);
+                                                                                        copySmsBtn.setAttribute('data-copy', otp);
                                                                                     }
                                                                                     smsSpan.addEventListener('click', () => {
-                                                                                        navigator.clipboard.writeText(msg).then(() => {
-                                                                                            smsSpan.innerHTML = msg + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                            setTimeout(() => smsSpan.textContent = msg, 500);
+                                                                                        navigator.clipboard.writeText(otp).then(() => {
+                                                                                            smsSpan.innerHTML = otp + ' <i class="bi bi-check2 text-success"></i>';
+                                                                                            setTimeout(() => smsSpan.textContent = otp, 500);
                                                                                         });
                                                                                     });
 
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
                                                                                     vfMarkUsa2RowCompleted();
-                                                                                } else if (st === 2) {
+                                                                                } else if (st === 2 && otp) {
                                                                                     vfMarkUsa2RowCompleted();
                                                                                 }
                                                                             } catch (err) {
@@ -556,24 +562,28 @@
                                                                                 const result = await res.json();
                                                                                 const messages = Array.isArray(result) ? result : result.codes || [];
 
-                                                                                if (messages.length > 0) {
+                                                                                const valid = messages
+                                                                                    .map(m => (m && typeof m === 'object') ? (m.sms ?? m.full_sms ?? '') : m)
+                                                                                    .map(v => vfExtractOtp(String(v || '')))
+                                                                                    .filter(Boolean);
+
+                                                                                if (valid.length > 0) {
                                                                                     loader.classList.add('d-none');
                                                                                     if (wrap) wrap.classList.remove('d-none');
                                                                                     extraList.classList.remove('d-none');
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
                                                                                     vfMarkUsa2RowCompleted();
 
-                                                                                    if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                                    if (JSON.stringify(valid) !== JSON.stringify(lastCodes)) {
                                                                                         extraList.innerHTML = '';
-                                                                                        messages.forEach(msg => {
-                                                                                            const code = msg.sms ?? msg;
+                                                                                        valid.forEach(code => {
                                                                                             const div = document.createElement('div');
                                                                                             div.className = 'vf-code-line';
                                                                                             div.innerHTML = `<span>${code}</span>`;
                                                                                             extraList.appendChild(div);
                                                                                             div.addEventListener('click', () => navigator.clipboard.writeText(code));
                                                                                         });
-                                                                                        lastCodes = messages;
+                                                                                        lastCodes = valid;
                                                                                     }
                                                                                 }
                                                                             } catch (err) {
