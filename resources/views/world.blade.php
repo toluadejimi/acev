@@ -522,7 +522,7 @@
         var pendingQuickService = null;
         var isWorldServer2 = @json($isHero);
         var worldServer1QuickIds = {
-            whatsapp: '14',
+            whatsapp: '1012',
             telegram: '907',
             gmail: '395',
             signal: '829'
