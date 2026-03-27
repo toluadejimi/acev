@@ -126,6 +126,11 @@
 </section>
 
 <style>
+    .dash-float {
+        right: auto !important;
+        left: 1.1rem !important;
+        bottom: 1.1rem !important;
+    }
     .assistant-fab{position:fixed;right:1.1rem;bottom:1.1rem;z-index:1200;display:flex;gap:.45rem;align-items:center;border:0;border-radius:999px;padding:.7rem .95rem;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;font-weight:700;box-shadow:0 12px 30px rgba(15,23,42,.35)}
     .assistant-fab i{font-size:1rem}
     .assistant-panel{position:fixed;right:1.1rem;bottom:4.8rem;z-index:1200;width:min(380px,calc(100vw - 1.5rem));background:#fff;border:1px solid #dbe3ef;border-radius:16px;box-shadow:0 22px 50px rgba(15,23,42,.2);overflow:hidden}
