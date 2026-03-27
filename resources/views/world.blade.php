@@ -3,6 +3,47 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=9">
+    <style>
+        .vf-quick-buy {
+            margin-top: 0.85rem;
+            padding: 0.9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .vf-quick-buy__title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.55rem;
+        }
+        .vf-quick-buy__chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+        .vf-quick-chip {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+            border-radius: 999px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all .2s ease;
+        }
+        .vf-quick-chip:hover {
+            border-color: #2563eb;
+            color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .vf-quick-chip--active {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -105,6 +146,18 @@
                     <select id="serviceSelect" name="service" class="form-control" disabled>
                         <option value="">Select a country first</option>
                     </select>
+
+                    <div class="vf-quick-buy">
+                        <p class="vf-quick-buy__title">Quick buy popular services</p>
+                        <div class="vf-quick-buy__chips" role="group" aria-label="Quick buy popular services">
+                            <button type="button" class="vf-quick-chip" data-quick-service="whatsapp">WhatsApp</button>
+                            <button type="button" class="vf-quick-chip" data-quick-service="facebook">Facebook</button>
+                            <button type="button" class="vf-quick-chip" data-quick-service="telegram">Telegram</button>
+                            <button type="button" class="vf-quick-chip" data-quick-service="pof">POF</button>
+                            <button type="button" class="vf-quick-chip" data-quick-service="gmail">Gmail</button>
+                            <button type="button" class="vf-quick-chip" data-quick-service="signal">Signal</button>
+                        </div>
+                    </div>
 
                     <div id="priceSection" class="vf-price-panel" style="display: none;">
                         <p class="vf-price-panel__label">Price</p>
@@ -468,6 +521,72 @@
 
     $(document).ready(function () {
         $('select').select2();
+        var pendingQuickService = null;
+
+        function normalizeServiceName(v) {
+            return String(v || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '');
+        }
+
+        function quickAliases(key) {
+            var map = {
+                whatsapp: ['whatsapp', 'wa'],
+                facebook: ['facebook', 'fb'],
+                telegram: ['telegram', 'tg'],
+                pof: ['pof', 'plentyoffish', 'plentyfish'],
+                gmail: ['gmail', 'googlemail', 'google', 'go'],
+                signal: ['signal', 'sg']
+            };
+            return map[key] || [key];
+        }
+
+        function applyQuickServiceIfPossible(key) {
+            var aliases = quickAliases(key).map(normalizeServiceName);
+            var $opts = $('#serviceSelect option');
+            var matched = null;
+
+            $opts.each(function () {
+                var val = $(this).val();
+                if (!val) return;
+                var raw = $(this).text();
+                var n = normalizeServiceName(raw);
+                for (var i = 0; i < aliases.length; i++) {
+                    if (n.includes(aliases[i])) {
+                        matched = val;
+                        return false;
+                    }
+                }
+            });
+
+            if (matched) {
+                $('#serviceSelect').val(matched).trigger('change');
+                $('.vf-quick-chip').removeClass('vf-quick-chip--active');
+                $('.vf-quick-chip[data-quick-service="' + key + '"]').addClass('vf-quick-chip--active');
+                pendingQuickService = null;
+                return true;
+            }
+
+            return false;
+        }
+
+        $('.vf-quick-chip').on('click', function () {
+            var key = String($(this).data('quick-service') || '').toLowerCase();
+            if (!key) return;
+
+            var countryID = $('#countrySelect').val();
+            pendingQuickService = key;
+
+            if (!countryID) {
+                Swal.fire('Select country first', 'Choose a country, then tap the quick service again.', 'info');
+                return;
+            }
+
+            if (!applyQuickServiceIfPossible(key)) {
+                Swal.fire('Loading services', 'Please wait while we load services for this country.', 'info');
+                $('#countrySelect').trigger('change');
+            }
+        });
 
         $('#countrySelect').on('change', function () {
             var countryID = $(this).val();
@@ -484,6 +603,13 @@
                             $('#serviceSelect').append('<option value="' + service.ID + '">' + service.name + '</option>');
                         });
                         $('#serviceSelect').prop('disabled', false).trigger('change.select2');
+                        if (pendingQuickService) {
+                            if (!applyQuickServiceIfPossible(pendingQuickService)) {
+                                Swal.fire('Unavailable', 'That quick-buy service is not available for this country now.', 'warning');
+                                pendingQuickService = null;
+                                $('.vf-quick-chip').removeClass('vf-quick-chip--active');
+                            }
+                        }
                     }
                 });
             }
