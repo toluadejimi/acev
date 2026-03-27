@@ -132,8 +132,6 @@
             <div class="vf-panel__body vf-world-form">
                 <form id="worldForm" method="POST">
                     @csrf
-                    <input type="hidden" id="worldProvider" value="{{ $isHero ? 'herosms' : 'smspool' }}">
-
                     <label class="vf-label" for="countrySelect">Country</label>
                     <select id="countrySelect" name="country" class="form-control">
                         <option value="">Select country</option>
@@ -522,6 +520,13 @@
     $(document).ready(function () {
         $('select').select2();
         var pendingQuickService = null;
+        var isWorldServer2 = @json($isHero);
+        var worldServer1QuickIds = {
+            whatsapp: '14',
+            telegram: '907',
+            gmail: '395',
+            signal: '829'
+        };
 
         function normalizeServiceName(v) {
             return String(v || '')
@@ -536,12 +541,27 @@
                 telegram: ['telegram', 'tg'],
                 pof: ['pof', 'plentyoffish', 'plentyfish'],
                 gmail: ['gmail', 'googlemail', 'google', 'go'],
-                signal: ['signal', 'sg']
+                signal: ['signal', 'bw']
             };
             return map[key] || [key];
         }
 
         function applyQuickServiceIfPossible(key) {
+            // World Server 1: use explicit service IDs provided by admin.
+            if (!isWorldServer2 && worldServer1QuickIds[key]) {
+                var targetId = String(worldServer1QuickIds[key]);
+                var hasId = $('#serviceSelect option').filter(function () {
+                    return String($(this).val()) === targetId;
+                }).length > 0;
+                if (hasId) {
+                    $('#serviceSelect').val(targetId).trigger('change');
+                    $('.vf-quick-chip').removeClass('vf-quick-chip--active');
+                    $('.vf-quick-chip[data-quick-service="' + key + '"]').addClass('vf-quick-chip--active');
+                    pendingQuickService = null;
+                    return true;
+                }
+            }
+
             var aliases = quickAliases(key).map(normalizeServiceName);
             var $opts = $('#serviceSelect option');
             var matched = null;
@@ -590,12 +610,11 @@
 
         $('#countrySelect').on('change', function () {
             var countryID = $(this).val();
-            var provider = $('#worldProvider').val() || 'smspool';
             $('#serviceSelect').html('<option value="">Loading…</option>').prop('disabled', true);
 
             if (countryID) {
                 $.ajax({
-                    url: '{{ url('/get-world-services') }}/' + countryID + '?provider=' + encodeURIComponent(provider),
+                    url: '{{ url('/get-world-services') }}/' + countryID,
                     type: 'GET',
                     success: function (res) {
                         $('#serviceSelect').empty().append('<option value="">Select service</option>');
@@ -618,7 +637,6 @@
         $('#serviceSelect').on('change', function () {
             var country = $('#countrySelect').val();
             var service = $(this).val();
-            var provider = $('#worldProvider').val() || 'smspool';
 
             if (country && service) {
                 $.ajax({
@@ -627,8 +645,7 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         country: country,
-                        service: service,
-                        provider: provider
+                        service: service
                     },
                     beforeSend: function () {
                         $('#priceSection').hide();
@@ -645,8 +662,7 @@
                         Swal.close();
                         if (res.status === 'success') {
                             $('#priceSection').show();
-                            var prov = $('#worldProvider').val() || 'smspool';
-                            if (prov === 'herosms' && res.price_options && res.price_options.length > 0) {
+                            if (res.price_options && res.price_options.length > 0) {
                                 var opts = res.price_options;
                                 var wrap = $('#heroPriceOptionsWrap');
                                 var list = $('#heroPriceOptions');
@@ -717,13 +733,10 @@
             var country = btn.data('country');
             var service = btn.data('service');
             var price = btn.data('price');
-            var provider = $('#worldProvider').val() || 'smspool';
-            if (provider === 'herosms') {
-                var hc = btn.data('heroApiCost');
-                if (hc === undefined || hc === null || hc === '') {
-                    Swal.fire('Choose a tier', 'Select a price option above before buying.', 'info');
-                    return;
-                }
+            var hc = btn.data('heroApiCost');
+            if ($('#heroPriceOptionsWrap').is(':visible') && (hc === undefined || hc === null || hc === '')) {
+                Swal.fire('Choose a tier', 'Select a price option above before buying.', 'info');
+                return;
             }
 
             Swal.fire({
@@ -747,13 +760,12 @@
                             _token: '{{ csrf_token() }}',
                             country: country,
                             service: service,
-                            price: price,
-                            provider: provider
+                            price: price
                         };
                         if (label) {
                             d.service_name = label;
                         }
-                        if (provider === 'herosms') {
+                        if (hc !== undefined && hc !== null && hc !== '') {
                             d.hero_api_cost = btn.data('heroApiCost');
                         }
                         return d;

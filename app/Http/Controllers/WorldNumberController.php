@@ -306,6 +306,7 @@ class WorldNumberController extends Controller
 {
     public function home()
     {
+        session(['world_provider' => 'smspool']);
         $flags = verification_server_flags();
         if (empty($flags['world'])) {
             if (!empty($flags['us1'])) {
@@ -331,6 +332,7 @@ class WorldNumberController extends Controller
 
     public function heroHome()
     {
+        session(['world_provider' => 'herosms']);
         $flags = verification_server_flags();
         if (empty($flags['world_hero'])) {
             if (!empty($flags['us1'])) {
@@ -358,7 +360,7 @@ class WorldNumberController extends Controller
 
     public function getServices($countryID)
     {
-        $provider = (string) request()->query('provider', 'smspool');
+        $provider = $this->resolveProvider(request());
         if ($provider === 'herosms') {
             if (!verification_server_flags()['world_hero']) {
                 return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
@@ -374,7 +376,7 @@ class WorldNumberController extends Controller
 
     public function checkAvailability(Request $request)
     {
-        $provider = (string) $request->input('provider', 'smspool');
+        $provider = $this->resolveProvider($request);
         if ($provider === 'herosms') {
             if (!verification_server_flags()['world_hero']) {
                 return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
@@ -469,7 +471,7 @@ class WorldNumberController extends Controller
 
     public function orderNumber(Request $request)
     {
-        $provider = (string) $request->input('provider', 'smspool');
+        $provider = $this->resolveProvider($request);
         if ($provider === 'herosms') {
             if (!verification_server_flags()['world_hero']) {
                 return response()->json(['status' => 'error', 'message' => 'Hero world server disabled'], 403);
@@ -618,6 +620,12 @@ class WorldNumberController extends Controller
             'status' => 'error',
             'message' => 'Unable to complete purchase'
         ], 400);
+    }
+
+    private function resolveProvider(Request $request): string
+    {
+        $provider = strtolower((string) $request->session()->get('world_provider', 'smspool'));
+        return in_array($provider, ['smspool', 'herosms'], true) ? $provider : 'smspool';
     }
 
     private function getHeroCountries(): array
