@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UnlimitedPortalController;
@@ -179,6 +180,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
     Route::post('order-usano',  [HomeController::class,'order_now']);
 
     Route::any('check-sms',  [HomeController::class,'check_sms']);
+    Route::post('assistant/command', [AssistantController::class, 'handle']);
 
 
     Route::get('welcome',  [HomeController::class,'welcome_index']);

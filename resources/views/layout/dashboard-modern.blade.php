@@ -98,6 +98,52 @@
     <i class="bi bi-telegram"></i>
 </a>
 
+<button type="button" id="assistant-fab" class="assistant-fab" aria-label="Open assistant">
+    <i class="bi bi-robot"></i>
+    <span>Assistant</span>
+</button>
+<section id="assistant-panel" class="assistant-panel" hidden aria-label="Order assistant">
+    <header class="assistant-panel__head">
+        <div>
+            <h3>Order Assistant</h3>
+            <p>Type what you want to do</p>
+        </div>
+        <button type="button" id="assistant-close" aria-label="Close assistant"><i class="bi bi-x-lg"></i></button>
+    </header>
+    <div id="assistant-messages" class="assistant-panel__messages">
+        <div class="assistant-msg assistant-msg--bot">Try <code>order usa whatsapp</code> or <code>order usa telegram</code>.</div>
+    </div>
+    <div class="assistant-panel__quick">
+        <button type="button" class="assistant-quick" data-cmd="order usa whatsapp">WhatsApp</button>
+        <button type="button" class="assistant-quick" data-cmd="order usa telegram">Telegram</button>
+        <button type="button" class="assistant-quick" data-cmd="order usa gmail">Gmail</button>
+        <button type="button" class="assistant-quick" data-cmd="balance">Balance</button>
+    </div>
+    <form id="assistant-form" class="assistant-panel__form">
+        <input id="assistant-input" type="text" placeholder="e.g. order usa whatsapp" maxlength="500" autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+</section>
+
+<style>
+    .assistant-fab{position:fixed;right:1.1rem;bottom:1.1rem;z-index:1200;display:flex;gap:.45rem;align-items:center;border:0;border-radius:999px;padding:.7rem .95rem;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;font-weight:700;box-shadow:0 12px 30px rgba(15,23,42,.35)}
+    .assistant-fab i{font-size:1rem}
+    .assistant-panel{position:fixed;right:1.1rem;bottom:4.8rem;z-index:1200;width:min(380px,calc(100vw - 1.5rem));background:#fff;border:1px solid #dbe3ef;border-radius:16px;box-shadow:0 22px 50px rgba(15,23,42,.2);overflow:hidden}
+    .assistant-panel__head{display:flex;justify-content:space-between;align-items:flex-start;padding:.85rem .95rem;border-bottom:1px solid #eef2f7;background:#f8fafc}
+    .assistant-panel__head h3{margin:0;font-size:.95rem;font-weight:800;color:#0f172a}
+    .assistant-panel__head p{margin:.15rem 0 0;font-size:.76rem;color:#475569}
+    .assistant-panel__head button{border:0;background:transparent;color:#64748b}
+    .assistant-panel__messages{max-height:280px;overflow:auto;padding:.75rem;display:flex;flex-direction:column;gap:.5rem;background:#fff}
+    .assistant-msg{font-size:.84rem;line-height:1.35;padding:.55rem .65rem;border-radius:12px;max-width:92%}
+    .assistant-msg--bot{align-self:flex-start;background:#f1f5f9;color:#0f172a}
+    .assistant-msg--user{align-self:flex-end;background:#1d4ed8;color:#fff}
+    .assistant-panel__quick{display:flex;flex-wrap:wrap;gap:.35rem;padding:.45rem .75rem;border-top:1px solid #eef2f7}
+    .assistant-quick{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.3rem .6rem;font-size:.72rem;font-weight:700;color:#1e293b}
+    .assistant-panel__form{display:flex;gap:.45rem;padding:.7rem;border-top:1px solid #eef2f7}
+    .assistant-panel__form input{flex:1;border:1px solid #cbd5e1;border-radius:10px;padding:.52rem .62rem;font-size:.84rem}
+    .assistant-panel__form button{border:0;background:#0f172a;color:#fff;border-radius:10px;padding:.52rem .8rem;font-size:.8rem;font-weight:700}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
@@ -205,6 +251,63 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var fab = document.getElementById('assistant-fab');
+    var panel = document.getElementById('assistant-panel');
+    var closeBtn = document.getElementById('assistant-close');
+    var form = document.getElementById('assistant-form');
+    var input = document.getElementById('assistant-input');
+    var msgs = document.getElementById('assistant-messages');
+    if (!fab || !panel || !form || !input || !msgs) return;
+
+    function toggle(open) {
+        panel.hidden = !open;
+        if (open) input.focus();
+    }
+    fab.addEventListener('click', function () { toggle(panel.hidden); });
+    if (closeBtn) closeBtn.addEventListener('click', function () { toggle(false); });
+
+    function addMsg(kind, text) {
+        var d = document.createElement('div');
+        d.className = 'assistant-msg assistant-msg--' + kind;
+        d.textContent = text;
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async function sendCommand(text) {
+        addMsg('user', text);
+        var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        try {
+            var r = await fetch('{{ url('assistant/command') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                body: JSON.stringify({ message: text })
+            });
+            var j = await r.json();
+            addMsg('bot', j.reply || 'Done.');
+            if (j.reload) setTimeout(function () { location.reload(); }, 900);
+        } catch (e) {
+            addMsg('bot', 'Something went wrong. Please try again.');
+        }
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var v = (input.value || '').trim();
+        if (!v) return;
+        input.value = '';
+        sendCommand(v);
+    });
+
+    panel.querySelectorAll('.assistant-quick[data-cmd]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var cmd = b.getAttribute('data-cmd');
+            if (cmd) sendCommand(cmd);
+        });
+    });
 });
 </script>
 @stack('scripts')

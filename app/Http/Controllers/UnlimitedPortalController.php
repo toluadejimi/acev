@@ -78,6 +78,111 @@ class UnlimitedPortalController extends Controller
         return null;
     }
 
+    /**
+     * Assistant helper: resolve service name from a loose user query.
+     *
+     * @return array{name:string, api_price:float, base_ngn:float}|null
+     */
+    private function resolveUsa2QuoteByServiceQuery(string $query): ?array
+    {
+        $res = $this->sendRequest('list_services');
+        if (!is_array($res) || empty($res['message']) || !is_array($res['message'])) {
+            return null;
+        }
+
+        $setting = Setting::find(3);
+        if (!$setting) {
+            return null;
+        }
+
+        $norm = static function (string $v): string {
+            return preg_replace('/[^a-z0-9]+/', '', strtolower($v)) ?? '';
+        };
+
+        $qNorm = $norm($query);
+        if ($qNorm === '') {
+            return null;
+        }
+
+        $best = null;
+        foreach ($res['message'] as $row) {
+            $row = (array) $row;
+            $name = (string) ($row['name'] ?? '');
+            $apiPrice = (float) ($row['price'] ?? 0);
+            if ($name === '' || $apiPrice <= 0) {
+                continue;
+            }
+            $n = $norm($name);
+            $score = 0;
+            if ($n === $qNorm) {
+                $score = 100;
+            } elseif (str_contains($n, $qNorm) || str_contains($qNorm, $n)) {
+                $score = 70;
+            } elseif (str_contains($n, substr($qNorm, 0, min(strlen($qNorm), 4)))) {
+                $score = 40;
+            }
+            if ($score > 0 && ($best === null || $score > $best['score'])) {
+                $best = [
+                    'score' => $score,
+                    'name' => $name,
+                    'api_price' => $apiPrice,
+                ];
+            }
+        }
+
+        if ($best === null) {
+            return null;
+        }
+
+        $baseNgn = ((float) $setting->rate * $best['api_price']) + (float) $setting->margin;
+        return [
+            'name' => $best['name'],
+            'api_price' => (float) $best['api_price'],
+            'base_ngn' => (float) $baseNgn,
+        ];
+    }
+
+    /**
+     * Assistant action: order a USA number by free-text service query.
+     *
+     * @return array{ok:bool,message:string}
+     */
+    public function assistantOrderUsaByQuery(string $query): array
+    {
+        $quote = $this->resolveUsa2QuoteByServiceQuery($query);
+        if ($quote === null) {
+            return ['ok' => false, 'message' => 'I could not find that USA service. Try: whatsapp, telegram, gmail, signal.'];
+        }
+
+        if ((float) (Auth::user()->wallet ?? 0) < (float) $quote['base_ngn']) {
+            return ['ok' => false, 'message' => 'Insufficient wallet balance for this order.'];
+        }
+
+        $order = $this->create_order_usa2(
+            (string) $quote['name'],
+            (float) $quote['base_ngn'],
+            (float) $quote['api_price'],
+            (string) $quote['name'],
+            (float) $quote['api_price'],
+            null
+        );
+
+        if ($order == 1) {
+            return ['ok' => true, 'message' => "Ordered successfully: {$quote['name']}. Refreshing your requests now."];
+        }
+        if ($order == 8) {
+            return ['ok' => false, 'message' => 'Insufficient funds.'];
+        }
+        if ($order == 54) {
+            return ['ok' => false, 'message' => 'Price changed. Please retry.'];
+        }
+        if ($order == 56) {
+            return ['ok' => false, 'message' => 'No number available for that service right now.'];
+        }
+
+        return ['ok' => false, 'message' => 'Order failed. Please try again.'];
+    }
+
 
     public function server_2_index(Request $request)
     {
@@ -334,6 +439,20 @@ class UnlimitedPortalController extends Controller
                 'provider_order_id' => $providerId,
                 'provider_response' => $res2,
             ]);
+
+            // Provider can return "Unable to reject an MDN" for some stale states.
+            // If SMS is still not received, allow local refund to avoid trapping user funds.
+            if (stripos($details, 'Unable to reject an MDN') !== false) {
+                $recheck = $this->check_sms($ver->order_id);
+                if ($recheck === 0) {
+                    Log::warning('usa2 cancel: applying local refund fallback', [
+                        'verification_id' => (int) $ver->id,
+                        'provider_order_id' => $providerId,
+                    ]);
+                    return $this->refundPendingOrderAndDelete((int) $request->id, true);
+                }
+            }
+
             return redirect()->back()->with('error', "Cancel failed: {$details}");
         }
 
@@ -343,10 +462,15 @@ class UnlimitedPortalController extends Controller
             'provider_response' => $res2,
         ]);
 
+        return $this->refundPendingOrderAndDelete((int) $request->id, false);
+    }
+
+    private function refundPendingOrderAndDelete(int $orderId, bool $providerFallback): \Illuminate\Http\RedirectResponse
+    {
         DB::beginTransaction();
 
         try {
-            $order = Verification::where('id', $request->id)->lockForUpdate()->first();
+            $order = Verification::where('id', $orderId)->lockForUpdate()->first();
 
             if (!$order) {
                 DB::rollBack();
@@ -389,6 +513,10 @@ class UnlimitedPortalController extends Controller
             $order->delete();
 
             DB::commit();
+
+            if ($providerFallback) {
+                return redirect()->back()->with('message', "Order canceled with fallback, NGN{$order->cost} refunded");
+            }
 
             return redirect()->back()->with('message', "Order canceled, NGN{$order->cost} refunded");
         } catch (\Exception $e) {
