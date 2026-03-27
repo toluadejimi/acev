@@ -121,6 +121,30 @@
                         </div>
                     </form>
                 </div>
+                <div class="col-lg-4">
+                    <form action="{{ url('set-verification-server-card/world_sv3') }}" method="post" class="card h-100 border-0 shadow-sm">
+                        @csrf
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">All Countries (SV3)</h5>
+                                    <p class="text-muted small mb-0">World SV3 · <code>/world-sv3</code></p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="world-sv3-enabled" name="enabled" {{ !empty($verificationServerFlags['world_sv3']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="world-sv3-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <label class="form-label mt-3">SV3 Rate Setting</label>
+                            <input name="rate" class="form-control" type="number" step="0.0001" min="0" value="{{ $verificationServerRates['world_sv3'] ?? 0 }}" required>
+                            <label class="form-label mt-3">SV3 Margin Setting</label>
+                            <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $verificationServerMargins['world_sv3'] ?? 0 }}" required>
+                            <label class="form-label mt-3">API Key</label>
+                            <input name="api_key" class="form-control" value="{{ $verificationServerKeys['world_sv3'] ?? '' }}" placeholder="Enter SV3 API key">
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save World SV3 Server</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
 

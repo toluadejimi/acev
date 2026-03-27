@@ -17,6 +17,7 @@ Route::any('w-webhook', [HomeController::class, 'world_webhook']);
 Route::any('world-sms-webhook', [HomeController::class, 'world_webhook']);
 /** @deprecated Use world-sms-webhook; kept so old provider URLs still work */
 Route::any('hero-sms-webhook', [HomeController::class, 'world_webhook']);
+Route::any('world-sv3-webhook', [HomeController::class, 'world_webhook']);
 
 Route::any('updatesec',  [HomeController::class,'updatesec']);
 Route::any('cancle-sms',  [HomeController::class,'cancle_sms_timer']);

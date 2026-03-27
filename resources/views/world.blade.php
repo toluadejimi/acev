@@ -54,8 +54,13 @@
         <div class="vf-hero__row">
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-globe2" aria-hidden="true"></i> International</span>
-                @php $isHero = ($worldServer ?? 'world') === 'world_hero'; @endphp
-                <h1 class="vf-hero__title">{{ $isHero ? 'All countries SV2' : 'All countries S' }}</h1>
+                @php
+                    $worldMode = (string) ($worldServer ?? 'world');
+                    $isHero = $worldMode === 'world_hero';
+                    $isSv3 = $worldMode === 'world_sv3';
+                    $isSv1 = $worldMode === 'world';
+                @endphp
+                <h1 class="vf-hero__title">{{ $isHero ? 'All countries SV2' : ($isSv3 ? 'All countries SV3' : 'All countries SV1') }}</h1>
                 <p class="vf-hero__text">Choose a country and service, confirm price, then buy a number.</p>
             </div>
             <div class="vf-hero__stats">
@@ -68,7 +73,7 @@
     </header>
 
     @php
-        $vfServers = $verificationServers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true];
+        $vfServers = $verificationServers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true, 'world_sv3' => true];
     @endphp
     <nav class="vf-servers" aria-label="Number pools">
         @if(!empty($vfServers['us1']))
@@ -84,10 +89,10 @@
             </a>
         @endif
         @if(!empty($vfServers['world']))
-            <a href="{{ url('/world') }}" class="vf-server {{ !$isHero ? 'vf-server--active' : '' }}">
+            <a href="{{ url('/world') }}" class="vf-server {{ $isSv1 ? 'vf-server--active' : '' }}">
                 <span class="vf-server__flag" aria-hidden="true">🌎</span>
                 <span class="vf-server__name">All countries · SV1</span>
-                @if(!$isHero)<span class="vf-server__hint">Current panel</span>@endif
+                @if($isSv1)<span class="vf-server__hint">Current panel</span>@endif
             </a>
         @endif
         @if(!empty($vfServers['world_hero']))
@@ -96,6 +101,13 @@
                 <span class="vf-server__name">All countries · SV2</span>
                 <span class="vf-server__tag-recommended">Recommended</span>
                 @if($isHero)<span class="vf-server__hint">Current panel</span>@endif
+            </a>
+        @endif
+        @if(!empty($vfServers['world_sv3']))
+            <a href="{{ url('/world-sv3') }}" class="vf-server {{ $isSv3 ? 'vf-server--active' : '' }}">
+                <span class="vf-server__flag" aria-hidden="true">🌐</span>
+                <span class="vf-server__name">All countries · SV3</span>
+                @if($isSv3)<span class="vf-server__hint">Current panel</span>@endif
             </a>
         @endif
     </nav>
@@ -521,6 +533,7 @@
         $('select').select2();
         var pendingQuickService = null;
         var isWorldServer2 = @json($isHero);
+        var isWorldServer1 = @json($isSv1);
         var worldServer1QuickIds = {
             whatsapp: '1012',
             telegram: '907',
@@ -548,7 +561,7 @@
 
         function applyQuickServiceIfPossible(key) {
             // World Server 1: use explicit service IDs provided by admin.
-            if (!isWorldServer2 && worldServer1QuickIds[key]) {
+            if (isWorldServer1 && worldServer1QuickIds[key]) {
                 var targetId = String(worldServer1QuickIds[key]);
                 var hasId = $('#serviceSelect option').filter(function () {
                     return String($(this).val()) === targetId;
@@ -766,6 +779,8 @@
                             d.service_name = label;
                         }
                         if (hc !== undefined && hc !== null && hc !== '') {
+                            d.api_cost = btn.data('heroApiCost');
+                            // Backward compatibility with older backend fields.
                             d.hero_api_cost = btn.data('heroApiCost');
                         }
                         return d;
@@ -785,8 +800,19 @@
                             Swal.fire('Error', (resp && resp.message) ? resp.message : 'Something went wrong', 'error');
                         }
                     },
-                    error: function () {
-                        Swal.fire('Error', 'Unable to process your request', 'error');
+                    error: function (xhr) {
+                        var msg = 'Unable to process your request';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        } else if (xhr && xhr.responseText) {
+                            try {
+                                var parsed = JSON.parse(xhr.responseText);
+                                if (parsed && parsed.message) {
+                                    msg = parsed.message;
+                                }
+                            } catch (e) {}
+                        }
+                        Swal.fire('Error', msg, 'error');
                     },
                     complete: function () {
                         btn.prop('disabled', false).html('Buy number');

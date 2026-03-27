@@ -121,6 +121,7 @@ Route::group(['middleware' => ['auth', 'session.timeout']], function () {
 
         Route::get('/world',  'home');
         Route::get('/world-sv2', 'heroHome');
+        Route::get('/world-sv3', 'sv3Home');
         Route::redirect('/world-hero', '/world-sv2', 301);
         Route::get('/get-world-services/{country}',  'getServices');
         Route::post('/check-world-availability',  'checkAvailability');
@@ -306,6 +307,7 @@ Route::get('users',  [AdminController::class,'index_user']);
 Route::get('view-user',  [AdminController::class,'view_users']);
 Route::any('update-user',  [AdminController::class,'update_user']);
 Route::any('remove-user',  [AdminController::class,'remove_user']);
+Route::post('admin-login-as-user/{id}', [AdminController::class, 'login_as_user'])->name('admin.login-as-user');
 
 Route::get('ban',  [HomeController::class,'ban']);
 

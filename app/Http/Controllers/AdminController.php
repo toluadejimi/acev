@@ -43,12 +43,15 @@ class AdminController extends Controller
             'us2' => verification_server_api_key('us2'),
             'world' => verification_server_api_key('world'),
             'world_hero' => verification_server_api_key('world_hero'),
+            'world_sv3' => verification_server_api_key('world_sv3'),
         ];
         $data['verificationServerRates'] = [
             'world_hero' => verification_server_rate('world_hero'),
+            'world_sv3' => verification_server_rate('world_sv3'),
         ];
         $data['verificationServerMargins'] = [
             'world_hero' => verification_server_margin('world_hero'),
+            'world_sv3' => verification_server_margin('world_sv3'),
         ];
         return view('admin-price-setting', $data);
 
@@ -97,9 +100,14 @@ class AdminController extends Controller
             ['config_key' => 'verification_server_world_enabled'],
             ['config_value' => $request->has('verification_server_world_enabled') ? '1' : '0']
         );
+        AppConfig::updateOrCreate(
+            ['config_key' => 'verification_server_world_sv3_enabled'],
+            ['config_value' => $request->has('verification_server_world_sv3_enabled') ? '1' : '0']
+        );
 
         Cache::forget('app_config:verification_server_us2_enabled');
         Cache::forget('app_config:verification_server_world_enabled');
+        Cache::forget('app_config:verification_server_world_sv3_enabled');
 
         return back()->with('message', 'Verification server visibility updated successfully');
     }
@@ -111,6 +119,7 @@ class AdminController extends Controller
             'us2' => ['setting_id' => 3, 'enabled_key' => 'verification_server_us2_enabled', 'api_key' => 'verification_server_us2_api_key'],
             'world' => ['setting_id' => 2, 'enabled_key' => 'verification_server_world_enabled', 'api_key' => 'verification_server_world_api_key'],
             'world_hero' => ['setting_id' => null, 'enabled_key' => 'verification_server_world_hero_enabled', 'api_key' => 'verification_server_world_hero_api_key'],
+            'world_sv3' => ['setting_id' => null, 'enabled_key' => 'verification_server_world_sv3_enabled', 'api_key' => 'verification_server_world_sv3_api_key'],
         ];
 
         if (!isset($map[$server])) {
@@ -123,6 +132,8 @@ class AdminController extends Controller
             'api_key' => 'nullable|string|max:255',
             'world_hero_rate' => 'nullable|numeric|min:0',
             'world_hero_margin' => 'nullable|numeric|min:0',
+            'world_sv3_rate' => 'nullable|numeric|min:0',
+            'world_sv3_margin' => 'nullable|numeric|min:0',
         ]);
 
         $cfg = $map[$server];
@@ -132,7 +143,7 @@ class AdminController extends Controller
                 'rate' => $request->input('rate'),
                 'margin' => $request->input('margin'),
             ]);
-        } else {
+        } elseif ($server === 'world_hero') {
             AppConfig::updateOrCreate(
                 ['config_key' => 'verification_server_world_hero_rate'],
                 ['config_value' => (string) $request->input('world_hero_rate', $request->input('rate', 0))]
@@ -143,6 +154,17 @@ class AdminController extends Controller
             );
             Cache::forget('app_config:verification_server_world_hero_rate');
             Cache::forget('app_config:verification_server_world_hero_margin');
+        } else {
+            AppConfig::updateOrCreate(
+                ['config_key' => 'verification_server_world_sv3_rate'],
+                ['config_value' => (string) $request->input('world_sv3_rate', $request->input('rate', 0))]
+            );
+            AppConfig::updateOrCreate(
+                ['config_key' => 'verification_server_world_sv3_margin'],
+                ['config_value' => (string) $request->input('world_sv3_margin', $request->input('margin', 0))]
+            );
+            Cache::forget('app_config:verification_server_world_sv3_rate');
+            Cache::forget('app_config:verification_server_world_sv3_margin');
         }
 
         AppConfig::updateOrCreate(
@@ -847,6 +869,30 @@ public function admin_dashboard(request $request)
         return view('user', compact('user', 'users'));
 
 
+    }
+
+    public function login_as_user(Request $request, int $id)
+    {
+        $role = User::where('id', Auth::id())->value('role_id') ?? null;
+        if ($role != 5) {
+            Auth::logout();
+            return redirect('/admin')->with('error', "You do not have permission");
+        }
+
+        $target = User::find($id);
+        if (!$target) {
+            return back()->with('error', 'User not found');
+        }
+
+        if ((int) $target->id === (int) Auth::id()) {
+            return back()->with('error', 'You are already logged in as this user');
+        }
+
+        $request->session()->put('admin_impersonator_id', (int) Auth::id());
+        Auth::login($target);
+        $request->session()->regenerate();
+
+        return redirect('/home')->with('topMessage', "You are now logged in as {$target->username}");
     }
 
 

@@ -1349,6 +1349,8 @@ class HomeController extends Controller
                 }
             } elseif ((int) $order->type === 9) {
                 $can_order = cancel_world_order((string) $order->order_id, 'herosms');
+            } elseif ((int) $order->type === 10) {
+                $can_order = cancel_world_order((string) $order->order_id, 'sv3');
             } elseif ((int) $order->type === 1) {
                 $can_order = cancel_order($order->order_id);
             }

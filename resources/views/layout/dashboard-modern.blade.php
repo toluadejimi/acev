@@ -43,7 +43,7 @@
             </div>
             <div class="dash-drawer__links">
             <a href="{{ url('/home') }}" class="dash-nav__link{{ request()->is('home') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-speedometer2 dash-nav__ico" aria-hidden="true"></i><span>Dashboard</span></a>
-            <a href="{{ route('verification.index') }}" class="dash-nav__link{{ request()->routeIs('verification.index') || request()->is('us', 'usa2', 'world') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-chat-dots dash-nav__ico" aria-hidden="true"></i><span>SMS verification</span></a>
+            <a href="{{ route('verification.index') }}" class="dash-nav__link{{ request()->routeIs('verification.index') || request()->is('us', 'usa2', 'world', 'world-sv2', 'world-sv3') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-chat-dots dash-nav__ico" aria-hidden="true"></i><span>SMS verification</span></a>
             <a href="{{ url('/fund-wallet') }}" class="dash-nav__link{{ request()->is('fund-wallet') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-wallet2 dash-nav__ico" aria-hidden="true"></i><span>Fund wallet</span></a>
             <a href="{{ route('vas.airtime') }}" class="dash-nav__link{{ request()->is('vas/*') ? ' dash-nav__link--active' : '' }}"><i class="bi bi-receipt-cutoff dash-nav__ico" aria-hidden="true"></i><span>Airtime &amp; bills</span></a>
             <a href="{{ url('/api-docs') }}" class="dash-nav__link"><i class="bi bi-code-slash dash-nav__ico" aria-hidden="true"></i><span>API docs</span></a>

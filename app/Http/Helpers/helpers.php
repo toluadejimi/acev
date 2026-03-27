@@ -19,6 +19,22 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
+function world_order_force_log(string $event, array $context = []): void
+{
+    try {
+        Log::error($event, $context);
+    } catch (\Throwable $e) {
+        // Ignore logger channel failures; fallback file below is authoritative.
+    }
+
+    try {
+        $line = '[' . now()->toDateTimeString() . '] ' . $event . ' ' . json_encode($context) . PHP_EOL;
+        @file_put_contents(storage_path('logs/world-order.log'), $line, FILE_APPEND);
+    } catch (\Throwable $e) {
+        // Last-resort no-op.
+    }
+}
+
 function sms_server_config_value(string $key, ?string $default = null): ?string
 {
     $cacheKey = "app_config:$key";
@@ -53,6 +69,7 @@ function verification_server_flags(): array
         'us2' => app_config_bool('verification_server_us2_enabled', true),
         'world' => app_config_bool('verification_server_world_enabled', true), // SMS Pool world
         'world_hero' => app_config_bool('verification_server_world_hero_enabled', true),
+        'world_sv3' => app_config_bool('verification_server_world_sv3_enabled', true),
     ];
 }
 
@@ -64,6 +81,9 @@ function verification_server_api_key(string $server): string
     }
     if ($server === 'world_hero') {
         return (string) (sms_server_config_value('verification_server_world_hero_api_key', env('SMS_SERVER_HERO_API_KEY', '')) ?? '');
+    }
+    if ($server === 'world_sv3') {
+        return (string) (sms_server_config_value('verification_server_world_sv3_api_key', env('SMS_SERVER_WORLD_SV3_API_KEY', '')) ?? '');
     }
     if ($server === 'world') {
         return (string) (sms_server_config_value('verification_server_world_api_key', env('WKEY', '')) ?? '');
@@ -89,6 +109,10 @@ function verification_server_rate(string $server): float
         $raw = sms_server_config_value('verification_server_world_hero_rate', (string) (Setting::find(2)->rate ?? 0));
         return (float) $raw;
     }
+    if ($server === 'world_sv3') {
+        $raw = sms_server_config_value('verification_server_world_sv3_rate', (string) (Setting::find(2)->rate ?? 0));
+        return (float) $raw;
+    }
     if ($server === 'us2') {
         return (float) (Setting::find(3)->rate ?? 0);
     }
@@ -105,6 +129,10 @@ function verification_server_margin(string $server): float
         $raw = sms_server_config_value('verification_server_world_hero_margin', (string) (Setting::find(2)->margin ?? 0));
         return (float) $raw;
     }
+    if ($server === 'world_sv3') {
+        $raw = sms_server_config_value('verification_server_world_sv3_margin', (string) (Setting::find(2)->margin ?? 0));
+        return (float) $raw;
+    }
     if ($server === 'us2') {
         return (float) (Setting::find(3)->margin ?? 0);
     }
@@ -118,6 +146,22 @@ function world_sms_handler_url(array $query): string
 {
     $base = rtrim((string) env('SMS_SERVER_HERO_BASE_URL', 'https://hero-sms.com'), '/');
     $query = array_merge(['api_key' => verification_server_api_key('world_hero')], $query);
+
+    return $base . '/stubs/handler_api.php?' . http_build_query($query);
+}
+
+function world_sms_sv3_handler_url(array $query): string
+{
+    $baseRaw = (string) env(
+        'SMS_SERVER_WORLD_SV3_BASE_URL',
+        'https://smsbower.page/stubs/handler_api.php'
+    );
+    $baseRaw = trim($baseRaw);
+    $base = rtrim($baseRaw, '/');
+    $query = array_merge(['api_key' => verification_server_api_key('world_sv3')], $query);
+    if (str_contains($base, 'handler_api.php')) {
+        return $base . '?' . http_build_query($query);
+    }
 
     return $base . '/stubs/handler_api.php?' . http_build_query($query);
 }
@@ -785,31 +829,49 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 {
     $user = Auth::user();
     $provider = strtolower(trim($provider));
-    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+    if (!in_array($provider, ['smspool', 'herosms', 'sv3'], true)) {
         $provider = 'smspool';
     }
+    $lastErrorCacheKey = 'world_order_last_error_user_' . (int) Auth::id();
+    Cache::forget($lastErrorCacheKey);
     $setting = Setting::find(2);
 
     if (!$setting) {
+        Cache::put($lastErrorCacheKey, 'Settings not configured', 300);
+        world_order_force_log('create_world_order missing settings row', [
+            'provider' => $provider,
+            'country' => $country,
+            'service' => $service,
+        ]);
         return 98;
     }
 
     $countryToken = (string) $country;
-    if ($provider !== 'herosms') {
+    if (!in_array($provider, ['herosms', 'sv3'], true)) {
         $shortName = Country::where('country_id', $country)->value('short_name');
         if (!$shortName) {
+            Cache::put($lastErrorCacheKey, 'Invalid country mapping', 300);
+            world_order_force_log('create_world_order invalid country mapping', [
+                'provider' => $provider,
+                'country' => $country,
+                'service' => $service,
+            ]);
             return 97;
         }
         $countryToken = (string) $shortName;
     }
 
-    if ($provider === 'herosms' && $heroApiCost !== null && $heroApiCost > 0) {
-        if (!hero_sms_api_cost_is_allowed((float) $heroApiCost, (string) $service, $countryToken)) {
+    if (in_array($provider, ['herosms', 'sv3'], true) && $heroApiCost !== null && $heroApiCost > 0) {
+        $allowed = $provider === 'herosms'
+            ? hero_sms_api_cost_is_allowed((float) $heroApiCost, (string) $service, $countryToken)
+            : world_sv3_api_cost_is_allowed((float) $heroApiCost, (string) $service, $countryToken);
+        if (!$allowed) {
             Log::warning('create_world_order HeroSMS api cost not in current price list', [
                 'country' => $country,
                 'country_token' => $countryToken,
                 'service' => $service,
                 'hero_api_cost' => $heroApiCost,
+                'provider' => $provider,
             ]);
 
             return 5;
@@ -829,22 +891,41 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
         return 5;
     }
 
-    $rate = $provider === 'herosms' ? verification_server_rate('world_hero') : (float) $setting->rate;
-    $margin = $provider === 'herosms' ? verification_server_margin('world_hero') : (float) $setting->margin;
+    $rate = $provider === 'herosms'
+        ? verification_server_rate('world_hero')
+        : ($provider === 'sv3' ? verification_server_rate('world_sv3') : (float) $setting->rate);
+    $margin = $provider === 'herosms'
+        ? verification_server_margin('world_hero')
+        : ($provider === 'sv3' ? verification_server_margin('world_sv3') : (float) $setting->margin);
     $calculatedCost = ($rate * (float) $gcost) + $margin;
 
     $wallet_check = WalletCheck::where('user_id', $user->id)->first();
     if (!$wallet_check) {
-        return 8;
+        // Self-heal legacy accounts that have wallet balance but no wallet_checks row.
+        $wallet_check = new WalletCheck();
+        $wallet_check->user_id = $user->id;
+        $wallet_check->total_funded = (float) $user->wallet;
+        $wallet_check->wallet_amount = (float) $user->wallet;
+        $wallet_check->total_bought = 0;
+        $wallet_check->save();
+
+        world_order_force_log('create_world_order wallet profile auto-created', [
+            'provider' => $provider,
+            'user_id' => $user->id,
+            'country' => $country,
+            'service' => $service,
+            'seed_wallet' => (float) $user->wallet,
+        ]);
     }
 
     if ($user->wallet < $calculatedCost) {
+        Cache::put($lastErrorCacheKey, 'Insufficient wallet balance', 300);
         return 99;
     }
 
     $key = $provider === 'herosms'
         ? verification_server_api_key('world_hero')
-        : verification_server_api_key('world');
+        : ($provider === 'sv3' ? verification_server_api_key('world_sv3') : verification_server_api_key('world'));
 
     if ($provider === 'herosms') {
         Log::info('HeroSMS purchase request', [
@@ -863,6 +944,13 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
             'maxPrice' => (string) $gcost,
         ];
         $response = Http::timeout(50)->get(world_sms_handler_url($heroQuery));
+    } elseif ($provider === 'sv3') {
+        $response = Http::timeout(50)->get(world_sms_sv3_handler_url([
+            'action' => 'getNumber',
+            'service' => $service,
+            'country' => $country,
+            'maxPrice' => (string) $gcost,
+        ]));
     } else {
         $response = Http::asForm()->post('https://api.smspool.net/purchase/sms', [
             'country' => $country,
@@ -873,7 +961,7 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
 
     if ($response->failed()) {
-        Log::error('create_world_order request failed', [
+        world_order_force_log('create_world_order request failed', [
             'provider' => $provider,
             'status' => $response->status(),
             'body' => $response->body(),
@@ -881,12 +969,14 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
             'service' => $service,
             'user_id' => $user->id,
         ]);
+        Cache::put($lastErrorCacheKey, 'Provider request failed with HTTP ' . $response->status(), 300);
         return 2;
     }
 
-    if ($provider === 'herosms') {
+    if (in_array($provider, ['herosms', 'sv3'], true)) {
         $raw = trim((string) $response->body());
-        Log::info('HeroSMS purchase response', [
+        Log::info('World alt-provider purchase response', [
+            'provider' => $provider,
             'user_id' => $user->id,
             'country' => $country,
             'service' => $service,
@@ -908,23 +998,49 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
                 $data = ['success' => 0];
             }
         } else {
-            $data = ['success' => 0];
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                // Normalize common provider error shape: {"status":"error","message":"..."}
+                if (!isset($decoded['success'])) {
+                    if (($decoded['status'] ?? null) === 'success') {
+                        $decoded['success'] = 1;
+                    } else {
+                        $decoded['success'] = 0;
+                    }
+                }
+                $data = $decoded;
+            } else {
+                $data = [
+                    'success' => 0,
+                    'message' => $raw !== '' ? $raw : 'Unknown provider response',
+                ];
+            }
         }
     } else {
         $data = $response->json();
     }
 
     if (!isset($data['success'])) {
-        return 2;
-    }
-
-    if ($data['success'] == 0) {
-        Log::warning('create_world_order provider returned unavailable', [
+        Cache::put($lastErrorCacheKey, 'Provider response missing success field', 300);
+        world_order_force_log('create_world_order response missing success field', [
             'provider' => $provider,
             'country' => $country,
             'service' => $service,
             'payload' => $data,
         ]);
+        return 2;
+    }
+
+    if ($data['success'] == 0) {
+        world_order_force_log('create_world_order provider returned unavailable', [
+            'provider' => $provider,
+            'country' => $country,
+            'service' => $service,
+            'api_message' => $data['message'] ?? null,
+            'payload' => $data,
+        ]);
+        $msg = trim((string) ($data['message'] ?? 'Service not available'));
+        Cache::put($lastErrorCacheKey, $msg !== '' ? $msg : 'Service not available', 300);
         return 5;
     }
 
@@ -950,7 +1066,24 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
                 $wc = WalletCheck::where('user_id', $user->id)->lockForUpdate()->first();
                 if (!$wc) {
-                    return 8;
+                    $seed = (float) ($locked->wallet ?? 0);
+                    $newWc = new WalletCheck();
+                    $newWc->user_id = $user->id;
+                    $newWc->total_funded = $seed;
+                    $newWc->wallet_amount = $seed;
+                    $newWc->total_bought = 0;
+                    $newWc->save();
+                    $wc = WalletCheck::where('user_id', $user->id)->lockForUpdate()->first();
+                    if (!$wc) {
+                        Cache::put($lastErrorCacheKey, 'Wallet profile not found', 300);
+                        world_order_force_log('create_world_order wallet profile missing inside transaction', [
+                            'provider' => $provider,
+                            'user_id' => $user->id,
+                            'country' => $country,
+                            'service' => $service,
+                        ]);
+                        return 8;
+                    }
                 }
 
                 $oldBalance = (float) $locked->wallet;
@@ -966,7 +1099,7 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
                 $ver->cost = $calculatedCost;
                 $ver->api_cost = $data['cost'] ?? 0;
                 $ver->status = 1;
-                $ver->type = $provider === 'herosms' ? 9 : 8;
+                $ver->type = $provider === 'herosms' ? 9 : ($provider === 'sv3' ? 10 : 8);
                 $ver->save();
 
                 User::where('id', $user->id)->decrement('wallet', $calculatedCost);
@@ -993,6 +1126,8 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
                 $message = "{$locked->email} just ordered a number on SMSPOOL — NGN {$cost2} | Balance: NGN {$bal}";
                 if ($provider === 'herosms') {
                     $message = "{$locked->email} just ordered a number on HEROSMS — NGN {$cost2} | Balance: NGN {$bal}";
+                } elseif ($provider === 'sv3') {
+                    $message = "{$locked->email} just ordered a number on WORLD SV3 — NGN {$cost2} | Balance: NGN {$bal}";
                 }
                 send_notification($message);
                 send_notification2($message);
@@ -1000,20 +1135,32 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
             return $out;
         } catch (\Throwable $e) {
-            Log::error('create_world_order debit failed', ['e' => $e->getMessage()]);
+            world_order_force_log('create_world_order debit failed', [
+                'provider' => $provider,
+                'country' => $country,
+                'service' => $service,
+                'error' => $e->getMessage(),
+            ]);
+            Cache::put($lastErrorCacheKey, 'Wallet debit failed: ' . $e->getMessage(), 300);
 
             return 2;
         }
 
     }
 
+    world_order_force_log('create_world_order unknown terminal state', [
+        'provider' => $provider,
+        'country' => $country,
+        'service' => $service,
+    ]);
+    Cache::put($lastErrorCacheKey, 'Unknown provider response while creating order', 300);
     return 2;
 }
 
 function cancel_world_order($orderID, string $provider = 'smspool')
 {
     $provider = strtolower(trim($provider));
-    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+    if (!in_array($provider, ['smspool', 'herosms', 'sv3'], true)) {
         $provider = 'smspool';
     }
 
@@ -1026,7 +1173,7 @@ function cancel_world_order($orderID, string $provider = 'smspool')
 
     $key = $provider === 'herosms'
         ? verification_server_api_key('world_hero')
-        : verification_server_api_key('world');
+        : ($provider === 'sv3' ? verification_server_api_key('world_sv3') : verification_server_api_key('world'));
     if ($provider === 'herosms') {
         $resp = Http::timeout(30)->get(world_sms_handler_url([
             'action' => 'setStatus',
@@ -1044,6 +1191,18 @@ function cancel_world_order($orderID, string $provider = 'smspool')
         }
         Log::warning('HeroSMS cancel not confirmed', ['order_id' => $orderID, 'raw' => $raw]);
 
+        return 0;
+    }
+    if ($provider === 'sv3') {
+        $resp = Http::timeout(30)->get(world_sms_sv3_handler_url([
+            'action' => 'setStatus',
+            'id' => $orderID,
+            'status' => 8,
+        ]));
+        $raw = trim((string) $resp->body());
+        if (str_contains($raw, 'ACCESS_CANCEL') || str_contains($raw, 'CANCELED') || str_contains($raw, 'ok')) {
+            return 1;
+        }
         return 0;
     }
 
@@ -1090,14 +1249,38 @@ function cancel_world_order($orderID, string $provider = 'smspool')
 function check_world_sms($orderID, string $provider = 'smspool')
 {
     $provider = strtolower(trim($provider));
-    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+    if (!in_array($provider, ['smspool', 'herosms', 'sv3'], true)) {
         $provider = 'smspool';
     }
     $key = $provider === 'herosms'
         ? verification_server_api_key('world_hero')
-        : verification_server_api_key('world');
+        : ($provider === 'sv3' ? verification_server_api_key('world_sv3') : verification_server_api_key('world'));
     if ($provider === 'herosms') {
         $resp = Http::timeout(30)->get(world_sms_handler_url([
+            'action' => 'getStatus',
+            'id' => $orderID,
+        ]));
+        $raw = trim((string) $resp->body());
+        if (str_contains($raw, 'STATUS_WAIT_CODE')) {
+            return 1;
+        }
+        if (str_contains($raw, 'STATUS_CANCEL')) {
+            return 6;
+        }
+        if (str_contains($raw, 'STATUS_OK:')) {
+            $parts = explode(':', $raw, 2);
+            $sms = $parts[1] ?? null;
+            Verification::where('order_id', $orderID)->update([
+                'status' => 2,
+                'sms' => $sms,
+                'full_sms' => $sms,
+            ]);
+            return 3;
+        }
+        return 1;
+    }
+    if ($provider === 'sv3') {
+        $resp = Http::timeout(30)->get(world_sms_sv3_handler_url([
             'action' => 'getStatus',
             'id' => $orderID,
         ]));
@@ -1281,14 +1464,72 @@ function hero_sms_api_cost_is_allowed(float $cost, string $service, string $coun
     return false;
 }
 
+/**
+ * @return array<int, array{cost: float, label: string, meta: array}>
+ */
+function world_sv3_get_price_options(string $service, string $country): array
+{
+    $resp = Http::timeout(30)->get(world_sms_sv3_handler_url([
+        'action' => 'getPrices',
+        'service' => $service,
+        'country' => $country,
+    ]));
+    if ($resp->failed()) {
+        return [];
+    }
+    $json = $resp->json();
+    if (!is_array($json)) {
+        return [];
+    }
+    $rawRows = [];
+    hero_sms_collect_price_entries($json, $rawRows);
+    $seen = [];
+    $out = [];
+    foreach ($rawRows as $row) {
+        if (!is_array($row) || !isset($row['cost']) || !is_numeric($row['cost'])) {
+            continue;
+        }
+        $cost = (float) $row['cost'];
+        if ($cost <= 0) {
+            continue;
+        }
+        $label = hero_sms_format_price_label($row);
+        $key = sprintf('%.8f|%s', $cost, $label);
+        if (isset($seen[$key])) {
+            continue;
+        }
+        $seen[$key] = true;
+        $out[] = ['cost' => $cost, 'label' => $label, 'meta' => $row];
+    }
+    usort($out, static fn (array $a, array $b): int => $a['cost'] <=> $b['cost']);
+
+    return $out;
+}
+
+function world_sv3_api_cost_is_allowed(float $cost, string $service, string $countryToken): bool
+{
+    foreach (world_sv3_get_price_options($service, $countryToken) as $opt) {
+        if (abs($opt['cost'] - $cost) < 0.000001) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function pool_cost($service, $country, string $provider = 'smspool')
 {
     $provider = strtolower(trim($provider));
-    if (!in_array($provider, ['smspool', 'herosms'], true)) {
+    if (!in_array($provider, ['smspool', 'herosms', 'sv3'], true)) {
         $provider = 'smspool';
     }
     if ($provider === 'herosms') {
         $opts = hero_sms_get_price_options((string) $service, (string) $country);
+
+        return $opts[0]['cost'] ?? null;
+    }
+    if ($provider === 'sv3') {
+        $opts = world_sv3_get_price_options((string) $service, (string) $country);
 
         return $opts[0]['cost'] ?? null;
     }

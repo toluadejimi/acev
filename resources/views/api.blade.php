@@ -5,7 +5,7 @@
 @php
     $b = rtrim(url(''), '/');
     $key = $api_key ?? '';
-    $vf = $verification_servers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true];
+    $vf = $verification_servers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true, 'world_sv3' => true];
 @endphp
 
 @push('styles')
@@ -44,6 +44,10 @@
         <span class="api-badge {{ !empty($vf['world_hero']) ? 'api-badge--on' : 'api-badge--off' }}">
             <i class="bi bi-{{ !empty($vf['world_hero']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
             World · Server 2
+        </span>
+        <span class="api-badge {{ !empty($vf['world_sv3']) ? 'api-badge--on' : 'api-badge--off' }}">
+            <i class="bi bi-{{ !empty($vf['world_sv3']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
+            World · Server 3
         </span>
     </div>
 
@@ -295,6 +299,17 @@
         <p class="api-section__note">
             World server 2 numbers are managed in the dashboard (<a href="{{ url('/world-sv2') }}">/world-sv2</a>). There is <strong>no separate REST bundle</strong> here yet.
             Configure your provider to POST incoming SMS to our inbound webhook (below); we update your order and optional outbound webhook.
+        </p>
+    </section>
+    @endif
+
+    @if(!empty($vf['world_sv3']))
+    <section class="api-section">
+        <div class="api-section__head">
+            <h2 class="api-section__title">World · Server 3</h2>
+        </div>
+        <p class="api-section__note">
+            World server 3 numbers are managed in the dashboard (<a href="{{ url('/world-sv3') }}">/world-sv3</a>). There is <strong>no separate REST bundle</strong> here yet.
         </p>
     </section>
     @endif

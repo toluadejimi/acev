@@ -186,6 +186,8 @@
                                     <span style="color: #014473" class="badge badge-success">SMS POOL</span>
                                 @elseif($trx->type == 9)
                                     <span style="color: #014473" class="badge badge-success">HERO SMS</span>
+                                @elseif($trx->type == 10)
+                                    <span style="color: #014473" class="badge badge-success">WORLD SV3</span>
                                 @elseif($trx->type == 3)
                                     <span style="color: #014473" class="badge badge-success">UNLIMITED SMS</span>
                                 @else

@@ -26,7 +26,7 @@
     </header>
 
     @php
-        $vfServers = $verificationServers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true];
+        $vfServers = $verificationServers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true, 'world_sv3' => true];
     @endphp
     <nav class="vf-servers" aria-label="Number pools">
         @if(!empty($vfServers['us1']))
@@ -53,6 +53,12 @@
                 <span class="vf-server__flag" aria-hidden="true">🌍</span>
                 <span class="vf-server__name">All countries · SV2</span>
                 <span class="vf-server__tag-recommended">Recommended</span>
+            </a>
+        @endif
+        @if(!empty($vfServers['world_sv3']))
+            <a href="{{ url('/world-sv3') }}" class="vf-server">
+                <span class="vf-server__flag" aria-hidden="true">🌐</span>
+                <span class="vf-server__name">All countries · SV3</span>
             </a>
         @endif
     </nav>
