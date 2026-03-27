@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Verification;
+use App\Models\VerificationSms;
 use App\Models\WalletCheck;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -315,7 +316,11 @@ class ApiController extends Controller
                     $balance = $old_balance - $ngnprice;
 
                     $rentPhone = ($var['cc'] ?? '') . ($var['phonenumber'] ?? ($var['number'] ?? ''));
-                    purge_existing_verifications_for_phone($rentPhone);
+                    $existingIds = Verification::where('phone', $rentPhone)->pluck('id');
+                    if ($existingIds->isNotEmpty()) {
+                        VerificationSms::whereIn('verification_id', $existingIds)->delete();
+                        Verification::whereIn('id', $existingIds)->delete();
+                    }
 
                     $ver = Verification::create([
                         'user_id'    => $user->id,

@@ -19,12 +19,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-/**
- * Delete any existing verification row(s) for this phone (any status) before assigning a new number.
- * Also removes related VerificationSms rows when present.
- */
-
-
 function sms_server_config_value(string $key, ?string $default = null): ?string
 {
     $cacheKey = "app_config:$key";
@@ -472,7 +466,11 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
         $finalCost = ($hasArea || $hasCarrier) ? $price + ($price * 0.20) : $price;
 
-        purge_existing_verifications_for_phone($phone);
+        $existingIds = Verification::where('phone', $phone)->pluck('id');
+        if ($existingIds->isNotEmpty()) {
+            VerificationSms::whereIn('verification_id', $existingIds)->delete();
+            Verification::whereIn('id', $existingIds)->delete();
+        }
 
         try {
             return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
@@ -932,7 +930,12 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
     if ($data['success'] == 1) {
 
-        purge_existing_verifications_for_phone($data['cc'] . $data['phonenumber']);
+        $incomingPhone = (string) ($data['cc'] . $data['phonenumber']);
+        $existingIds = Verification::where('phone', $incomingPhone)->pluck('id');
+        if ($existingIds->isNotEmpty()) {
+            VerificationSms::whereIn('verification_id', $existingIds)->delete();
+            Verification::whereIn('id', $existingIds)->delete();
+        }
 
         $displayService = ($serviceLabel !== null && trim($serviceLabel) !== '')
             ? trim($serviceLabel)
