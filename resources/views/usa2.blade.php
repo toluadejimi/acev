@@ -1,5 +1,5 @@
 @extends('layout.dashboard-modern')
-@section('title', 'USA Server 2 · SMS')
+@section('title', 'USA Server 1 · SMS')
 
 @push('styles')
     <link rel="stylesheet" href="{{ url('') }}/public/css/verification-page.css?v=9">
@@ -13,8 +13,8 @@
         <div class="vf-hero__row">
             <div class="vf-hero__lead">
                 <span class="vf-hero__badge"><i class="bi bi-telephone" aria-hidden="true"></i> USA pool</span>
-                <h1 class="vf-hero__title">USA Server 2</h1>
-                <p class="vf-hero__text">Second US number pool — same flow as Server 1.</p>
+                <h1 class="vf-hero__title">USA Server 1</h1>
+                <p class="vf-hero__text">US number pool powered by Unlimited.</p>
             </div>
             <div class="vf-hero__stats">
                 <p class="vf-hero__user">{{ Auth::user()->username }}</p>
@@ -38,7 +38,7 @@
         @if(!empty($vfServers['us2']))
             <a href="{{ url('/usa2') }}" class="vf-server vf-server--active">
                 <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-                <span class="vf-server__name">USA · Server 2</span>
+                <span class="vf-server__name">USA · Server 1</span>
                 <span class="vf-server__hint">Current panel</span>
             </a>
         @endif
@@ -88,7 +88,7 @@
                     </div>
                     <div class="vf-panel__body">
 
-                            <p class="vf-order-hint">Ordering on <strong>USA Server 2</strong></p>
+                            <p class="vf-order-hint">Ordering on <strong>USA Server 1</strong></p>
 
                             <div class="position-relative">
                                 <div class="vf-search-row">

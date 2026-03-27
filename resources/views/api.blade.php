@@ -35,7 +35,7 @@
         </span>
         <span class="api-badge {{ !empty($vf['us2']) ? 'api-badge--on' : 'api-badge--off' }}">
             <i class="bi bi-{{ !empty($vf['us2']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
-            USA · Server 2
+            USA · Server 1
         </span>
         <span class="api-badge {{ !empty($vf['world']) ? 'api-badge--on' : 'api-badge--off' }}">
             <i class="bi bi-{{ !empty($vf['world']) ? 'check-circle-fill' : 'dash-circle' }}" aria-hidden="true"></i>
@@ -201,10 +201,10 @@
     @if(!empty($vf['us2']))
     <section class="api-section">
         <div class="api-section__head">
-            <h2 class="api-section__title">USA · Server 2</h2>
+            <h2 class="api-section__title">USA · Server 1</h2>
         </div>
         <p class="api-section__note">
-            There are <strong>no public REST routes</strong> for USA · Server 2 in this API. Use the web panel at <a href="{{ url('/usa2') }}">/usa2</a> to order numbers and receive SMS.
+            There are <strong>no public REST routes</strong> for USA · Server 1 in this API. Use the web panel at <a href="{{ url('/usa2') }}">/usa2</a> to order numbers and receive SMS.
         </p>
     </section>
     @endif

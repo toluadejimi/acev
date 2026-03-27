@@ -39,7 +39,7 @@
         @if(!empty($vfServers['us2']))
             <a href="{{ url('/usa2') }}" class="vf-server">
                 <span class="vf-server__flag" aria-hidden="true">🇺🇸</span>
-                <span class="vf-server__name">USA · Server 2</span>
+                <span class="vf-server__name">USA · Server 1</span>
             </a>
         @endif
         @if(!empty($vfServers['world']))

@@ -438,9 +438,10 @@ class UnlimitedPortalController extends Controller
                 return 0;
             }
 
+            Verification::where('phone', $phone)->delete();
+
             $finalCost = $hasArea ? $price + ($price * 0.20) : $price;
 
-                    purge_existing_verifications_for_phone($phone);
 
                     try {
                         return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {

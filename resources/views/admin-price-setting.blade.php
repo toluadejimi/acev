@@ -54,7 +54,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <h5 class="mb-1">USA Server 2</h5>
+                                    <h5 class="mb-1">USA Server 1</h5>
                                     <p class="text-muted small mb-0">Unlimited integration · <code>/usa2</code></p>
                                 </div>
                                 <div class="form-check form-switch">
@@ -68,7 +68,7 @@
                             <input name="margin" class="form-control" type="number" step="0.0001" min="0" value="{{ $set3->margin }}" required>
                             <label class="form-label mt-3">API Key</label>
                             <input name="api_key" class="form-control" value="{{ $verificationServerKeys['us2'] ?? '' }}" placeholder="Enter Unlimited API key">
-                            <button class="btn btn-primary w-100 mt-4" type="submit">Save USA Server 2</button>
+                            <button class="btn btn-primary w-100 mt-4" type="submit">Save USA Server 1</button>
                         </div>
                     </form>
                 </div>

@@ -23,27 +23,6 @@ use Illuminate\Support\Facades\Mail;
  * Delete any existing verification row(s) for this phone (any status) before assigning a new number.
  * Also removes related VerificationSms rows when present.
  */
-function purge_existing_verifications_for_phone(string $phone): void
-{
-    $phone = trim($phone);
-    if ($phone === '') {
-        return;
-    }
-
-    $ids = Verification::where('phone', $phone)->pluck('id');
-    if ($ids->isEmpty()) {
-        return;
-    }
-
-    $idList = $ids->all();
-    try {
-        VerificationSms::whereIn('verification_id', $idList)->delete();
-    } catch (\Throwable $e) {
-        // ignore if table/column missing on older DBs
-    }
-
-    Verification::whereIn('id', $idList)->delete();
-}
 
 
 function sms_server_config_value(string $key, ?string $default = null): ?string
