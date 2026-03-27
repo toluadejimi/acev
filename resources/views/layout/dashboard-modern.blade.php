@@ -111,12 +111,14 @@
         <button type="button" id="assistant-close" aria-label="Close assistant"><i class="bi bi-x-lg"></i></button>
     </header>
     <div id="assistant-messages" class="assistant-panel__messages">
-        <div class="assistant-msg assistant-msg--bot">Try <code>order usa whatsapp</code> or <code>order usa telegram</code>.</div>
+        <div class="assistant-msg assistant-msg--bot">Try <code>order usa whatsapp</code>, <code>vtu airtime</code>, or <code>contact support</code>.</div>
     </div>
     <div class="assistant-panel__quick">
         <button type="button" class="assistant-quick" data-cmd="order usa whatsapp">WhatsApp</button>
         <button type="button" class="assistant-quick" data-cmd="order usa telegram">Telegram</button>
-        <button type="button" class="assistant-quick" data-cmd="order usa gmail">Gmail</button>
+        <button type="button" class="assistant-quick" data-cmd="vtu airtime">VTU Airtime</button>
+        <button type="button" class="assistant-quick" data-cmd="vtu data">VTU Data</button>
+        <button type="button" class="assistant-quick" data-cmd="contact support">Support</button>
         <button type="button" class="assistant-quick" data-cmd="balance">Balance</button>
     </div>
     <form id="assistant-form" class="assistant-panel__form">
@@ -142,6 +144,9 @@
     .assistant-msg{font-size:.84rem;line-height:1.35;padding:.55rem .65rem;border-radius:12px;max-width:92%}
     .assistant-msg--bot{align-self:flex-start;background:#f1f5f9;color:#0f172a}
     .assistant-msg--user{align-self:flex-end;background:#1d4ed8;color:#fff}
+    .assistant-choice-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.2rem}
+    .assistant-choice{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.35rem .7rem;font-size:.75rem;font-weight:700;color:#1e293b;text-decoration:none}
+    .assistant-choice:hover{border-color:#1d4ed8;color:#1d4ed8}
     .assistant-panel__quick{display:flex;flex-wrap:wrap;gap:.35rem;padding:.45rem .75rem;border-top:1px solid #eef2f7}
     .assistant-quick{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.3rem .6rem;font-size:.72rem;font-weight:700;color:#1e293b}
     .assistant-panel__form{display:flex;gap:.45rem;padding:.7rem;border-top:1px solid #eef2f7}
@@ -282,6 +287,25 @@ document.addEventListener('DOMContentLoaded', function () {
         msgs.scrollTop = msgs.scrollHeight;
     }
 
+    function addActionLinks(links) {
+        if (!Array.isArray(links) || links.length === 0) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'assistant-msg assistant-msg--bot';
+        var row = document.createElement('div');
+        row.className = 'assistant-choice-row';
+        links.forEach(function (item) {
+            if (!item || !item.url) return;
+            var a = document.createElement('a');
+            a.className = 'assistant-choice';
+            a.href = item.url;
+            a.textContent = item.label || 'Open';
+            row.appendChild(a);
+        });
+        wrap.appendChild(row);
+        msgs.appendChild(wrap);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
     async function sendCommand(text) {
         addMsg('user', text);
         var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -293,6 +317,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             var j = await r.json();
             addMsg('bot', j.reply || 'Done.');
+            if (Array.isArray(j.links) && j.links.length) {
+                addActionLinks(j.links);
+            }
             if (j.reload) setTimeout(function () { location.reload(); }, 900);
         } catch (e) {
             addMsg('bot', 'Something went wrong. Please try again.');
