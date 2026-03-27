@@ -5,7 +5,7 @@
 @php
     $b = rtrim(url(''), '/');
     $key = $api_key ?? '';
-    $vf = $verification_servers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+    $vf = $verification_servers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true];
 @endphp
 
 @push('styles')
@@ -120,7 +120,7 @@
         <div class="api-section__head">
             <h2 class="api-section__title">USA · Server 1</h2>
         </div>
-        <p class="api-section__note">DaisySMS-backed USA pool. Use <code>service</code> display name and <code>service_key</code> from the services list.</p>
+        <p class="api-section__note">USA Server 1 pool (retired). Use USA Server 2 or World endpoints instead.</p>
 
         <div class="api-endpoint">
             <h3 class="api-endpoint__name">1. List services</h3>

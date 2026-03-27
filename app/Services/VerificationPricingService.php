@@ -7,7 +7,7 @@ use App\Models\Setting;
 class VerificationPricingService
 {
     /**
-     * USA Server 1 (DaisySMS): server-side NGN from provider code and optional area/carrier surcharge.
+     * Legacy USA Server 1 pricing (retired): server-side NGN from provider code and optional area/carrier surcharge.
      *
      * @return array{api_cost: float, base_ngn: float, final_ngn: float}|null
      */

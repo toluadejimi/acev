@@ -75,7 +75,8 @@ function app_config_bool(string $key, bool $default = false): bool
 function verification_server_flags(): array
 {
     return [
-        'us1' => app_config_bool('verification_server_us1_enabled', true),
+        // USA Server 1 removed — keep flag false regardless of legacy DB config.
+        'us1' => false,
         'us2' => app_config_bool('verification_server_us2_enabled', true),
         'world' => app_config_bool('verification_server_world_enabled', true), // SMS Pool world
         'world_hero' => app_config_bool('verification_server_world_hero_enabled', true),
@@ -150,19 +151,18 @@ function world_sms_handler_url(array $query): string
 
 function sms_server_name(): string
 {
-    return strtolower((string) sms_server_config_value('sms_server_name', env('SMS_SERVER_NAME', 'daisysms')));
+    return strtolower((string) sms_server_config_value('sms_server_name', env('SMS_SERVER_NAME', 'herosms')));
 }
 
 function sms_server_base_url(): string
 {
-    // USA Server 1 is Daisy-based. Keep this path fixed so Hero world config
-    // cannot accidentally switch the US1 transport endpoint.
-    $fallback = env('SMS_SERVER_DAISY_BASE_URL', 'https://daisysms.com');
+    // Legacy SMS handler base (USA Server 1 removed). Default aligns with Hero-style pools.
+    $fallback = rtrim((string) env('SMS_SERVER_BASE_URL', env('SMS_SERVER_HERO_BASE_URL', 'https://hero-sms.com')), '/');
     $raw = sms_server_config_value('verification_server_us1_base_url', $fallback)
         ?? sms_server_config_value('sms_server_base_url', $fallback)
         ?? $fallback;
 
-    return rtrim($raw, '/');
+    return rtrim((string) $raw, '/');
 }
 
 function sms_server_api_key(): string
@@ -542,7 +542,7 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
 
     }
 
-    Log::info("Diasy Response ====>>>" . json_encode($result) . "Data ===> $cost");
+    Log::info('create_order provider response', ['result' => $result, 'cost' => $cost]);
 
 
     if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {

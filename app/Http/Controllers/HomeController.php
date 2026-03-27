@@ -231,10 +231,10 @@ class HomeController extends Controller
         $flags = verification_server_flags();
         if (empty($flags['us1'])) {
             if (!empty($flags['us2'])) {
-                return redirect('/usa2')->with('topMessage', 'USA Server 1 is currently unavailable.');
+                return redirect('/usa2')->with('topMessage', 'USA Server 1 is no longer available. Use USA Server 2.');
             }
             if (!empty($flags['world'])) {
-                return redirect('/world')->with('topMessage', 'USA Server 1 is currently unavailable.');
+                return redirect('/world')->with('topMessage', 'USA Server 1 is no longer available. Use World or USA Server 2.');
             }
             return redirect('/home')->with('topMessage', 'Verification service is currently unavailable.');
         }
@@ -369,7 +369,12 @@ class HomeController extends Controller
 
     public function order_now(Request $request)
     {
-
+        if (empty(verification_server_flags()['us1'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'USA Server 1 is no longer available. Use USA Server 2 (/usa2).',
+            ]);
+        }
 
         $wallet_check = WalletCheck::where('user_id', Auth::id())->first();
         if (!$wallet_check) {
@@ -1291,27 +1296,6 @@ class HomeController extends Controller
         }
 
         return response()->json(['ok' => true]);
-    }
-
-
-    public function diasy_webhook(Request $request)
-    {
-        $message = json_encode($request->all());
-        Log::info($message);
-
-        $activationId = $request->activationId;
-        $code = $request->code;
-
-        $verification = Verification::where('order_id', $activationId)->first();
-
-        if ($verification) {
-            $verification->update(['status' => 2]);
-            $sms = new VerificationSms();
-            $sms->verification_id = $verification->id;
-            $sms->sms = $code;
-            $sms->save();
-
-        }
     }
 
 

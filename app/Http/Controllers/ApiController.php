@@ -580,133 +580,10 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'message' => "Invalid API key"], 422);
         }
 
-        // Ensure WalletCheck exists
-        if (!WalletCheck::where('user_id', $user->id)->exists()) {
-            $wal = new WalletCheck();
-            $wal->user_id = $user->id;
-            $wal->total_funded = $user->wallet;
-            $wal->wallet_amount = $user->wallet;
-            $wal->save();
-        }
-
-        $service     = $request->service;
-        $service_key = $request->service_key;
-
-        $APIKEY = env('KEY');
-
-        // Get pricing
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getPrices&service=$service",
-            CURLOPT_RETURNTRANSFER => true,
-        ]);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $data = json_decode($response, true);
-        $countryData = is_array($data) ? reset($data) : [];
-        $cost = null;
-
-        foreach ($countryData as $details) {
-            if (strcasecmp($details['name'] ?? '', $service) === 0) {
-                $cost = $details['cost'] ?? null;
-                break;
-            }
-        }
-
-        if ($cost === null) {
-            return response()->json(['status' => false, 'message' => "Could not fetch pricing"], 422);
-        }
-
-        $settings = Setting::find(1);
-        $rate     = $settings->rate ?? 1;
-        $margin   = $settings->margin ?? 0;
-
-        $nairaCost = ($cost * $rate) + $margin;
-
-        if ($user->wallet < $nairaCost) {
-            return response()->json(['status' => false, 'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET"], 422);
-        }
-
-        // Get number
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "https://daisysms.com/stubs/handler_api.php?api_key=$APIKEY&action=getNumber&service=$service_key&max_price=$cost",
-            CURLOPT_RETURNTRANSFER => true,
-        ]);
-        $result = curl_exec($curl);
-        curl_close($curl);
-
-        if (strpos($result, "ACCESS_NUMBER") === false) {
-            return response()->json(['status' => false, 'message' => "Number Currently out of stock, Please check back later"]);
-        }
-
-        // Parse provider response
-        $parts = explode(":", $result);
-        if (count($parts) < 3) {
-            return response()->json(['status' => false, 'message' => "Unexpected response from provider"], 500);
-        }
-
-        $id    = $parts[1];
-        $phone = $parts[2];
-
-        purge_existing_verifications_for_phone($phone);
-
-        try {
-            $ver = DB::transaction(function () use ($user, $nairaCost, $id, $phone, $service, $cost) {
-                $locked = User::where('id', $user->id)->lockForUpdate()->first();
-                if (!$locked || (float) $locked->wallet < $nairaCost) {
-                    return null;
-                }
-
-                $old_balance = (float) $locked->wallet;
-                $new_balance = $old_balance - $nairaCost;
-
-                $verification = new Verification();
-                $verification->user_id    = $user->id;
-                $verification->phone      = $phone;
-                $verification->order_id   = $id;
-                $verification->country    = "US";
-                $verification->service    = $service;
-                $verification->cost       = $nairaCost;
-                $verification->api_cost   = $cost;
-                $verification->status     = 1;
-                $verification->expires_in = 300;
-                $verification->type       = 1;
-                $verification->save();
-
-                User::where('id', $user->id)->decrement('wallet', $nairaCost);
-                WalletCheck::where('user_id', $user->id)->increment('total_bought', $nairaCost);
-                WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $nairaCost);
-
-                $trx = new Transaction();
-                $trx->ref_id      = "APIVerification-" . uniqid();
-                $trx->user_id     = $user->id;
-                $trx->status      = 2;
-                $trx->amount      = $nairaCost;
-                $trx->balance     = $new_balance;
-                $trx->old_balance = $old_balance;
-                $trx->type        = 1;
-                $trx->save();
-
-                return $verification;
-            });
-        } catch (\Throwable $e) {
-            return response()->json(['status' => false, 'message' => 'Could not complete purchase'], 500);
-        }
-
-        if ($ver === null) {
-            return response()->json(['status' => false, 'message' => "INSUFFICIENT FUNDS, FUND YOUR WALLET"], 422);
-        }
-
         return response()->json([
-            'status'   => true,
-            'order_id' => $ver->id,
-            'phone_no' => $phone,
-            'country'  => "USA",
-            'service'  => $service,
-            'expires'  => $ver->expires_in,
-        ]);
+            'status' => false,
+            'message' => 'USA Server 1 is no longer available. Use USA Server 2 or World rent endpoints.',
+        ], 410);
     }
 
 
@@ -863,9 +740,9 @@ class ApiController extends Controller
 
         if ($request->action == "get-usa-services") {
             return response()->json([
-                'status' => true,
-                'data' => get_services_api()
-            ], 200);
+                'status' => false,
+                'message' => 'USA Server 1 service list is no longer available. Use World or USA Server 2 APIs.',
+            ], 410);
         }
 
         return response()->json([

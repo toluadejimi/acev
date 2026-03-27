@@ -181,7 +181,7 @@
                             <td>{{$trx->country}}</td>
                             <td>{{$trx->service}}</td>
                             <td>@if($trx->type == 1)
-                                    <span style="color: #014473" class="badge badge-success">DIASY SMS</span>
+                                    <span style="color: #014473" class="badge badge-success">USA · SV1</span>
                                 @elseif($trx->type == 8)
                                     <span style="color: #014473" class="badge badge-success">SMS POOL</span>
                                 @elseif($trx->type == 9)

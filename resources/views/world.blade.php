@@ -27,7 +27,7 @@
     </header>
 
     @php
-        $vfServers = $verificationServers ?? ['us1' => true, 'us2' => true, 'world' => true, 'world_hero' => true];
+        $vfServers = $verificationServers ?? ['us1' => false, 'us2' => true, 'world' => true, 'world_hero' => true];
     @endphp
     <nav class="vf-servers" aria-label="Number pools">
         @if(!empty($vfServers['us1']))

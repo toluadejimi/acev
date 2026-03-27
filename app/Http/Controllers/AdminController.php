@@ -40,7 +40,6 @@ class AdminController extends Controller
         $data['set3'] = Setting::where('id', 3)->first();
         $data['verificationServerFlags'] = verification_server_flags();
         $data['verificationServerKeys'] = [
-            'us1' => verification_server_api_key('us1'),
             'us2' => verification_server_api_key('us2'),
             'world' => verification_server_api_key('world'),
             'world_hero' => verification_server_api_key('world_hero'),
@@ -58,7 +57,7 @@ class AdminController extends Controller
     public function save_sms_server_config(Request $request)
     {
         $request->validate([
-            'sms_server_name' => 'required|string|in:daisysms,herosms,custom',
+            'sms_server_name' => 'required|string|in:herosms,custom',
             'sms_server_base_url' => 'required|url',
             'sms_server_api_key' => 'required|string|max:255',
         ]);
@@ -87,8 +86,9 @@ class AdminController extends Controller
     {
         AppConfig::updateOrCreate(
             ['config_key' => 'verification_server_us1_enabled'],
-            ['config_value' => $request->has('verification_server_us1_enabled') ? '1' : '0']
+            ['config_value' => '0']
         );
+        Cache::forget('app_config:verification_server_us1_enabled');
         AppConfig::updateOrCreate(
             ['config_key' => 'verification_server_us2_enabled'],
             ['config_value' => $request->has('verification_server_us2_enabled') ? '1' : '0']
@@ -98,7 +98,6 @@ class AdminController extends Controller
             ['config_value' => $request->has('verification_server_world_enabled') ? '1' : '0']
         );
 
-        Cache::forget('app_config:verification_server_us1_enabled');
         Cache::forget('app_config:verification_server_us2_enabled');
         Cache::forget('app_config:verification_server_world_enabled');
 
@@ -109,7 +108,6 @@ class AdminController extends Controller
     {
         $server = strtolower($server);
         $map = [
-            'us1' => ['setting_id' => 1, 'enabled_key' => 'verification_server_us1_enabled', 'api_key' => 'verification_server_us1_api_key'],
             'us2' => ['setting_id' => 3, 'enabled_key' => 'verification_server_us2_enabled', 'api_key' => 'verification_server_us2_api_key'],
             'world' => ['setting_id' => 2, 'enabled_key' => 'verification_server_world_enabled', 'api_key' => 'verification_server_world_api_key'],
             'world_hero' => ['setting_id' => null, 'enabled_key' => 'verification_server_world_hero_enabled', 'api_key' => 'verification_server_world_hero_api_key'],
