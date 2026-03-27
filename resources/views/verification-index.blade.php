@@ -518,7 +518,7 @@
                                                                     <div class="vf-status-row">
                                                                         <span class="vf-status vf-status--pending">Pending</span>
                                                                         <form method="POST"
-                                                                              action="{{ $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
+                                                                              action="{{ (int) $data->type === 3 ? url('delete-order-usa2?id='.$data->id.'&delete=1') : url('delete-order?id='.$data->id.'&delete=1') }}"
                                                                               class="d-inline vf-cancel-form"
                                                                               @if($heroCooldownEndMs) data-hero-cooldown-end="{{ $heroCooldownEndMs }}" @endif
                                                                               onsubmit="return confirmDelete(event, this);">
