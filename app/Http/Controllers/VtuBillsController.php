@@ -211,6 +211,63 @@ class VtuBillsController extends Controller
         return back()->with('message', 'Airtime request completed. If debited, your line should receive the top-up shortly.');
     }
 
+    /**
+     * Assistant helper: execute airtime purchase without page redirect flow.
+     *
+     * @return array{ok:bool,message:string}
+     */
+    public function assistantBuyAirtime(int $userId, string $serviceId, string $phone, float $amount): array
+    {
+        if (!SprintPayVasClient::configured()) {
+            return ['ok' => false, 'message' => 'VTU billing is not configured right now.'];
+        }
+
+        $serviceId = strtolower(trim($serviceId));
+        $phone = preg_replace('/\D/', '', $phone);
+        $amount = round($amount, 2);
+
+        if (!in_array($serviceId, ['mtn', 'glo', 'airtel', '9mobile'], true)) {
+            return ['ok' => false, 'message' => 'Unsupported network. Use MTN, Glo, Airtel, or 9mobile.'];
+        }
+        if (strlen($phone) !== 11) {
+            return ['ok' => false, 'message' => 'Phone number must be exactly 11 digits.'];
+        }
+        if ($amount < 50 || $amount > 100000) {
+            return ['ok' => false, 'message' => 'Amount must be between NGN 50 and NGN 100,000.'];
+        }
+        if ($serviceId === 'airtel' && $amount > 10000) {
+            return ['ok' => false, 'message' => 'Airtel airtime purchase is limited to NGN 10,000 per transaction.'];
+        }
+
+        $debit = $this->tryDebitForVas($userId, $amount);
+        if ($debit === null) {
+            return ['ok' => false, 'message' => 'Insufficient wallet balance.'];
+        }
+
+        $body = [
+            'service_id' => $serviceId,
+            'amount' => $amount,
+            'phone' => $phone,
+        ];
+        $endpoint = rtrim(SprintPayVasClient::baseUrl(), '/') . '/merchant/vas/buy-ng-airtime';
+        $resp = SprintPayVasClient::postMerchantVas('merchant/vas/buy-ng-airtime', $body);
+
+        if (!SprintPayVasClient::responseIndicatesSuccess($resp)) {
+            $this->refundVas($userId, $amount);
+            Log::warning('assistant buy-ng-airtime failed', [
+                'endpoint' => $endpoint,
+                'request' => $body,
+                'status' => $resp->status(),
+                'body' => $resp->body(),
+            ]);
+            return ['ok' => false, 'message' => SprintPayVasClient::extractMessage($resp)];
+        }
+
+        $this->recordVasTransaction($userId, $amount, $debit['old_balance'], $debit['new_balance'], 'AIR');
+
+        return ['ok' => true, 'message' => 'Airtime order placed successfully.'];
+    }
+
     public function buyData(Request $request): RedirectResponse
     {
         if (!SprintPayVasClient::configured()) {

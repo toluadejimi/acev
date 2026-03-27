@@ -90,9 +90,7 @@
     @yield('content')
 </main>
 
-<footer class="dash-footer">
-    <a href="https://t.me/acesmsverify" target="_blank" rel="noopener">Telegram — {{ config('app.name', 'Ace') }}</a>
-</footer>
+<footer class="dash-footer"></footer>
 
 <a href="https://t.me/acesmsverify" class="dash-float" target="_blank" rel="noopener" aria-label="Telegram">
     <i class="bi bi-telegram"></i>
@@ -147,6 +145,7 @@
     .assistant-choice-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.2rem}
     .assistant-choice{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.35rem .7rem;font-size:.75rem;font-weight:700;color:#1e293b;text-decoration:none}
     .assistant-choice:hover{border-color:#1d4ed8;color:#1d4ed8}
+    .assistant-action{border:1px solid #93c5fd;background:#eff6ff;border-radius:999px;padding:.35rem .7rem;font-size:.75rem;font-weight:800;color:#1d4ed8}
     .assistant-panel__quick{display:flex;flex-wrap:wrap;gap:.35rem;padding:.45rem .75rem;border-top:1px solid #eef2f7}
     .assistant-quick{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.3rem .6rem;font-size:.72rem;font-weight:700;color:#1e293b}
     .assistant-panel__form{display:flex;gap:.45rem;padding:.7rem;border-top:1px solid #eef2f7}
@@ -306,6 +305,28 @@ document.addEventListener('DOMContentLoaded', function () {
         msgs.scrollTop = msgs.scrollHeight;
     }
 
+    function addActionCommands(actions) {
+        if (!Array.isArray(actions) || actions.length === 0) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'assistant-msg assistant-msg--bot';
+        var row = document.createElement('div');
+        row.className = 'assistant-choice-row';
+        actions.forEach(function (item) {
+            if (!item || !item.command) return;
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'assistant-action';
+            b.textContent = item.label || item.command;
+            b.addEventListener('click', function () {
+                sendCommand(item.command);
+            });
+            row.appendChild(b);
+        });
+        wrap.appendChild(row);
+        msgs.appendChild(wrap);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
     async function sendCommand(text) {
         addMsg('user', text);
         var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -319,6 +340,9 @@ document.addEventListener('DOMContentLoaded', function () {
             addMsg('bot', j.reply || 'Done.');
             if (Array.isArray(j.links) && j.links.length) {
                 addActionLinks(j.links);
+            }
+            if (Array.isArray(j.actions) && j.actions.length) {
+                addActionCommands(j.actions);
             }
             if (j.reload) setTimeout(function () { location.reload(); }, 900);
         } catch (e) {
