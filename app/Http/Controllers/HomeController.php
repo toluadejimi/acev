@@ -1169,7 +1169,8 @@ class HomeController extends Controller
         }
 
         $waiting = 'waiting for sms';
-        $sms = $ver->sms;
+        // Prefer the parsed `sms` code, but fall back to `full_sms` if needed.
+        $sms = $ver->sms ?: $ver->full_sms;
 
         if ($sms === null || $sms === '') {
             return response()->json([
@@ -1609,57 +1610,67 @@ class HomeController extends Controller
         $request->validate([
             'action' => 'required|in:add,remove',
             'amount' => 'required|numeric|min:1',
-            'note' => 'nullable|string'
+            'note' => 'nullable|string',
         ]);
 
-        $user = User::findOrFail($id);
+        DB::beginTransaction();
 
-        if ($request->action === 'add') {
-            $user->wallet += $request->amount;
+        try {
+            /** @var \App\Models\User $user */
+            $user = User::where('id', $id)->lockForUpdate()->firstOrFail();
 
+            $amount = (float) $request->amount;
+            $oldBalance = (float) $user->wallet;
 
-            $trx = new Transaction();
-            $trx->ref_id = "ADMINFUNDING" . random_int(000000, 999999);
-            $trx->user_id = $user->id;
-            $trx->status = 2;
-            $trx->amount = $request->amount;
-            $trx->balance = $user->wallet + $request->amount;
-            $trx->old_balance = $user->wallet;
-            $trx->type = 2;
-            $trx->save();
+            if ($request->action === 'add') {
+                $newBalance = $oldBalance + $amount;
+                $user->wallet = $newBalance;
+                $user->save();
 
-            WalletCheck::where('user_id', $user->id)->increment('total_funded', $request->amount);
-            WalletCheck::where('user_id', $user->id)->increment('wallet_amount', $request->amount);
+                $trx = new Transaction();
+                $trx->ref_id = "ADMINFUNDING" . random_int(000000, 999999);
+                $trx->user_id = $user->id;
+                $trx->status = 2;
+                $trx->amount = $amount;
+                $trx->balance = $newBalance;
+                $trx->old_balance = $oldBalance;
+                $trx->type = 2;
+                $trx->save();
 
+                WalletCheck::where('user_id', $user->id)->increment('total_funded', $amount);
+                WalletCheck::where('user_id', $user->id)->increment('wallet_amount', $amount);
+            } elseif ($request->action === 'remove') {
+                if ($oldBalance < $amount) {
+                    DB::rollBack();
 
-            return back()->with('message', 'Funds updated successfully!');
+                    return back()->with('error', 'Insufficient balance to remove.');
+                }
 
+                $newBalance = $oldBalance - $amount;
+                $user->wallet = $newBalance;
+                $user->save();
 
-        } elseif ($request->action === 'remove') {
+                $trx = new Transaction();
+                $trx->ref_id = "ADMINREMOVAL" . random_int(000000, 999999);
+                $trx->user_id = $user->id;
+                $trx->status = 2;
+                $trx->amount = $amount;
+                $trx->balance = $newBalance;
+                $trx->old_balance = $oldBalance;
+                $trx->type = 1;
+                $trx->save();
 
-            if ($user->wallet < $request->amount) {
-                return back()->with('error', 'Insufficient balance to remove.');
+                WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $amount);
             }
 
-            $user->wallet -= $request->amount;
+            DB::commit();
 
-            $trx = new Transaction();
-            $trx->ref_id = "ADMINREMOVAL" . random_int(000000, 999999);
-            $trx->user_id = $user->id;
-            $trx->status = 2;
-            $trx->amount = $request->amount;
-            $trx->balance = $user->wallet - $request->amount;
-            $trx->old_balance = $user->wallet;
-            $trx->type = 1;
-            $trx->save();
+            return back()->with('message', 'Funds updated successfully!');
+        } catch (\Throwable $e) {
+            DB::rollBack();
 
-            WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $request->amount);
-
+            return back()->with('error', 'Could not update funds: ' . $e->getMessage());
         }
-
-        $user->save();
-
-        return back()->with('message', 'Funds updated successfully!');
     }
 
 

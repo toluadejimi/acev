@@ -367,7 +367,8 @@ class UnlimitedPortalController extends Controller
         }
 
         $waiting = 'waiting for sms';
-        $sms = $ver->sms;
+        // Prefer the parsed `sms` code, but fall back to `full_sms` if needed.
+        $sms = $ver->sms ?: $ver->full_sms;
 
         if ($sms === null || $sms === '') {
             return response()->json([
