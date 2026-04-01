@@ -481,9 +481,15 @@
                                                                             return /waiting\s*for\s*sms/i.test(String(msg || ''));
                                                                         }
                                                                         function vfExtractOtp(msg) {
-                                                                            const s = String(msg || '');
+                                                                            const s = String(msg || '').trim();
                                                                             const m = s.match(/\b(\d{4,8})\b/);
-                                                                            return m ? m[1] : '';
+                                                                            // If we find a classic 4–8 digit OTP, return just that.
+                                                                            if (m) {
+                                                                                return m[1];
+                                                                            }
+                                                                            // Fallback: return the full message so users still see the code
+                                                                            // even if the provider formats it in a non-standard way.
+                                                                            return s;
                                                                         }
                                                                         function vfMarkUsa2RowCompleted() {
                                                                             const cell = document.getElementById('vf-status-cell-' + id);
