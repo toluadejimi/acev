@@ -240,14 +240,16 @@ class AdminController extends Controller
             return redirect('/admin')->with('error', "You do not have permission");
         }
 
+        $filter = $request->input('kind'); // e.g. verification, funding, api_order, vtu_airtime, etc.
+
         $query = Transaction::query()
             ->latest()
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year);
 
-        // Optional filter: hide VTU transactions (type = 4)
-        if ($request->boolean('hide_vtu')) {
-            $query->where('type', '!=', 4);
+        // Optional filter by logical transaction kind
+        if ($filter) {
+            $this->applyTransactionKindFilter($query, $filter);
         }
 
         $data['transaction'] = $query->paginate(100);
@@ -263,16 +265,64 @@ class AdminController extends Controller
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year);
 
-        if ($request->boolean('hide_vtu')) {
-            $baseCreditQuery->where('type', '!=', 4);
-            $baseDebitQuery->where('type', '!=', 4);
+        if ($filter) {
+            $this->applyTransactionKindFilter($baseCreditQuery, $filter);
+            $this->applyTransactionKindFilter($baseDebitQuery, $filter);
         }
 
         $data['credit'] = $baseCreditQuery->sum('amount');
         $data['debit'] = $baseDebitQuery->sum('amount');
-        $data['hide_vtu'] = $request->boolean('hide_vtu');
+        $data['kind'] = $filter;
 
         return view('transactions', $data);
+    }
+
+    /**
+     * Apply a high-level "kind" filter to a Transaction query.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $kind
+     */
+    private function applyTransactionKindFilter($query, string $kind): void
+    {
+        $kind = strtolower(trim($kind));
+
+        switch ($kind) {
+            case 'funding':
+                // Wallet funding / manual payments
+                $query->where('type', 2);
+                break;
+            case 'verification':
+                // Normal verification debits
+                $query->where('type', 1)
+                    ->where('ref_id', 'LIKE', '%Verification%');
+                break;
+            case 'order_cancel':
+                $query->where('type', 3)
+                    ->where('ref_id', 'LIKE', '%Order Cancel%');
+                break;
+            case 'api_order':
+                $query->where('type', 1)
+                    ->where(function ($q) {
+                        $q->where('ref_id', 'LIKE', 'APIVerification%')
+                          ->orWhere('ref_id', 'LIKE', 'API_VERIFICATION%');
+                    });
+                break;
+            case 'api_order_cancel':
+                $query->where('type', 3)
+                    ->where(function ($q) {
+                        $q->where('ref_id', 'LIKE', 'Order API Cancel%')
+                          ->orWhere('ref_id', 'LIKE', 'API_ORDER_CANCEL_%');
+                    });
+                break;
+            case 'vtu':
+                // All VTU (airtime, data, cable, electricity) share type = 4
+                $query->where('type', 4);
+                break;
+            default:
+                // no-op, show all kinds
+                break;
+        }
     }
 
     public

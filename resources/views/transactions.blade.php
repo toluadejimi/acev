@@ -80,14 +80,14 @@
                             <div class="col-6">
 
                                 <label>Date From</label>
-                                <input class="form-control" name="from" type="date">
+                                <input class="form-control" name="from" type="date" value="{{ request('from') }}">
 
                             </div>
 
                             <div class="col-6">
 
                                 <label>Date To</label>
-                                <input class="form-control" name="to" type="date">
+                                <input class="form-control" name="to" type="date" value="{{ request('to') }}">
 
                             </div>
 
@@ -97,13 +97,17 @@
                     </form>
 
                     <form action="{{ url('transactions') }}" method="get" class="d-flex align-items-center" style="gap: 0.5rem;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="hide_vtu" id="hide_vtu"
-                                   value="1" {{ request('hide_vtu') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="hide_vtu">
-                                Hide VTU transactions
-                            </label>
-                        </div>
+                        <label class="me-2 mb-0">Filter by type:</label>
+                        <select name="kind" class="form-select form-select-sm" style="max-width: 220px;">
+                            @php $selectedKind = request('kind') ?: ($kind ?? null); @endphp
+                            <option value="">All types</option>
+                            <option value="funding" {{ $selectedKind === 'funding' ? 'selected' : '' }}>Funding</option>
+                            <option value="verification" {{ $selectedKind === 'verification' ? 'selected' : '' }}>Verification (user orders)</option>
+                            <option value="order_cancel" {{ $selectedKind === 'order_cancel' ? 'selected' : '' }}>Order cancel refunds</option>
+                            <option value="api_order" {{ $selectedKind === 'api_order' ? 'selected' : '' }}>API orders</option>
+                            <option value="api_order_cancel" {{ $selectedKind === 'api_order_cancel' ? 'selected' : '' }}>API order cancels</option>
+                            <option value="vtu" {{ $selectedKind === 'vtu' ? 'selected' : '' }}>VTU (airtime/data/etc)</option>
+                        </select>
                         <button type="submit" class="btn btn-outline-primary btn-sm ms-2">Apply</button>
                     </form>
 
