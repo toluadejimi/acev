@@ -129,8 +129,19 @@
 
                         <tr>
                             <td>{{ $data->ref_id }} </td>
-                            @php $user = User::where('id', $data->user_id)->first()->email ?? null; @endphp
-                            <td>{{$user ?? "name"}}</td>
+                            @php
+                                $userModel = User::where('id', $data->user_id)->first();
+                                $userEmail = $userModel->email ?? null;
+                            @endphp
+                            <td>
+                                @if($userModel)
+                                    <a href="{{ url('view-user?id='.$userModel->id) }}">
+                                        {{ $userEmail }}
+                                    </a>
+                                @else
+                                    name
+                                @endif
+                            </td>
                             <td>{{ number_format($data->amount, 2) }} </td>
                             <td>{{ number_format($data->old_balance, 2) }} </td>
                             <td>{{ number_format($data->balance, 2) }} </td>

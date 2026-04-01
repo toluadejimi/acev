@@ -232,42 +232,47 @@ class AdminController extends Controller
 
 
 
-    public function transactions(request $request)
+    public function transactions(Request $request)
     {
-
-
         $role = User::where('id', Auth::id())->first()->role_id ?? null;
         if ($role != 5) {
-
             Auth::logout();
             return redirect('/admin')->with('error', "You do not have permission");
-
         }
 
+        $query = Transaction::query()
+            ->latest()
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year);
 
+        // Optional filter: hide VTU transactions (type = 4)
+        if ($request->boolean('hide_vtu')) {
+            $query->where('type', '!=', 4);
+        }
 
-        $data['transaction'] = Transaction::latest()->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->paginate(100);;
+        $data['transaction'] = $query->paginate(100);
 
-
-
-        $data['credit'] = Transaction::where('type', 2)
+        $baseCreditQuery = Transaction::where('type', 2)
             ->where('status', 2)
             ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('amount');
+            ->whereYear('created_at', now()->year);
 
-        $data['debit'] = Transaction::where('type', 1)
+        $baseDebitQuery = Transaction::where('type', 1)
             ->where('status', 2)
             ->where('ref_id', 'LIKE', '%Verification%')
             ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('amount');
+            ->whereYear('created_at', now()->year);
+
+        if ($request->boolean('hide_vtu')) {
+            $baseCreditQuery->where('type', '!=', 4);
+            $baseDebitQuery->where('type', '!=', 4);
+        }
+
+        $data['credit'] = $baseCreditQuery->sum('amount');
+        $data['debit'] = $baseDebitQuery->sum('amount');
+        $data['hide_vtu'] = $request->boolean('hide_vtu');
 
         return view('transactions', $data);
-
-
     }
 
     public
