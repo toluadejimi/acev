@@ -72,7 +72,7 @@
 
                     <h5 class="my-3">Search Transaction</h5>
 
-                    <form action="search-trx" method="get">
+                    <form action="search-trx" method="get" class="mb-3">
                         @csrf
 
                         <div class="row">
@@ -94,8 +94,17 @@
                         </div>
 
                         <button type="submit" class="btn btn-lg btn-success my-3">Search</button>
+                    </form>
 
-
+                    <form action="{{ url('transactions') }}" method="get" class="d-flex align-items-center" style="gap: 0.5rem;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="hide_vtu" id="hide_vtu"
+                                   value="1" {{ request('hide_vtu') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="hide_vtu">
+                                Hide VTU transactions
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary btn-sm ms-2">Apply</button>
                     </form>
 
 
