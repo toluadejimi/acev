@@ -17,6 +17,16 @@ use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
+    private function apiKeyLogSuffix(?string $apiKey): string
+    {
+        if ($apiKey === null || $apiKey === '') {
+            return '(empty)';
+        }
+        $len = strlen($apiKey);
+
+        return $len <= 4 ? '****' : '…' . substr($apiKey, -4);
+    }
+
     private function computeApiWorldNgnPrice(User $user, string $country, string $service): ?float
     {
         $key = env('WKEY');
@@ -380,7 +390,20 @@ class ApiController extends Controller
             'order_id' => 'required|integer',
         ]);
 
+        $internalOrderId = $request->integer('order_id');
+        $logBase = [
+            'endpoint' => 'cancel-world-sms',
+            'internal_order_id' => $internalOrderId,
+            'ip' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 240),
+            'api_key_suffix' => $this->apiKeyLogSuffix($request->input('api_key')),
+        ];
+
+        Log::info('cancel-world-sms: request', $logBase);
+
         if ($request->action !== "cancel-world-sms") {
+            Log::warning('cancel-world-sms: invalid action', array_merge($logBase, ['action' => $request->action]));
+
             return response()->json([
                 'status'  => false,
                 'message' => "Invalid action",
@@ -389,18 +412,31 @@ class ApiController extends Controller
 
         $caller = User::where('api_key', $request->api_key)->first();
         if (!$caller) {
+            Log::warning('cancel-world-sms: invalid api_key', $logBase);
+
             return response()->json([
                 'status'  => false,
                 'message' => "Invalid API key",
             ], 401);
         }
 
+        $logBase['user_id'] = (int) $caller->id;
+
         try {
-            $result = DB::transaction(function () use ($request, $caller) {
+            $result = DB::transaction(function () use ($request, $caller, $logBase) {
                 $order = Verification::where('id', $request->order_id)->lockForUpdate()->first();
                 if (!$order) {
+                    Log::info('cancel-world-sms: order not found', $logBase);
+
                     return ['http' => 404, 'body' => ['status' => false, 'message' => 'Order not found']];
                 }
+
+                $logOrder = array_merge($logBase, [
+                    'verification_id' => (int) $order->id,
+                    'provider_order_id' => (string) ($order->order_id ?? ''),
+                    'order_type' => (int) ($order->type ?? 0),
+                    'order_status' => (int) ($order->status ?? 0),
+                ]);
 
                 // Only the account that created the order may cancel via API (prevents arbitrary refunds).
                 if ((int) $order->user_id !== (int) $caller->id) {
@@ -417,6 +453,8 @@ class ApiController extends Controller
 
                 // Idempotent: refund already recorded — never credit twice.
                 if (Transaction::where('ref_id', $refundRefId)->exists()) {
+                    Log::info('cancel-world-sms: idempotent — refund already exists', $logOrder);
+
                     return [
                         'http' => 200,
                         'body' => ['status' => true, 'message' => 'ORDER ALREADY CANCELLED'],
@@ -424,6 +462,8 @@ class ApiController extends Controller
                 }
 
                 if ((int) $order->status === 99) {
+                    Log::info('cancel-world-sms: order already status 99', $logOrder);
+
                     return [
                         'http' => 200,
                         'body' => ['status' => true, 'message' => 'ORDER ALREADY CANCELLED'],
@@ -432,6 +472,8 @@ class ApiController extends Controller
 
                 // Only pending world/API orders can be cancelled/refunded
                 if ((int) $order->status !== 1 || !in_array((int) $order->type, [2, 8, 9, 10], true)) {
+                    Log::info('cancel-world-sms: cannot cancel at this stage', $logOrder);
+
                     return [
                         'http' => 400,
                         'body' => ['status' => false, 'message' => 'Order cannot be cancelled at this stage'],
@@ -442,6 +484,8 @@ class ApiController extends Controller
                 $can_order = cancel_world_order($orderID);
 
                 if ($can_order == 0) {
+                    Log::info('cancel-world-sms: provider cancel deferred (try later)', $logOrder);
+
                     return [
                         'http' => 422,
                         'body' => ['status' => false, 'message' => 'Please wait and try again later'],
@@ -449,6 +493,8 @@ class ApiController extends Controller
                 }
 
                 if ($can_order == 5) {
+                    Log::info('cancel-world-sms: provider reports SMS already present', $logOrder);
+
                     return [
                         'http' => 422,
                         'body' => ['status' => false, 'message' => 'SMS Found already'],
@@ -456,6 +502,8 @@ class ApiController extends Controller
                 }
 
                 if ($can_order == 3) {
+                    Log::info('cancel-world-sms: provider order not active', $logOrder);
+
                     return [
                         'http' => 422,
                         'body' => ['status' => false, 'message' => 'Order no longer active on provider side'],
@@ -463,6 +511,8 @@ class ApiController extends Controller
                 }
 
                 if ($can_order != 1) {
+                    Log::warning('cancel-world-sms: provider cancel unexpected code', array_merge($logOrder, ['can_order' => $can_order]));
+
                     return [
                         'http' => 422,
                         'body' => ['status' => false, 'message' => 'Cancellation failed'],
@@ -471,6 +521,8 @@ class ApiController extends Controller
 
                 $user = User::where('id', $order->user_id)->lockForUpdate()->first();
                 if (!$user) {
+                    Log::error('cancel-world-sms: user missing during refund', $logOrder);
+
                     return ['http' => 500, 'body' => ['status' => false, 'message' => 'User not found']];
                 }
 
@@ -497,19 +549,35 @@ class ApiController extends Controller
                 $order->status = 99;
                 $order->save();
 
+                Log::info('cancel-world-sms: refunded and order marked cancelled', array_merge($logOrder, [
+                    'refund_ngn' => $refund,
+                    'wallet_before' => $old_balance,
+                    'wallet_after' => $new_balance,
+                    'transaction_ref_id' => $refundRefId,
+                ]));
+
                 return [
                     'http' => 200,
                     'body' => ['status' => true, 'message' => 'ORDER CANCELLED'],
                 ];
             }, 3);
         } catch (\Throwable $e) {
-            Log::error('cancel-world-sms failed', ['e' => $e->getMessage()]);
+            Log::error('cancel-world-sms: exception', array_merge($logBase, [
+                'e' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]));
 
             return response()->json([
                 'status'  => false,
                 'message' => 'Could not cancel order',
             ], 500);
         }
+
+        Log::info('cancel-world-sms: response', array_merge($logBase, [
+            'http_status' => $result['http'],
+            'response_message' => $result['body']['message'] ?? null,
+            'response_ok' => ($result['body']['status'] ?? false) === true,
+        ]));
 
         return response()->json($result['body'], $result['http']);
     }
