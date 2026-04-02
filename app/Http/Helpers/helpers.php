@@ -465,12 +465,26 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     }
 
     try {
-        return DB::transaction(function () use ($url, $service_name, $gcost, $hasArea, $hasCarrier, $price, $finalCostPreview, $cost) {
+        return DB::transaction(function () use ($url, $service, $service_name, $gcost, $hasArea, $hasCarrier, $area_code, $carrier, $price, $finalCostPreview, $cost, $maxPrice) {
             $userId = Auth::id();
             $user = User::where('id', $userId)->lockForUpdate()->first();
             if (!$user || (float) $user->wallet < $finalCostPreview) {
                 return 8;
             }
+
+            $handlerHost = parse_url($url, PHP_URL_HOST) ?: 'unknown';
+            Log::info('usa_server1_getNumber: request', [
+                'user_id' => $userId,
+                'handler_host' => $handlerHost,
+                'provider_service' => $service,
+                'service_label' => $service_name,
+                'max_price' => $maxPrice,
+                'has_area' => $hasArea,
+                'has_carrier' => $hasCarrier,
+                'area_code' => $hasArea ? (string) $area_code : null,
+                'carrier' => $hasCarrier ? (string) $carrier : null,
+                'final_cost_preview_ngn' => $finalCostPreview,
+            ]);
 
             $curl = curl_init();
             curl_setopt_array($curl, [
@@ -484,13 +498,41 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ]);
             $var = curl_exec($curl);
+            $curlErr = curl_error($curl);
             curl_close($curl);
             $result = $var ?? null;
 
+            if ($curlErr !== '' && $curlErr !== null) {
+                Log::warning('usa_server1_getNumber: curl_error', [
+                    'user_id' => $userId,
+                    'handler_host' => $handlerHost,
+                    'curl_error' => $curlErr,
+                ]);
+            }
+
+            $raw = (string) $result;
+            if ($raw !== '') {
+                Log::info('usa_server1_getNumber: provider_response', [
+                    'user_id' => $userId,
+                    'handler_host' => $handlerHost,
+                    'response_preview' => strlen($raw) > 400 ? substr($raw, 0, 400) . '…' : $raw,
+                    'response_bytes' => strlen($raw),
+                ]);
+            } else {
+                Log::warning('usa_server1_getNumber: empty_response', [
+                    'user_id' => $userId,
+                    'handler_host' => $handlerHost,
+                ]);
+            }
+
             if (strstr((string) $result, 'NO_NUMBERS') !== false) {
+                Log::info('usa_server1_getNumber: outcome', ['user_id' => $userId, 'outcome' => 'NO_NUMBERS']);
+
                 return 56;
             }
             if (strstr((string) $result, 'MAX_PRICE_EXCEEDED') !== false) {
+                Log::info('usa_server1_getNumber: outcome', ['user_id' => $userId, 'outcome' => 'MAX_PRICE_EXCEEDED']);
+
                 return 54;
             }
 
@@ -546,6 +588,17 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
                 $trx->old_balance = $oldBalance;
                 $trx->type = 1;
                 $trx->save();
+
+                $digits = preg_replace('/\D/', '', (string) $phone) ?: '';
+                $phoneTail = strlen($digits) >= 4 ? substr($digits, -4) : null;
+                Log::info('usa_server1_getNumber: success', [
+                    'user_id' => $userId,
+                    'verification_id' => (int) $ver->id,
+                    'provider_activation_id' => (string) $id,
+                    'service_label' => $service_name,
+                    'charged_ngn' => $finalCost,
+                    'phone_last4' => $phoneTail,
+                ]);
 
                 return 1;
             }
