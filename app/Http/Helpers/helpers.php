@@ -428,10 +428,6 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
     $hasCarrier = $carrier !== null && trim((string) $carrier) !== '';
     $finalCostPreview = ($hasArea || $hasCarrier) ? $price * 1.2 : $price;
 
-    if (Auth::user()->wallet < $finalCostPreview) {
-        return 8;
-    }
-
     $maxPrice = $gcost;
     if ($maxPrice === null || (float) $maxPrice <= 0) {
         $maxPrice = $cost;
@@ -468,69 +464,67 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
         ]);
     }
 
-    $curl = curl_init();
+    try {
+        return DB::transaction(function () use ($url, $service_name, $gcost, $hasArea, $hasCarrier, $price, $finalCostPreview, $cost) {
+            $userId = Auth::id();
+            $user = User::where('id', $userId)->lockForUpdate()->first();
+            if (!$user || (float) $user->wallet < $finalCostPreview) {
+                return 8;
+            }
 
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-    ));
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ]);
+            $var = curl_exec($curl);
+            curl_close($curl);
+            $result = $var ?? null;
 
-    $var = curl_exec($curl);
-    curl_close($curl);
-    $result = $var ?? null;
+            if (strstr((string) $result, 'NO_NUMBERS') !== false) {
+                return 56;
+            }
+            if (strstr((string) $result, 'MAX_PRICE_EXCEEDED') !== false) {
+                return 54;
+            }
 
-    if (strstr($result, "NO_NUMBERS") !== false) {
+            if (strstr((string) $result, 'ACCESS_NUMBER') !== false) {
+                $parts = explode(':', (string) $result);
+                if (count($parts) < 3) {
+                    return 0;
+                }
 
-        return 56;
+                $id = $parts[1];
+                $phone = $parts[2];
+                $finalCost = ($hasArea || $hasCarrier) ? $price + ($price * 0.20) : $price;
 
-    }
-
-    if (strstr($result, "MAX_PRICE_EXCEEDED") !== false) {
-
-        return 54;
-
-    }
-
-
-    if (strstr($result, "ACCESS_NUMBER") !== false) {
-
-        $parts = explode(":", $result);
-        if (count($parts) < 3) {
-            return 0;
-        }
-
-        $id = $parts[1];
-        $phone = $parts[2];
-
-        $finalCost = ($hasArea || $hasCarrier) ? $price + ($price * 0.20) : $price;
-
-        $existingIds = Verification::where('phone', $phone)->pluck('id');
-        if ($existingIds->isNotEmpty()) {
-            VerificationSms::whereIn('verification_id', $existingIds)->delete();
-            Verification::whereIn('id', $existingIds)->delete();
-        }
-
-        try {
-            return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
-                $user = User::where('id', Auth::id())->lockForUpdate()->first();
+                $user = User::where('id', $userId)->lockForUpdate()->first();
                 if (!$user || (float) $user->wallet < $finalCost) {
+                    cancel_order($id);
+
                     return 8;
+                }
+
+                $existingIds = Verification::where('phone', $phone)->pluck('id');
+                if ($existingIds->isNotEmpty()) {
+                    VerificationSms::whereIn('verification_id', $existingIds)->delete();
+                    Verification::whereIn('id', $existingIds)->delete();
                 }
 
                 $oldBalance = (float) $user->wallet;
                 $newBalance = $oldBalance - $finalCost;
 
                 $ver = new Verification();
-                $ver->user_id = Auth::id();
+                $ver->user_id = $userId;
                 $ver->phone = $phone;
                 $ver->order_id = $id;
-                $ver->country = "US";
+                $ver->country = 'US';
                 $ver->service = $service_name;
                 $ver->cost = $finalCost;
                 $ver->api_cost = $gcost;
@@ -539,13 +533,13 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
                 $ver->type = 1;
                 $ver->save();
 
-                User::where('id', Auth::id())->decrement('wallet', $finalCost);
-                WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-                WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
+                User::where('id', $userId)->decrement('wallet', $finalCost);
+                WalletCheck::where('user_id', $userId)->increment('total_bought', $finalCost);
+                WalletCheck::where('user_id', $userId)->decrement('wallet_amount', $finalCost);
 
                 $trx = new Transaction();
                 $trx->ref_id = "Verification-$id";
-                $trx->user_id = Auth::id();
+                $trx->user_id = $userId;
                 $trx->status = 2;
                 $trx->amount = $finalCost;
                 $trx->balance = $newBalance;
@@ -554,22 +548,21 @@ function create_order($service, $price, $cost, $service_name, $gcost, $area_code
                 $trx->save();
 
                 return 1;
-            });
-        } catch (\Throwable $e) {
-            Log::error('create_order debit failed', ['e' => $e->getMessage()]);
+            }
+
+            Log::info('create_order provider response', ['result' => $result, 'cost' => $cost]);
+
+            if ($result == 'MAX_PRICE_EXCEEDED' || $result == 'NO_NUMBERS' || $result == 'TOO_MANY_ACTIVE_RENTALS' || $result == 'NO_MONEY') {
+                return 0;
+            }
 
             return 0;
-        }
+        });
+    } catch (\Throwable $e) {
+        Log::error('create_order failed', ['e' => $e->getMessage()]);
 
-    }
-
-    Log::info('create_order provider response', ['result' => $result, 'cost' => $cost]);
-
-
-    if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
         return 0;
     }
-
 }
 
 
@@ -918,8 +911,17 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
         ]);
     }
 
-    if ($user->wallet < $calculatedCost) {
-        Cache::put($lastErrorCacheKey, 'Insufficient wallet balance', 300);
+    $hasFunds = DB::transaction(function () use ($user, $calculatedCost, $lastErrorCacheKey) {
+        $locked = User::where('id', $user->id)->lockForUpdate()->first();
+        if (!$locked || (float) $locked->wallet < $calculatedCost) {
+            Cache::put($lastErrorCacheKey, 'Insufficient wallet balance', 300);
+
+            return false;
+        }
+
+        return true;
+    }, 3);
+    if (!$hasFunds) {
         return 99;
     }
 
@@ -1118,6 +1120,22 @@ function create_world_order($country, $service, string $provider = 'smspool', ?f
 
                 return 3;
             });
+
+            if ($out === 99) {
+                $providerOrderId = $data['order_id'] ?? null;
+                if ($providerOrderId !== null && (string) $providerOrderId !== '') {
+                    $cancelProvider = $provider === 'herosms' ? 'herosms' : ($provider === 'sv3' ? 'sv3' : 'smspool');
+                    try {
+                        cancel_world_order((string) $providerOrderId, $cancelProvider);
+                    } catch (\Throwable $e) {
+                        Log::warning('create_world_order: failed to cancel provider order after insufficient wallet', [
+                            'order_id' => (string) $providerOrderId,
+                            'provider' => $cancelProvider,
+                            'e' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
 
             if ($out === 3) {
                 $locked = User::where('id', $user->id)->first();

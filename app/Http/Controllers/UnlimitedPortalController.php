@@ -531,103 +531,99 @@ class UnlimitedPortalController extends Controller
         $hasArea = $area_code !== null && trim((string) $area_code) !== '';
         $finalCostPreview = $hasArea ? $price * 1.2 : $price;
 
-        if (Auth::user()->wallet < $finalCostPreview) {
-            return 8;
-        }
+        try {
+            return DB::transaction(function () use ($service, $price, $cost, $service_name, $gcost, $area_code, $hasArea, $finalCostPreview) {
+                $userId = Auth::id();
+                $user = User::where('id', $userId)->lockForUpdate()->first();
+                if (!$user || (float) $user->wallet < $finalCostPreview) {
+                    return 8;
+                }
 
-        $rent = $this->sendRequest('request', [
-            'service' => $service,
-            'areacode' => $hasArea ? trim((string) $area_code) : null,
-        ]);
+                $rent = $this->sendRequest('request', [
+                    'service' => $service,
+                    'areacode' => $hasArea ? trim((string) $area_code) : null,
+                ]);
 
-        if (!is_array($rent)) {
-            return 0;
-        }
+                if (!is_array($rent)) {
+                    return 0;
+                }
 
-        $result = $rent['status'] ?? '';
+                $result = $rent['status'] ?? '';
 
-        if (strstr((string) $result, "NO_NUMBERS") !== false) {
+                if (strstr((string) $result, 'NO_NUMBERS') !== false) {
+                    return 56;
+                }
 
-            return 56;
+                if (strstr((string) $result, 'MAX_PRICE_EXCEEDED') !== false) {
+                    return 54;
+                }
 
-        }
-
-        if (strstr((string) $result, "MAX_PRICE_EXCEEDED") !== false) {
-
-            return 54;
-
-        }
-
-
-        if (strstr((string) $result, "ok") !== false) {
-
-            $id = $rent['message'][0]['id'] ?? null;
-            $phone = $rent['message'][0]['mdn'] ?? null;
-            if ($id === null || $phone === null) {
-                return 0;
-            }
-
-            Verification::where('phone', $phone)->delete();
-
-            $finalCost = $hasArea ? $price + ($price * 0.20) : $price;
-
-
-                    try {
-                        return DB::transaction(function () use ($service_name, $gcost, $id, $phone, $finalCost) {
-                    $user = User::where('id', Auth::id())->lockForUpdate()->first();
-                    if (!$user || (float) $user->wallet < $finalCost) {
-                        return 8;
+                if (strstr((string) $result, 'ok') === false) {
+                    Log::info('Unlimited SNS Response ====>>> ' . json_encode($result) . ' Data ===> ' . $cost);
+                    if ($result == 'MAX_PRICE_EXCEEDED' || $result == 'NO_NUMBERS' || $result == 'TOO_MANY_ACTIVE_RENTALS' || $result == 'NO_MONEY') {
+                        return 0;
                     }
 
-                    $oldBalance = (float) $user->wallet;
-                    $balance = $oldBalance - $finalCost;
+                    return 0;
+                }
 
-                    $ver = new Verification();
-                    $ver->user_id = Auth::id();
-                    $ver->phone = $phone;
-                    $ver->order_id = $id;
-                    $ver->country = "US";
-                    $ver->service = $service_name;
-                    $ver->cost = $finalCost;
-                    $ver->api_cost = $gcost;
-                    $ver->status = 1;
-                    $ver->expires_in = 300;
-                    $ver->type = 3;
-                    $ver->save();
+                $id = $rent['message'][0]['id'] ?? null;
+                $phone = $rent['message'][0]['mdn'] ?? null;
+                if ($id === null || $phone === null) {
+                    return 0;
+                }
 
-                    User::where('id', Auth::id())->decrement('wallet', $finalCost);
-                    WalletCheck::where('user_id', Auth::id())->increment('total_bought', $finalCost);
-                    WalletCheck::where('user_id', Auth::id())->decrement('wallet_amount', $finalCost);
+                $finalCost = $hasArea ? $price + ($price * 0.20) : $price;
 
-                    $trx = new Transaction();
-                    $trx->ref_id = "Verification-$id";
-                    $trx->user_id = Auth::id();
-                    $trx->status = 2;
-                    $trx->amount = $finalCost;
-                    $trx->balance = $balance;
-                    $trx->old_balance = $oldBalance;
-                    $trx->type = 1;
-                    $trx->save();
+                $user = User::where('id', $userId)->lockForUpdate()->first();
+                if (!$user || (float) $user->wallet < $finalCost) {
+                    $this->sendRequest('reject', [
+                        'id' => $id,
+                        'mdn' => (string) $phone,
+                    ]);
 
-                    return 1;
-                });
-            } catch (\Throwable $e) {
-                Log::error('create_order_usa2 debit failed', ['e' => $e->getMessage()]);
+                    return 8;
+                }
 
-                return 0;
-            }
+                Verification::where('phone', $phone)->delete();
 
-        }
+                $oldBalance = (float) $user->wallet;
+                $balance = $oldBalance - $finalCost;
 
-        Log::info("Unlimited SNS Response ====>>>". json_encode($result)."Data ===> $cost");
+                $ver = new Verification();
+                $ver->user_id = $userId;
+                $ver->phone = $phone;
+                $ver->order_id = $id;
+                $ver->country = 'US';
+                $ver->service = $service_name;
+                $ver->cost = $finalCost;
+                $ver->api_cost = $gcost;
+                $ver->status = 1;
+                $ver->expires_in = 300;
+                $ver->type = 3;
+                $ver->save();
 
+                User::where('id', $userId)->decrement('wallet', $finalCost);
+                WalletCheck::where('user_id', $userId)->increment('total_bought', $finalCost);
+                WalletCheck::where('user_id', $userId)->decrement('wallet_amount', $finalCost);
 
-        if ($result == "MAX_PRICE_EXCEEDED" || $result == "NO_NUMBERS" || $result == "TOO_MANY_ACTIVE_RENTALS" || $result == "NO_MONEY") {
+                $trx = new Transaction();
+                $trx->ref_id = "Verification-$id";
+                $trx->user_id = $userId;
+                $trx->status = 2;
+                $trx->amount = $finalCost;
+                $trx->balance = $balance;
+                $trx->old_balance = $oldBalance;
+                $trx->type = 1;
+                $trx->save();
+
+                return 1;
+            });
+        } catch (\Throwable $e) {
+            Log::error('create_order_usa2 failed', ['e' => $e->getMessage()]);
+
             return 0;
         }
-
-
-
     }
     private function check_sms($id)
     {

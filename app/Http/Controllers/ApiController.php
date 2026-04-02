@@ -54,43 +54,39 @@ class ApiController extends Controller
 
     public function get_balance(request $request)
     {
-
-        $bal = User::where('api_key', $request->api_key)->first()->wallet ?? null;
-
         if ($request->api_key == null) {
-
             return response()->json([
                 'status' => false,
-                'message' => "Api key is missing"
+                'message' => "Api key is missing",
             ], 422);
-
         }
 
         if ($request->action == null) {
-
             return response()->json([
                 'status' => false,
-                'message' => "state can not be null"
+                'message' => "state can not be null",
             ], 422);
-
         }
 
+        $user = User::where('api_key', $request->api_key)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => "Wrong or incorrect api key",
+            ], 422);
+        }
 
-        if ($bal != null && $request->action == "balance") {
-
+        if ($request->action === 'balance') {
             return response()->json([
                 'status' => true,
-                'main_balance' => $bal
+                'main_balance' => (float) $user->wallet,
             ], 200);
-
         }
 
         return response()->json([
             'status' => false,
-            'message' => "Wrong or incorrect api key"
+            'message' => "Wrong or incorrect api key",
         ], 422);
-
-
     }
 
     public function get_world_countries(request $request)
@@ -323,10 +319,17 @@ class ApiController extends Controller
                         Verification::whereIn('id', $existingIds)->delete();
                     }
 
+                    $providerOrderId = (string) ($var['order_id'] ?? '');
+                    if ($providerOrderId === '') {
+                        throw new \Exception('Invalid provider response: missing order_id');
+                    }
+
+                    $debitRef = 'APIVerification ' . $providerOrderId;
+
                     $ver = Verification::create([
                         'user_id'    => $user->id,
                         'phone'      => $rentPhone,
-                        'order_id'   => $var['order_id'] ?? null,
+                        'order_id'   => $providerOrderId,
                         'country'    => $var['country'] ?? $request->country,
                         'service'    => $var['service'] ?? $request->service,
                         'expires_in' => $var['expires_in'] ?? 300,
@@ -340,7 +343,7 @@ class ApiController extends Controller
                     WalletCheck::where('user_id', $user->id)->decrement('wallet_amount', $ngnprice);
 
                     Transaction::create([
-                        'ref_id'      => "APIVerification " . $var['order_id'],
+                        'ref_id'      => $debitRef,
                         'user_id'     => $user->id,
                         'status'      => 2,
                         'amount'      => $ngnprice,
@@ -514,126 +517,137 @@ class ApiController extends Controller
 
     public function cancel_usa_number(Request $request)
     {
-        // Validate input
         $request->validate([
+            'api_key'  => 'required|string',
+            'action'   => 'nullable|string|in:cancel-usa-sms',
             'order_id' => 'nullable|integer',
-            'phone'    => 'nullable|string'
+            'phone'    => 'nullable|string',
         ]);
 
-        // Try to find order
-        $order = null;
-
-        if ($request->order_id) {
-            $order = Verification::where('id', $request->order_id)->first();
-        }
-
-        if (!$order && $request->phone) {
-            $order = Verification::where('phone', $request->phone)->first();
-        }
-
-        if (!$order) {
+        if (!$request->filled('order_id') && !$request->filled('phone')) {
             return response()->json([
                 'status'  => false,
-                'message' => "Order not found"
-            ]);
+                'message' => 'order_id or phone is required',
+            ], 422);
         }
 
-        // If already cancelled
-        if ($order->status == 2) {
+        $caller = User::where('api_key', $request->api_key)->first();
+        if (!$caller) {
             return response()->json([
                 'status'  => false,
-                'message' => "Order already cancelled"
-            ]);
+                'message' => 'Invalid API key',
+            ], 401);
         }
-
-        // If order is active
-        if ($order->status != 1) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Order cannot be cancelled at this stage"
-            ]);
-        }
-
-        // Call external cancel API
-        $corder = cancel_order($order->order_id);
-
-        if ($corder == 0) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Please wait and try again later"
-            ]);
-        }
-
-        if ($corder == 5) {
-            return response()->json([
-                'status'  => false,
-                'message' => "SMS already received. Cannot cancel."
-            ]);
-        }
-
-        if ($corder != 1) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Cancellation failed"
-            ]);
-        }
-
-        // Process refund safely
-        DB::beginTransaction();
 
         try {
+            $payload = DB::transaction(function () use ($request, $caller) {
+                $q = Verification::query()->where('user_id', $caller->id);
+                if ($request->filled('order_id')) {
+                    $q->where('id', $request->integer('order_id'));
+                } else {
+                    $q->where('phone', $request->input('phone'));
+                }
 
-            $user = User::lockForUpdate()->find($order->user_id);
+                $order = $q->lockForUpdate()->orderByDesc('id')->first();
+                if (!$order) {
+                    return ['http' => 404, 'body' => ['status' => false, 'message' => 'Order not found']];
+                }
 
-            if (!$user) {
-                DB::rollBack();
-                return response()->json([
-                    'status'  => false,
-                    'message' => "User not found"
+                $refundRef = 'API_ORDER_CANCEL_' . $order->id;
+                if (Transaction::where('ref_id', $refundRef)->exists()) {
+                    return [
+                        'http' => 200,
+                        'body' => ['status' => true, 'message' => 'ORDER ALREADY CANCELLED'],
+                    ];
+                }
+
+                // USA Server 1 API orders only (Hero-style pool); not world / unlimited.
+                if ((int) $order->type !== 1) {
+                    return [
+                        'http' => 400,
+                        'body' => ['status' => false, 'message' => 'This order cannot be cancelled via USA API cancel'],
+                    ];
+                }
+
+                if ((int) $order->status === 2) {
+                    return [
+                        'http' => 400,
+                        'body' => ['status' => false, 'message' => 'Order already completed (SMS received)'],
+                    ];
+                }
+
+                if ((int) $order->status !== 1) {
+                    return [
+                        'http' => 400,
+                        'body' => ['status' => false, 'message' => 'Order cannot be cancelled at this stage'],
+                    ];
+                }
+
+                $corder = cancel_order($order->order_id);
+
+                if ($corder == 0) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'Please wait and try again later'],
+                    ];
+                }
+
+                if ($corder == 5) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'SMS already received. Cannot cancel.'],
+                    ];
+                }
+
+                if ($corder != 1) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'Cancellation failed'],
+                    ];
+                }
+
+                $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+                if (!$user) {
+                    return ['http' => 500, 'body' => ['status' => false, 'message' => 'User not found']];
+                }
+
+                $old_balance = (float) $user->wallet;
+                $refund = (float) $order->cost;
+                $user->wallet = $old_balance + $refund;
+                $user->save();
+
+                WalletCheck::where('user_id', $user->id)->increment('wallet_amount', $refund);
+                WalletCheck::where('user_id', $user->id)->decrement('total_bought', $refund);
+
+                $new_balance = (float) $user->wallet;
+
+                Transaction::create([
+                    'ref_id'      => $refundRef,
+                    'user_id'     => $user->id,
+                    'status'      => 2,
+                    'amount'      => $refund,
+                    'balance'     => $new_balance,
+                    'old_balance' => $old_balance,
+                    'type'        => 3,
                 ]);
-            }
 
-            $old_balance = $user->wallet;
+                $order->delete();
 
-            // Refund wallet
-            $user->wallet += $order->cost;
-            $user->save();
-
-            // Update wallet check
-            WalletCheck::where('user_id', $user->id)
-                ->increment('wallet_amount', $order->cost);
-
-            $new_balance = $user->wallet;
-
-            // Log transaction
-            $trx = new Transaction();
-            $trx->ref_id = "API_ORDER_CANCEL_" . $order->id;
-            $trx->user_id = $user->id;
-            $trx->status = 2; // success
-            $trx->amount = $order->cost;
-            $trx->balance = $new_balance;
-            $trx->old_balance = $old_balance;
-            $trx->type = 3; // refund type
-            $trx->save();
-
-            $order->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => true,
-                'message' => "ORDER CANCELLED & REFUNDED"
-            ]);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
+                return [
+                    'http' => 200,
+                    'body' => ['status' => true, 'message' => 'ORDER CANCELLED & REFUNDED'],
+                ];
+            }, 3);
+        } catch (\Throwable $e) {
+            Log::error('cancel-usa-sms failed', ['e' => $e->getMessage()]);
 
             return response()->json([
                 'status'  => false,
-                'message' => "Something went wrong. Please try again."
-            ]);
+                'message' => 'Something went wrong. Please try again.',
+            ], 500);
         }
+
+        return response()->json($payload['body'], $payload['http']);
     }
 
 
@@ -688,6 +702,13 @@ class ApiController extends Controller
                     'status' => false,
                     'message' => "Invalid API Key"
                 ], 401);
+            }
+
+            if ($request->order_id === null || $request->order_id === '') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'order_id is required',
+                ], 422);
             }
 
             $ver = Verification::where('id', $request->order_id)
@@ -757,35 +778,55 @@ class ApiController extends Controller
 
 
         if ($request->action == "get-usa-sms") {
-
-
-            $ver = Verification::where('id', $request->order_id)->first() ?? null;
-            if ($ver) {
-
-                if ($ver->status == 1) {
-                    $sms_status = "PENDING";
-                } elseif ($ver->status == 2) {
-                    $sms_status = "COMPLETED";
-                } else {
-                    $sms_status = "REJECTED";
-                }
-
-
+            $user = User::where('api_key', $request->api_key)->first();
+            if (!$user) {
                 return response()->json([
-                    'status' => true,
-                    'sms_status' => $sms_status,
-                    'full_sms' => $ver->full_sms,
-                    'code' => $ver->sms,
-                    'country' => "USA",
-                    'service' => $ver->service,
-                    'phone' => $ver->phone,
-                ], 200);
-
+                    'status' => false,
+                    'message' => 'Invalid API Key',
+                ], 401);
             }
 
+            if ($request->order_id === null || $request->order_id === '') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'order_id is required',
+                ], 422);
+            }
+
+            $ver = Verification::where('id', $request->order_id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$ver) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order not found',
+                ], 404);
+            }
+
+            if ($ver->status == 1) {
+                $sms_status = 'PENDING';
+            } elseif ($ver->status == 2) {
+                $sms_status = 'COMPLETED';
+            } else {
+                $sms_status = 'REJECTED';
+            }
+
+            return response()->json([
+                'status'     => true,
+                'sms_status' => $sms_status,
+                'full_sms'   => $ver->full_sms,
+                'code'       => $ver->sms,
+                'country'    => 'USA',
+                'service'    => $ver->service,
+                'phone'      => $ver->phone,
+            ], 200);
         }
 
-
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid action',
+        ], 400);
     }
 
 
