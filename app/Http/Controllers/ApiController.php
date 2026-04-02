@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
@@ -371,6 +372,7 @@ class ApiController extends Controller
     public function cancel_world_number(Request $request)
     {
         $request->validate([
+            'api_key'  => 'required|string',
             'action'   => 'required|string',
             'order_id' => 'required|integer',
         ]);
@@ -382,104 +384,131 @@ class ApiController extends Controller
             ], 422);
         }
 
-        $order = Verification::where('id', $request->order_id)->first();
-        if (!$order) {
+        $caller = User::where('api_key', $request->api_key)->first();
+        if (!$caller) {
             return response()->json([
                 'status'  => false,
-                'message' => "Order not found",
-            ], 404);
+                'message' => "Invalid API key",
+            ], 401);
         }
-
-        // Only pending world/API orders can be cancelled/refunded
-        if ((int) $order->status !== 1 || !in_array((int) $order->type, [2, 8, 9, 10], true)) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Order cannot be cancelled at this stage",
-            ]);
-        }
-
-        $orderID = $order->order_id;
-        $can_order = cancel_world_order($orderID);
-
-        if ($can_order == 0) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Please wait and try again later",
-            ]);
-        }
-
-        if ($can_order == 5) {
-            return response()->json([
-                'status'  => false,
-                'message' => "SMS Found already",
-            ]);
-        }
-
-        if ($can_order == 3) {
-            // Provider says order not found / already removed – do not refund to avoid abuse.
-            return response()->json([
-                'status'  => false,
-                'message' => "Order no longer active on provider side",
-            ]);
-        }
-
-        if ($can_order != 1) {
-            return response()->json([
-                'status'  => false,
-                'message' => "Cancellation failed",
-            ]);
-        }
-
-        DB::beginTransaction();
 
         try {
-            $user = User::lockForUpdate()->find($order->user_id);
-            if (!$user) {
-                DB::rollBack();
-                return response()->json([
-                    'status'  => false,
-                    'message' => "User not found",
+            $result = DB::transaction(function () use ($request, $caller) {
+                $order = Verification::where('id', $request->order_id)->lockForUpdate()->first();
+                if (!$order) {
+                    return ['http' => 404, 'body' => ['status' => false, 'message' => 'Order not found']];
+                }
+
+                // Only the account that created the order may cancel via API (prevents arbitrary refunds).
+                if ((int) $order->user_id !== (int) $caller->id) {
+                    Log::warning('cancel-world-sms: api_key does not own order', [
+                        'verification_id' => (int) $order->id,
+                        'order_user_id' => (int) $order->user_id,
+                        'caller_id' => (int) $caller->id,
+                    ]);
+
+                    return ['http' => 403, 'body' => ['status' => false, 'message' => 'Order does not belong to this API key']];
+                }
+
+                $refundRefId = 'Order API Cancel ' . $order->id;
+
+                // Idempotent: refund already recorded — never credit twice.
+                if (Transaction::where('ref_id', $refundRefId)->exists()) {
+                    return [
+                        'http' => 200,
+                        'body' => ['status' => true, 'message' => 'ORDER ALREADY CANCELLED'],
+                    ];
+                }
+
+                if ((int) $order->status === 99) {
+                    return [
+                        'http' => 200,
+                        'body' => ['status' => true, 'message' => 'ORDER ALREADY CANCELLED'],
+                    ];
+                }
+
+                // Only pending world/API orders can be cancelled/refunded
+                if ((int) $order->status !== 1 || !in_array((int) $order->type, [2, 8, 9, 10], true)) {
+                    return [
+                        'http' => 400,
+                        'body' => ['status' => false, 'message' => 'Order cannot be cancelled at this stage'],
+                    ];
+                }
+
+                $orderID = $order->order_id;
+                $can_order = cancel_world_order($orderID);
+
+                if ($can_order == 0) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'Please wait and try again later'],
+                    ];
+                }
+
+                if ($can_order == 5) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'SMS Found already'],
+                    ];
+                }
+
+                if ($can_order == 3) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'Order no longer active on provider side'],
+                    ];
+                }
+
+                if ($can_order != 1) {
+                    return [
+                        'http' => 422,
+                        'body' => ['status' => false, 'message' => 'Cancellation failed'],
+                    ];
+                }
+
+                $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+                if (!$user) {
+                    return ['http' => 500, 'body' => ['status' => false, 'message' => 'User not found']];
+                }
+
+                $old_balance = (float) $user->wallet;
+                $refund = (float) $order->cost;
+                $user->wallet = $old_balance + $refund;
+                $user->save();
+
+                WalletCheck::where('user_id', $user->id)->increment('wallet_amount', $refund);
+                WalletCheck::where('user_id', $user->id)->decrement('total_bought', $refund);
+
+                $new_balance = (float) $user->wallet;
+
+                Transaction::create([
+                    'ref_id'      => $refundRefId,
+                    'user_id'     => $user->id,
+                    'status'      => 2,
+                    'amount'      => $refund,
+                    'balance'     => $new_balance,
+                    'old_balance' => $old_balance,
+                    'type'        => 3,
                 ]);
-            }
 
-            $old_balance = (float) $user->wallet;
-            $refund = (float) $order->cost;
-            $user->wallet = $old_balance + $refund;
-            $user->save();
+                $order->status = 99;
+                $order->save();
 
-            WalletCheck::where('user_id', $user->id)
-                ->increment('wallet_amount', $refund);
-
-            $new_balance = (float) $user->wallet;
-
-            $trx = new Transaction();
-            $trx->ref_id = "Order API Cancel " . $order->id;
-            $trx->user_id = $user->id;
-            $trx->status = 2;
-            $trx->amount = $refund;
-            $trx->balance = $new_balance;
-            $trx->old_balance = $old_balance;
-            $trx->type = 3;
-            $trx->save();
-
-            // Mark as cancelled instead of deleting, so it can't be cancelled twice.
-            $order->status = 99;
-            $order->save();
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => true,
-                'message' => "ORDER CANCELLED",
-            ]);
+                return [
+                    'http' => 200,
+                    'body' => ['status' => true, 'message' => 'ORDER CANCELLED'],
+                ];
+            }, 3);
         } catch (\Throwable $e) {
-            DB::rollBack();
+            Log::error('cancel-world-sms failed', ['e' => $e->getMessage()]);
 
             return response()->json([
                 'status'  => false,
-                'message' => "Could not cancel order",
+                'message' => 'Could not cancel order',
             ], 500);
         }
+
+        return response()->json($result['body'], $result['http']);
     }
 
 
