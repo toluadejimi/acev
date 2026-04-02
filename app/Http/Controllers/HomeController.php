@@ -1232,8 +1232,13 @@ class HomeController extends Controller
             return response()->json(['ok' => false, 'message' => 'activation not found'], 404);
         }
 
-        $smsCode = $code !== null && (string) $code !== '' ? (string) $code : '';
-        $fullSms = ($text !== null && (string) $text !== '') ? (string) $text : $smsCode;
+        $smsCode = $code !== null && (string) $code !== '' ? trim((string) $code) : '';
+        $textTrim = $text !== null ? trim((string) $text) : '';
+        if ($smsCode === '' && $textTrim === '') {
+            return response()->json(['ok' => false, 'message' => 'code or text required'], 400);
+        }
+
+        $fullSms = $textTrim !== '' ? $textTrim : $smsCode;
 
         Verification::where('id', $ver->id)->update([
             'sms' => $smsCode !== '' ? $smsCode : $ver->sms,

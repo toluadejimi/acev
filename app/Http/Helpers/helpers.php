@@ -724,12 +724,22 @@ function check_sms($orderID)
 
         $status = Verification::where('order_id', $orderID)->first() ?? null;
         if ($status) {
-            $parts = explode(":", $result);
-            $text = $parts[0];
-            $sms = $parts[1];
+            // sms-activate / Hero-style: STATUS_OK:code (code may contain ':').
+            // Do not mark completed on bare STATUS_OK or empty payload — same guard as USA2 Unlimited read_sms.
+            $raw = trim((string) $result);
+            $sms = '';
+            if (preg_match('/STATUS_OK\s*:\s*(.+)/s', $raw, $m)) {
+                $sms = trim($m[1]);
+            }
 
-            $data['sms'] = $sms;
-            $data['full_sms'] = $sms;
+            if ($sms === '') {
+                Log::info('check_sms: STATUS_OK without usable code, still waiting', [
+                    'order_id' => (string) $orderID,
+                    'response_preview' => strlen($raw) > 200 ? substr($raw, 0, 200) . '…' : $raw,
+                ]);
+
+                return 2;
+            }
 
             Verification::where('order_id', $orderID)->update([
                 'status' => 2,
