@@ -504,6 +504,7 @@
                                                                         const extraList = document.getElementById(`extraSmsList${id}`);
                                                                         let countdownTimer = null;
                                                                         let lastCodes = [];
+                                                                        let smsClickBound = false;
 
                                                                         const mainUrl = type === 3
                                                                             ? `{{ url('get-smscode-usa2') }}?num=${phone}`
@@ -551,12 +552,16 @@
                                                                                         copySmsBtn.hidden = false;
                                                                                         copySmsBtn.setAttribute('data-copy', otp);
                                                                                     }
-                                                                                    smsSpan.addEventListener('click', () => {
-                                                                                        navigator.clipboard.writeText(otp).then(() => {
-                                                                                            smsSpan.innerHTML = otp + ' <i class="bi bi-check2 text-success"></i>';
-                                                                                            setTimeout(() => smsSpan.textContent = otp, 500);
+                                                                                    if (!smsClickBound) {
+                                                                                        smsClickBound = true;
+                                                                                        smsSpan.addEventListener('click', () => {
+                                                                                            const code = vfExtractOtp(smsSpan.textContent) || String(smsSpan.textContent || '').trim();
+                                                                                            navigator.clipboard.writeText(code).then(() => {
+                                                                                                smsSpan.innerHTML = code + ' <i class="bi bi-check2 text-success"></i>';
+                                                                                                setTimeout(() => { smsSpan.textContent = code; }, 500);
+                                                                                            });
                                                                                         });
-                                                                                    });
+                                                                                    }
 
                                                                                     if (countdownTimer) clearInterval(countdownTimer);
                                                                                     vfMarkUsa2RowCompleted();
@@ -574,10 +579,15 @@
                                                                                 const result = await res.json();
                                                                                 const messages = Array.isArray(result) ? result : result.codes || [];
 
-                                                                                const valid = messages
+                                                                                let valid = messages
                                                                                     .map(m => (m && typeof m === 'object') ? (m.sms ?? m.full_sms ?? '') : m)
                                                                                     .map(v => vfExtractOtp(String(v || '')))
                                                                                     .filter(Boolean);
+                                                                                valid = [...new Set(valid)];
+                                                                                const mainOtp = (smsSpan && smsSpan.textContent) ? vfExtractOtp(smsSpan.textContent) : '';
+                                                                                if (mainOtp) {
+                                                                                    valid = valid.filter(c => c !== mainOtp);
+                                                                                }
 
                                                                                 if (valid.length > 0) {
                                                                                     loader.classList.add('d-none');
@@ -597,15 +607,19 @@
                                                                                         });
                                                                                         lastCodes = valid;
                                                                                     }
+                                                                                } else {
+                                                                                    extraList.classList.add('d-none');
+                                                                                    extraList.innerHTML = '';
+                                                                                    lastCodes = [];
                                                                                 }
                                                                             } catch (err) {
                                                                                 console.error('[EXTRA FETCH ERROR]', err);
                                                                             }
                                                                         }
 
-                                                                        function updateAll() {
-                                                                            fetchMainSMS();
-                                                                            fetchExtraCodes();
+                                                                        async function updateAll() {
+                                                                            await fetchMainSMS();
+                                                                            await fetchExtraCodes();
                                                                         }
 
                                                                         const vfPollMs = 60000;

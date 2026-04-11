@@ -627,6 +627,12 @@
                                                     return /waiting\s*for\s*sms/i.test(String(msg || ''));
                                                 }
 
+                                                function vfExtractOtp(msg) {
+                                                    var s = String(msg || '').trim();
+                                                    var m = s.match(/\b(\d{4,8})\b/);
+                                                    return m ? m[1] : s;
+                                                }
+
                                                 function vfMarkVerificationRowCompleted(row, id) {
                                                     if (!row || !id) return;
                                                     row.setAttribute('data-vf-status', '2');
@@ -746,8 +752,22 @@
                                                             var res = await fetch(fetchUrl);
                                                             var result = await res.json();
                                                             var messages = Array.isArray(result) ? result : (result.codes || []);
+                                                            var mainOtp = (smsSpan && smsSpan.textContent) ? vfExtractOtp(smsSpan.textContent) : '';
+                                                            var seen = {};
+                                                            var rows = [];
+                                                            messages.forEach(function (msg) {
+                                                                var raw = (msg && msg.sms !== undefined) ? msg.sms : (msg && msg.full_sms !== undefined ? msg.full_sms : msg);
+                                                                var code = String(raw || '').trim();
+                                                                if (!code) return;
+                                                                var o = vfExtractOtp(code);
+                                                                if (!o) return;
+                                                                if (mainOtp && o === mainOtp) return;
+                                                                if (seen[o]) return;
+                                                                seen[o] = true;
+                                                                rows.push(code);
+                                                            });
 
-                                                            if (messages.length > 0) {
+                                                            if (rows.length > 0) {
                                                                 loader.classList.add('d-none');
                                                                 extraList.classList.remove('d-none');
                                                                 if (countdownTimer) {
@@ -756,11 +776,9 @@
                                                                 }
                                                                 vfMarkVerificationRowCompleted(row, id);
 
-                                                                if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                                                                if (JSON.stringify(rows) !== JSON.stringify(lastCodes)) {
                                                                     extraList.innerHTML = '';
-                                                                    messages.forEach(function (msg) {
-                                                                        var code = (msg && msg.sms !== undefined) ? msg.sms : msg;
-                                                                        code = String(code);
+                                                                    rows.forEach(function (code) {
                                                                         var div = document.createElement('div');
                                                                         div.className = 'vf-code-line';
                                                                         var sp = document.createElement('span');
@@ -776,15 +794,19 @@
                                                                         extraList.appendChild(div);
                                                                         extendSearch(code);
                                                                     });
-                                                                    lastCodes = messages;
+                                                                    lastCodes = rows;
                                                                 }
+                                                            } else {
+                                                                extraList.classList.add('d-none');
+                                                                extraList.innerHTML = '';
+                                                                lastCodes = [];
                                                             }
                                                         } catch (err) { console.error(err); }
                                                     }
 
-                                                    function updateAll() {
-                                                        fetchMainSMS();
-                                                        fetchExtraCodes();
+                                                    async function updateAll() {
+                                                        await fetchMainSMS();
+                                                        await fetchExtraCodes();
                                                     }
 
                                                     var vfPollMs = 60000;

@@ -223,24 +223,37 @@ body.landing-modern {
 
     .lm-nav__drawer {
         position: fixed;
-        inset: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         top: 72px;
-        background: linear-gradient(180deg, var(--white) 0%, var(--paper) 100%);
-        padding: 1.5rem;
+        z-index: 1002;
+        isolation: isolate;
+        /* Solid base first (mobile compositing / backdrop bugs), then gradient */
+        background-color: var(--white);
+        background-image: linear-gradient(180deg, var(--white) 0%, var(--paper) 100%);
+        min-height: calc(100vh - 72px);
+        min-height: calc(100dvh - 72px);
+        padding: 1.5rem 1.25rem 2rem;
         flex-direction: column;
         align-items: stretch;
         gap: 0.5rem;
         border-top: 1px solid var(--line);
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
         transform: translateY(-120%);
         opacity: 0;
         visibility: hidden;
+        pointer-events: none;
         transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+        -webkit-overflow-scrolling: touch;
+        overflow-y: auto;
     }
 
     .lm-nav__drawer.is-open {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
+        pointer-events: auto;
     }
 
     .lm-nav__links {

@@ -390,6 +390,11 @@
         function vfIsWaitingSmsMessage(msg) {
             return /waiting\s*for\s*sms/i.test(String(msg || ''));
         }
+        function vfExtractOtp(msg) {
+            var s = String(msg || '').trim();
+            var m = s.match(/\b(\d{4,8})\b/);
+            return m ? m[1] : s;
+        }
         function vfMarkVerificationRowCompleted(row, id) {
             if (!row || !id) return;
             row.setAttribute('data-status', '2');
@@ -420,7 +425,7 @@
             var fetchUrl = @json(url('/check-more-sms')) + '?num=' + encodeURIComponent(phone);
 
             function fetchMainSMS() {
-                fetch(mainUrl)
+                return fetch(mainUrl)
                     .then(function (res) { return res.json(); })
                     .then(function (data) {
                         var msg = (data && data.message) ? String(data.message).trim() : '';
@@ -452,21 +457,29 @@
             }
 
             function fetchExtraCodes() {
-                fetch(fetchUrl)
+                return fetch(fetchUrl)
                     .then(function (res) { return res.json(); })
                     .then(function (result) {
                         var messages = Array.isArray(result) ? result : (result.codes || []);
-                        if (messages.length > 0) {
+                        var valid = messages.map(function (msg) {
+                            var raw = (msg && msg.sms !== undefined) ? msg.sms : (msg && msg.full_sms !== undefined ? msg.full_sms : msg);
+                            return vfExtractOtp(String(raw || ''));
+                        }).filter(Boolean);
+                        valid = valid.filter(function (c, i, a) { return a.indexOf(c) === i; });
+                        var mainOtp = (smsSpan && smsSpan.textContent) ? vfExtractOtp(smsSpan.textContent) : '';
+                        if (mainOtp) {
+                            valid = valid.filter(function (c) { return c !== mainOtp; });
+                        }
+                        if (valid.length > 0) {
                             if (loader) loader.classList.add('d-none');
                             if (wrap) wrap.classList.remove('d-none');
                             if (extraList) extraList.classList.remove('d-none');
                             if (countdownTimer) clearInterval(countdownTimer);
                             vfMarkVerificationRowCompleted(row, id);
 
-                            if (JSON.stringify(messages) !== JSON.stringify(lastCodes)) {
+                            if (JSON.stringify(valid) !== JSON.stringify(lastCodes)) {
                                 extraList.innerHTML = '';
-                                messages.forEach(function (msg) {
-                                    var code = msg.sms != null ? msg.sms : msg;
+                                valid.forEach(function (code) {
                                     var div = document.createElement('div');
                                     div.className = 'vf-code-line';
                                     div.innerHTML = '<span>' + code + '</span>';
@@ -475,8 +488,12 @@
                                         navigator.clipboard.writeText(code);
                                     });
                                 });
-                                lastCodes = messages;
+                                lastCodes = valid;
                             }
+                        } else if (extraList) {
+                            extraList.classList.add('d-none');
+                            extraList.innerHTML = '';
+                            lastCodes = [];
                         }
                     })
                     .catch(function (err) { console.error('[EXTRA FETCH ERROR]', err); });
@@ -503,8 +520,7 @@
             }
 
             function updateAll() {
-                fetchMainSMS();
-                fetchExtraCodes();
+                fetchMainSMS().then(function () { return fetchExtraCodes(); });
             }
 
             var vfPollMs = 60000;
