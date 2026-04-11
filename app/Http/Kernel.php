@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
         'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
+        'landing.turnstile' => \App\Http\Middleware\EnsureLandingTurnstile::class,
     ];
 
 

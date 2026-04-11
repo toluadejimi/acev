@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LandingHumanController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UnlimitedPortalController;
 use App\Http\Controllers\VtuBillsController;
@@ -53,7 +54,10 @@ Route::get('logs', [LogViewerController::class, 'index']);
 
 //auth
 
-Route::get('/',  [HomeController::class,'index']);
+Route::get('human-check', [LandingHumanController::class, 'show'])->name('landing.human-check');
+Route::post('human-check', [LandingHumanController::class, 'verify'])->name('landing.human-check.verify');
+
+Route::get('/',  [HomeController::class,'index'])->middleware('landing.turnstile');
 Route::any('generate-account',  [HomeController::class,'generate_account']);
 
 

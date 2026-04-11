@@ -36,6 +36,7 @@ return [
         'turnstile' => [
             'site_key' => env('TURNSTILE_SITE_KEY'),
             'site_secret' => env('TURNSTILE_SITE_SECRET'),
+            'landing_gate' => env('LANDING_TURNSTILE_GATE', true),
         ],
     ],
 

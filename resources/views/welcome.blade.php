@@ -4,7 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ url('/') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="{{ config('app.name', 'Ace') }} — VTU &amp; SMS verification">
+    <meta property="og:description" content="VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ config('app.name', 'Ace') }} — VTU & SMS verification">
+    <meta name="twitter:description" content="VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.">
     <title>{{ config('app.name', 'Ace') }} — VTU &amp; SMS verification</title>
+    <script type="application/ld+json">
+@json([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebSite',
+    'name' => config('app.name', 'Ace'),
+    'url' => url('/'),
+    'description' => 'VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.',
+])
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
