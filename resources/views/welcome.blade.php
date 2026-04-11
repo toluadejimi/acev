@@ -16,13 +16,13 @@
     <meta name="twitter:description" content="VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.">
     <title>{{ config('app.name', 'Ace') }} — VTU &amp; SMS verification</title>
     <script type="application/ld+json">
-@json([
-    '@context' => 'https://schema.org',
-    '@type' => 'WebSite',
+{!! json_encode([
+    "\x40context" => 'https://schema.org',
+    "\x40type" => 'WebSite',
     'name' => config('app.name', 'Ace'),
     'url' => url('/'),
     'description' => 'VTU airtime & data, plus reliable SMS verification numbers. Fund your wallet, order in seconds.',
-])
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES) !!}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
